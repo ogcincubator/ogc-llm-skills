@@ -59,7 +59,8 @@ Start here and follow links for the topic you need:
 | File | What questions it answers |
 |------|--------------------------|
 | [quickstart.md](quickstart.md) | How do I create a new bblocks repo and author my first block? |
-| [structure.md](structure.md) | What files go where? How are identifiers constructed? |
+| [register-config.md](register-config.md) | Full `bblocks-config.yaml` reference: identifier prefix, imports, viewer depth, SPARQL push endpoint and GitHub Secrets auth. |
+| [structure.md](structure.md) | What files go where? How are identifiers constructed? Also use as a file-to-doc index: each source file in the directory tree links to the skill doc that covers it. |
 | [metadata.md](metadata.md) | What fields does `bblock.json` accept? Which are required? |
 | [schema.md](schema.md) | How do I write or reference a JSON Schema for a block? How do I annotate it semantically? |
 | [examples.md](examples.md) | How do I write examples? How do they feed into docs and validation? |

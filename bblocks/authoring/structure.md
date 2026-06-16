@@ -4,48 +4,37 @@
 
 ```
 my-bblocks-repo/
-  bblocks-config.yaml      # register-level configuration (required)
-  bblocks-config-local.yml # local URL mappings for testing (gitignored, optional)
-  _sources/                # all block source files live here
+  bblocks-config.yaml        # register-level config → register-config.md
+  bblocks-config-local.yml   # local URL mappings for testing (gitignored) → see below
+  build.sh                   # convenience wrapper: runs postprocessor via Docker → local-iteration.md
+  view.sh                    # launches the bblocks viewer against build-local/ → local-iteration.md
+  .volumes                   # extra Docker volume mounts for build.sh (gitignored, optional)
+  docker-compose.yml         # alternative to build.sh / view.sh
+  .github/
+    workflows/
+      process-bblocks.yml    # CI: runs postprocessor and deploys to GitHub Pages; add SPARQL secrets here → register-config.md
+  _sources/                  # all block source files live here
     group1/
       my-block/
-        bblock.json        # block metadata (required)
-        schema.yaml        # JSON Schema (optional)
-        context.jsonld     # JSON-LD context (optional)
-        shapes.ttl         # SHACL shapes (optional)
-        examples.yaml      # examples (optional)
-        tests.yaml         # explicit test resources (optional)
-        tests/             # auto-detected test files (optional)
-        transforms.yaml    # transforms (optional)
-        semantic-uplift.yaml # semantic uplift config (optional)
-        assets/            # static files (images, etc.) — optional, no fixed name required
-        description.md     # long-form Markdown documentation (optional)
-  build/                   # NEVER edit — postprocessor output (tracked by git for CI publishing)
+        bblock.json          # block metadata → metadata.md
+        schema.yaml          # JSON Schema → schema.md
+        context.jsonld       # JSON-LD context → semantic/context.md
+        shapes.ttl           # SHACL shapes → semantic/shacl.md
+        examples.yaml        # examples → examples.md
+        tests.yaml           # explicit test resources → tests.md
+        tests/               # auto-detected test files → tests.md
+        transforms.yaml      # transforms → transforms.md
+        semantic-uplift.yaml # semantic uplift config → semantic/uplift.md
+        assets/              # static files (images, etc.) — no fixed name required
+        description.md       # long-form Markdown block docs → metadata.md
+  build/                     # NEVER edit — postprocessor output committed for CI/GitHub Pages → outputs.md
+  build-local/               # gitignored local postprocessor output; inspect here when iterating locally → local-iteration.md, outputs.md
 ```
 
 ## `bblocks-config.yaml`
 
-Register-level configuration. Key fields:
-
-```yaml
-name: My Register                     # short display name
-identifier-prefix: myorg.myproject.   # dot-separated prefix ending with "."
-imports:
-  - default                           # the main OGC register; or a URL to register.json
-abstract: |
-  A short description of this register.
-```
-
-`imports` controls which other registers are available for `$ref` resolution via the `bblocks://` scheme
-and for inheriting JSON-LD contexts and SHACL shapes. If `imports` is omitted, the main OGC register
-is imported by default. Use an empty array `[]` to import nothing.
-
-The `viewer` sub-key controls how the Building Blocks Viewer displays imported blocks:
-
-```yaml
-viewer:
-  show-imported-depth: 0   # 0 = local only; 1+ = N levels deep; -1 = all
-```
+Register-level configuration (identifier prefix, imports, viewer depth, SPARQL push).
+Full field reference: [register-config.md](register-config.md).
 
 ## Identifier construction
 

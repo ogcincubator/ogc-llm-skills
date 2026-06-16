@@ -38,7 +38,7 @@ docker run --pull=always --rm --workdir /workspace \
 | `--log-file` | (none) | Write log output to a file in addition to stdout |
 | `--deploy-viewer` | `false` | Deploy the JavaScript viewer alongside the register |
 | `--viewer-path` | `.` | Directory where the viewer is deployed |
-| `--enable-sparql` | `false` | Push the register to a SPARQL endpoint (requires `sparql` config in `bblocks-config.yaml`) |
+| `--enable-sparql` | `false` | Push the register to a SPARQL endpoint (requires `sparql` config in `bblocks-config.yaml` — see [register-config.md](register-config.md)) |
 
 ---
 
