@@ -133,6 +133,70 @@ manifest = {
 print("  wrote: manifest.json")
 
 
+# install-skill.js — Node.js fallback for environments without curl/unzip
+install_script = """\
+// Downloads and extracts an OGC LLM Skills zip using only Node.js built-ins.
+// Usage: node install-skill.js <zip-url> <dest-dir>
+// Handles deflate and stored zip entries; no external dependencies required.
+const https = require("https");
+const fs = require("fs");
+const path = require("path");
+const zlib = require("zlib");
+
+function extractZip(buf, destDir) {
+  let off = 0;
+  while (off + 30 < buf.length) {
+    if (buf.readUInt32LE(off) !== 0x04034b50) break;
+    const method  = buf.readUInt16LE(off + 8);
+    const csize   = buf.readUInt32LE(off + 18);
+    const fnLen   = buf.readUInt16LE(off + 26);
+    const exLen   = buf.readUInt16LE(off + 28);
+    const name    = buf.slice(off + 30, off + 30 + fnLen).toString();
+    const dataOff = off + 30 + fnLen + exLen;
+    const entry   = buf.slice(dataOff, dataOff + csize);
+    const outPath = path.join(destDir, name);
+    if (name.endsWith("/")) {
+      fs.mkdirSync(outPath, { recursive: true });
+    } else {
+      fs.mkdirSync(path.dirname(outPath), { recursive: true });
+      fs.writeFileSync(outPath, method === 8 ? zlib.inflateRawSync(entry) : entry);
+    }
+    off = dataOff + csize;
+  }
+}
+
+const [zipUrl, destDir] = process.argv.slice(2);
+if (!zipUrl || !destDir) {
+  console.error("Usage: node install-skill.js <zip-url> <dest-dir>");
+  process.exit(1);
+}
+
+function bail(e) { console.error(e.message); process.exit(1); }
+
+function handleResponse(res) {
+  if (res.statusCode !== 200) {
+    console.error(`HTTP ${res.statusCode}`); process.exit(1);
+  }
+  const chunks = [];
+  res.on("data", c => chunks.push(c));
+  res.on("end", () => {
+    fs.mkdirSync(destDir, { recursive: true });
+    extractZip(Buffer.concat(chunks), destDir);
+    console.log("done");
+  });
+}
+
+https.get(zipUrl, res => {
+  if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+    https.get(res.headers.location, handleResponse).on("error", bail);
+    return;
+  }
+  handleResponse(res);
+}).on("error", bail);
+"""
+(out_dir / "install-skill.js").write_text(install_script, encoding="utf-8")
+print("  wrote: install-skill.js")
+
 # llms.txt — plain Markdown entrypoint for LLMs (llmstxt.org convention)
 skill_lines = "\n".join(
     f"- [{s['name']}]({site_url}/{s['zip']}): {s['description']}" for s in skills
@@ -153,10 +217,18 @@ mkdir -p ~/.claude/skills/<skill-name>
 unzip /path/to/<skill-name>.zip -d ~/.claude/skills/<skill-name>
 ```
 
-Requires `unzip` and either `curl` or `wget`. If those are not available in
-your environment (e.g. a minimal container), you will need to write a Node.js
-script using the built-in `zlib` and `https` modules to download and decompress
-the zip.
+Before proceeding, check that the required tools are available:
+
+```
+which curl unzip   # or: which wget unzip
+```
+
+If either is missing, download `{site_url}/install-skill.js` and run it instead
+(uses only Node.js built-ins — no external dependencies):
+
+```
+node install-skill.js <zip-url> ~/.claude/skills/<skill-name>
+```
 
 After extraction, verify success by confirming that
 `~/.claude/skills/<skill-name>/SKILL.md` exists and its `name:` frontmatter
