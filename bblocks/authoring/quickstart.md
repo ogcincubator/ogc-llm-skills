@@ -14,7 +14,16 @@ For reference documentation see [structure.md](structure.md), [metadata.md](meta
 
 ---
 
-## 2. Configure the register
+## 2. Clone the repository locally
+
+```bash
+git clone https://github.com/<your-org>/<your-repo>.git
+cd <your-repo>
+```
+
+---
+
+## 3. Configure the register
 
 Edit `bblocks-config.yaml`:
 
@@ -37,7 +46,7 @@ Example: prefix `myorg.myproject.` + directory `_sources/geom/point/bblock.json`
 
 ---
 
-## 3. Create a block directory
+## 4. Create a block directory
 
 Inside `_sources/`, create a directory for your block. Its path becomes part of the identifier:
 
@@ -52,7 +61,7 @@ _sources/
 
 ---
 
-## 4. Write the metadata (`bblock.json`)
+## 5. Write the metadata (`bblock.json`)
 
 ```json
 {
@@ -70,7 +79,7 @@ See [metadata.md](metadata.md) for the full field reference.
 
 ---
 
-## 5. Write the schema (`schema.yaml`)
+## 6. Write the schema (`schema.yaml`)
 
 ```yaml
 "$schema": https://json-schema.org/draft/2020-12/schema
@@ -96,7 +105,7 @@ annotations with `x-jsonld-*` properties.
 
 ---
 
-## 6. Add examples (`examples.yaml`)
+## 7. Add examples (`examples.yaml`)
 
 ```yaml
 examples:
@@ -120,7 +129,7 @@ See [examples.md](examples.md) for the full format.
 
 ---
 
-## 7. Test locally
+## 8. Test locally
 
 ```bash
 docker run --pull=always --rm --workdir /workspace \
@@ -142,7 +151,7 @@ Use `--log-level DEBUG` on the postprocessor for verbose output when debugging.
 
 ---
 
-## 8. Commit and push
+## 9. Commit and push
 
 The GitHub Actions workflow in the template will run automatically on push, post-process all blocks,
 and deploy the output to GitHub Pages.
