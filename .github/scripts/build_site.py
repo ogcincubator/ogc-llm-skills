@@ -266,22 +266,80 @@ To check whether installed skills are up to date:
 print("  wrote: llms.txt")
 
 
+def install_block(unix_cmd: str, win_cmd: str) -> str:
+    unix_esc = html_lib.escape(unix_cmd)
+    win_esc = html_lib.escape(win_cmd)
+    unix_attr = html_lib.escape(unix_cmd, quote=True)
+    win_attr = html_lib.escape(win_cmd, quote=True)
+    return f"""\
+  <div class="install-block">
+    <div class="install-header">
+      <span class="install-title">Install on Claude Code</span>
+      <div class="os-tabs">
+        <button class="os-tab" data-os="unix">macOS / Linux</button>
+        <button class="os-tab" data-os="win">Windows</button>
+      </div>
+    </div>
+    <div class="install-cmd" data-os="unix">
+      <code>{unix_esc}</code>
+      <button class="copy-btn" data-clipboard="{unix_attr}">Copy</button>
+    </div>
+    <div class="install-cmd" data-os="win">
+      <code>{win_esc}</code>
+      <button class="copy-btn" data-clipboard="{win_attr}">Copy</button>
+    </div>
+  </div>"""
+
+
 def skill_card(s: dict) -> str:
     name = html_lib.escape(s["name"])
     desc = html_lib.escape(s["description"])
     url = f"{s['zip']}?v={short_sha}"
     filename = html_lib.escape(s["zip"])
+    zip_url = f"{site_url}/{s['zip']}"
+    skill_name = s["name"]
+    zip_name_esc = s["zip"]
+    unix_cmd = (
+        f"mkdir -p ~/.claude/skills/{skill_name} && "
+        f"curl -fsSL \"{zip_url}\" -o /tmp/{zip_name_esc} && "
+        f"unzip -q /tmp/{zip_name_esc} -d ~/.claude/skills/{skill_name}"
+    )
+    win_cmd = (
+        f"New-Item -ItemType Directory -Force -Path "
+        f"\"$env:USERPROFILE\\.claude\\skills\\{skill_name}\" | Out-Null; "
+        f"Invoke-WebRequest -Uri \"{zip_url}\" "
+        f"-OutFile \"$env:TEMP\\{zip_name_esc}\"; "
+        f"Expand-Archive -Path \"$env:TEMP\\{zip_name_esc}\" "
+        f"-DestinationPath \"$env:USERPROFILE\\.claude\\skills\\{skill_name}\" -Force"
+    )
+    block = install_block(unix_cmd, win_cmd)
     return f"""\
   <div class="skill">
     <h2>{name}</h2>
     <p>{desc}</p>
     <a class="download" href="{url}" download>{filename}</a>
+{block}
   </div>"""
 
 
 cards = "\n".join(skill_card(s) for s in skills)
 
 fat_url = f"{fat_zip_name}?v={short_sha}"
+fat_zip_url = f"{site_url}/{fat_zip_name}"
+fat_unix_cmd = (
+    f"mkdir -p ~/.claude/skills && "
+    f"curl -fsSL \"{fat_zip_url}\" -o /tmp/{fat_zip_name} && "
+    f"unzip -q /tmp/{fat_zip_name} -d ~/.claude/skills/"
+)
+fat_win_cmd = (
+    f"New-Item -ItemType Directory -Force -Path "
+    f"\"$env:USERPROFILE\\.claude\\skills\" | Out-Null; "
+    f"Invoke-WebRequest -Uri \"{fat_zip_url}\" "
+    f"-OutFile \"$env:TEMP\\{fat_zip_name}\"; "
+    f"Expand-Archive -Path \"$env:TEMP\\{fat_zip_name}\" "
+    f"-DestinationPath \"$env:USERPROFILE\\.claude\\skills\" -Force"
+)
+fat_block = install_block(fat_unix_cmd, fat_win_cmd)
 
 index_html = f"""\
 <!DOCTYPE html>
@@ -296,13 +354,27 @@ index_html = f"""\
     .intro {{ color: #444; line-height: 1.6; }}
     .agent-tip {{ margin: 1rem 0 1.5rem; padding: 0.65rem 1rem; background: #fff8e1; border: 1px solid #f0c040; border-radius: 6px; font-size: 0.9rem; color: #555; line-height: 1.5; }}
     .agent-tip code {{ background: #f3f3f3; padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.88em; }}
-    .all-skills {{ margin: 1.5rem 0; padding: 0.75rem 1.25rem; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }}
-    .all-skills p {{ margin: 0; color: #555; font-size: 0.95rem; }}
+    .all-skills {{ margin: 1.5rem 0; padding: 0.75rem 1.25rem; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; }}
+    .all-skills-top {{ display: flex; align-items: center; justify-content: space-between; gap: 1rem; }}
+    .all-skills-top p {{ margin: 0; color: #555; font-size: 0.95rem; }}
     .skill {{ margin: 1.5rem 0; padding: 1rem 1.25rem; border: 1px solid #ddd; border-radius: 6px; }}
     .skill h2 {{ margin: 0 0 0.4rem; font-size: 1.05rem; font-family: monospace; }}
     .skill p {{ margin: 0 0 0.75rem; color: #555; font-size: 0.95rem; line-height: 1.5; }}
     a.download {{ display: inline-block; padding: 0.35rem 0.85rem; background: #0969da; color: #fff; border-radius: 4px; text-decoration: none; font-size: 0.9rem; white-space: nowrap; }}
     a.download:hover {{ background: #0550ae; }}
+    .install-block {{ margin-top: 0.85rem; }}
+    .install-header {{ display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem; }}
+    .install-title {{ font-size: 0.82rem; font-weight: 600; color: #444; }}
+    .os-tabs {{ display: flex; border: 1px solid #d0d7de; border-radius: 4px; overflow: hidden; }}
+    .os-tab {{ padding: 0.18rem 0.6rem; font-size: 0.75rem; background: #fff; border: none; border-right: 1px solid #d0d7de; cursor: pointer; color: #555; line-height: 1.6; }}
+    .os-tab:last-child {{ border-right: none; }}
+    .os-tab.active {{ background: #0969da; color: #fff; }}
+    .os-tab:hover:not(.active) {{ background: #f0f0f0; }}
+    .install-cmd {{ position: relative; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 4px; padding: 0.5rem 4rem 0.5rem 0.75rem; overflow-x: auto; }}
+    .install-cmd.hidden {{ display: none; }}
+    .install-cmd code {{ font-size: 0.78rem; white-space: pre; font-family: ui-monospace, monospace; }}
+    .copy-btn {{ position: absolute; top: 0.35rem; right: 0.4rem; padding: 0.15rem 0.55rem; font-size: 0.72rem; background: #fff; border: 1px solid #d0d7de; border-radius: 3px; cursor: pointer; color: #555; white-space: nowrap; }}
+    .copy-btn:hover {{ background: #f0f0f0; }}
     footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #eee; font-size: 0.8rem; color: #999; }}
     footer a {{ color: #999; }}
   </style>
@@ -322,14 +394,42 @@ index_html = f"""\
     the skills you need.
   </p>
   <div class="all-skills">
-    <p>Download all skills in one zip — extract into <code>~/.claude/skills/</code> to install everything at once.</p>
-    <a class="download" href="{fat_url}" download>{fat_zip_name}</a>
+    <div class="all-skills-top">
+      <p>Download all skills in one zip — installs everything at once.</p>
+      <a class="download" href="{fat_url}" download>{fat_zip_name}</a>
+    </div>
+{fat_block}
   </div>
 {cards}
   <footer>
     Built from <a href="{repo_url}/commit/{sha}">{short_sha}</a>
     &middot; <a href="{repo_url}">GitHub</a>
   </footer>
+  <script>
+    var OS_KEY = "ogc-skills-os";
+    function setOS(os) {{
+      localStorage.setItem(OS_KEY, os);
+      document.querySelectorAll(".os-tab").forEach(function(t) {{
+        t.classList.toggle("active", t.dataset.os === os);
+      }});
+      document.querySelectorAll(".install-cmd").forEach(function(el) {{
+        el.classList.toggle("hidden", el.dataset.os !== os);
+      }});
+    }}
+    document.querySelectorAll(".os-tab").forEach(function(btn) {{
+      btn.addEventListener("click", function() {{ setOS(btn.dataset.os); }});
+    }});
+    setOS(localStorage.getItem(OS_KEY) || "unix");
+    document.querySelectorAll(".copy-btn").forEach(function(btn) {{
+      btn.addEventListener("click", function() {{
+        navigator.clipboard.writeText(btn.dataset.clipboard).then(function() {{
+          var orig = btn.textContent;
+          btn.textContent = "Copied!";
+          setTimeout(function() {{ btn.textContent = orig; }}, 1500);
+        }});
+      }});
+    }});
+  </script>
 </body>
 </html>
 """
