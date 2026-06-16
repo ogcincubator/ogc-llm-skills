@@ -1,15 +1,17 @@
 """
 Build the GitHub Pages site for ogc-llm-skills.
 
-Usage: python3 build_site.py <out_dir> <sha> <repo_url>
+Usage: python3 build_site.py <out_dir> <sha> <repo_url> <site_url>
 
 Finds all SKILL.md files in the repo, zips each skill directory (contents at
 root, no parent path prefix), extracts name/description from frontmatter, and
-generates an index.html with download links.
+generates an index.html with download links, plus manifest.json and llms.txt
+for agent-driven installation.
 """
 
 import sys
 import re
+import json
 import zipfile
 import html as html_lib
 from pathlib import Path
@@ -17,6 +19,7 @@ from pathlib import Path
 out_dir = Path(sys.argv[1])
 sha = sys.argv[2]
 repo_url = sys.argv[3]
+site_url = sys.argv[4].rstrip("/")
 short_sha = sha[:7]
 
 out_dir.mkdir(parents=True, exist_ok=True)
@@ -71,6 +74,54 @@ with zipfile.ZipFile(out_dir / fat_zip_name, "w", zipfile.ZIP_DEFLATED) as zf:
 print(f"  packaged: {fat_zip_name}  (all skills)")
 
 
+# manifest.json — machine-readable index for agent-driven installation
+manifest = {
+    "updated": sha,
+    "all_skills_zip": f"{site_url}/{fat_zip_name}",
+    "skills": [
+        {
+            "name": s["name"],
+            "description": s["description"],
+            "zip_url": f"{site_url}/{s['zip']}",
+        }
+        for s in skills
+    ],
+}
+(out_dir / "manifest.json").write_text(
+    json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8"
+)
+print("  wrote: manifest.json")
+
+
+# llms.txt — plain Markdown entrypoint for LLMs (llmstxt.org convention)
+skill_lines = "\n".join(
+    f"- [{s['name']}]({site_url}/{s['zip']}): {s['description']}" for s in skills
+)
+llms_txt = f"""\
+# OGC LLM Skills
+
+> Reusable reference skills for LLM tooling — domain knowledge packs that can
+> be installed as custom skills in Claude Code or any compatible agent.
+
+## Installation
+
+Download a zip and extract its contents into `~/.claude/skills/<skill-name>/`,
+or download all skills at once and extract into `~/.claude/skills/`.
+
+All skills: {site_url}/{fat_zip_name}
+
+## Available skills
+
+{skill_lines}
+
+## Machine-readable manifest
+
+{site_url}/manifest.json
+"""
+(out_dir / "llms.txt").write_text(llms_txt, encoding="utf-8")
+print("  wrote: llms.txt")
+
+
 def skill_card(s: dict) -> str:
     name = html_lib.escape(s["name"])
     desc = html_lib.escape(s["description"])
@@ -99,6 +150,8 @@ index_html = f"""\
     body {{ font-family: system-ui, sans-serif; max-width: 820px; margin: 2rem auto; padding: 0 1.25rem; color: #1a1a1a; }}
     h1 {{ border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }}
     .intro {{ color: #444; line-height: 1.6; }}
+    .agent-tip {{ margin: 1rem 0 1.5rem; padding: 0.65rem 1rem; background: #fff8e1; border: 1px solid #f0c040; border-radius: 6px; font-size: 0.9rem; color: #555; line-height: 1.5; }}
+    .agent-tip code {{ background: #f3f3f3; padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.88em; }}
     .all-skills {{ margin: 1.5rem 0; padding: 0.75rem 1.25rem; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }}
     .all-skills p {{ margin: 0; color: #555; font-size: 0.95rem; }}
     .skill {{ margin: 1.5rem 0; padding: 1rem 1.25rem; border: 1px solid #ddd; border-radius: 6px; }}
@@ -117,6 +170,12 @@ index_html = f"""\
     custom skill in <a href="https://claude.ai">claude.ai</a>, Claude Code, or any
     compatible tool that supports the
     <a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview">Agent Skills</a> format.
+  </p>
+  <p class="agent-tip">
+    Prefer to let your agent handle it? Point it to
+    <a href="manifest.json"><code>manifest.json</code></a> or
+    <a href="llms.txt"><code>llms.txt</code></a> and ask it to download and install
+    the skills you need.
   </p>
   <div class="all-skills">
     <p>Download all skills in one zip — extract into <code>~/.claude/skills/</code> to install everything at once.</p>

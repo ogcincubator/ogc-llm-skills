@@ -22,10 +22,14 @@ jobs:
 
       - name: Build skill zips and index page
         run: |
+          OWNER="${{ github.repository_owner }}"
+          REPO_NAME="${{ github.repository }}"
+          REPO_NAME="${REPO_NAME##*/}"
           python3 .github/scripts/build_site.py \
             _site \
             "${{ github.sha }}" \
-            "${{ github.server_url }}/${{ github.repository }}"
+            "${{ github.server_url }}/${{ github.repository }}" \
+            "https://${OWNER}.github.io/${REPO_NAME}"
 
       - uses: actions/upload-pages-artifact@v3
         with:
