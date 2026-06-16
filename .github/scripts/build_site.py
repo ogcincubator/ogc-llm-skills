@@ -12,6 +12,7 @@ for agent-driven installation.
 import sys
 import re
 import json
+import subprocess
 import zipfile
 import html as html_lib
 from pathlib import Path
@@ -23,6 +24,17 @@ site_url = sys.argv[4].rstrip("/")
 short_sha = sha[:7]
 
 out_dir.mkdir(parents=True, exist_ok=True)
+
+
+def get_skill_version(skill_dir: Path) -> tuple[str, str]:
+    result = subprocess.run(
+        ["git", "log", "--max-count=1", "--format=%H %aI", "--", str(skill_dir)],
+        capture_output=True, text=True,
+    )
+    if result.returncode == 0 and result.stdout.strip():
+        commit, date = result.stdout.strip().split(" ", 1)
+        return commit, date.strip()
+    return sha, ""
 
 
 def parse_frontmatter(path: Path) -> tuple[str, str]:
@@ -55,22 +67,29 @@ for skill_md in sorted(repo_root.rglob("SKILL.md")):
     zip_path = out_dir / zip_name
 
     skill_files = sorted(f for f in skill_dir.rglob("*") if f.is_file())
+    commit, date = get_skill_version(skill_dir)
+    version_obj = {"commit": commit, "date": date,
+                   "zip_url": f"{site_url}/{zip_name}",
+                   "llms_txt": f"{site_url}/llms.txt"}
 
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for f in skill_files:
             zf.write(f, f.relative_to(skill_dir))
+        zf.writestr(".version", json.dumps(version_obj, indent=2))
 
     name, desc = parse_frontmatter(skill_md)
-    skills.append({"name": name, "description": desc, "zip": zip_name})
-    all_skill_entries.append((zip_stem, skill_dir, skill_files))
+    skills.append({"name": name, "description": desc, "zip": zip_name,
+                   "commit": commit, "date": date})
+    all_skill_entries.append((zip_stem, skill_dir, skill_files, version_obj))
     print(f"  packaged: {zip_name}  ({name})")
 
 # Fat zip: all skills with their zip-stem as the directory prefix
 fat_zip_name = "all-skills.zip"
 with zipfile.ZipFile(out_dir / fat_zip_name, "w", zipfile.ZIP_DEFLATED) as zf:
-    for zip_stem, skill_dir, skill_files in all_skill_entries:
+    for zip_stem, skill_dir, skill_files, version_obj in all_skill_entries:
         for f in skill_files:
             zf.write(f, Path(zip_stem) / f.relative_to(skill_dir))
+        zf.writestr(str(Path(zip_stem) / ".version"), json.dumps(version_obj, indent=2))
 print(f"  packaged: {fat_zip_name}  (all skills)")
 
 
@@ -83,6 +102,8 @@ manifest = {
             "name": s["name"],
             "description": s["description"],
             "zip_url": f"{site_url}/{s['zip']}",
+            "commit": s["commit"],
+            "date": s["date"],
         }
         for s in skills
     ],
@@ -121,13 +142,26 @@ the zip.
 
 After extraction, verify success by confirming that
 `~/.claude/skills/<skill-name>/SKILL.md` exists and its `name:` frontmatter
-field matches the skill name.
+field matches the skill name. Each zip also contains a `.version` file (JSON)
+with `commit`, `date`, `zip_url`, and `llms_txt` fields — used to check for
+updates without re-downloading the zip.
 
 Each `SKILL.md` has YAML frontmatter with `name:` (kebab-case identifier) and
 `description:` fields, followed by Markdown content that the agent reads to
 understand the skill's scope and sub-files.
 
 All skills: {site_url}/{fat_zip_name}
+
+## Checking for and applying updates
+
+To check whether installed skills are up to date:
+
+1. Fetch `{site_url}/manifest.json`.
+2. For each installed skill, read `~/.claude/skills/<skill-name>/.version`
+   and compare its `commit` field against the `commit` field in the manifest.
+3. If they differ, the skill has been updated. Re-download the zip from
+   `zip_url` and extract it into `~/.claude/skills/<skill-name>/`, overwriting
+   existing files (same steps as initial installation).
 
 ## Available skills
 
