@@ -281,11 +281,11 @@ def install_block(unix_cmd: str, win_cmd: str) -> str:
       </div>
     </div>
     <div class="install-cmd" data-os="unix">
-      <code>{unix_esc}</code>
+      <div class="install-cmd-code"><code>{unix_esc}</code></div>
       <button class="copy-btn" data-clipboard="{unix_attr}">Copy</button>
     </div>
     <div class="install-cmd" data-os="win">
-      <code>{win_esc}</code>
+      <div class="install-cmd-code"><code>{win_esc}</code></div>
       <button class="copy-btn" data-clipboard="{win_attr}">Copy</button>
     </div>
   </div>"""
@@ -370,10 +370,11 @@ index_html = f"""\
     .os-tab:last-child {{ border-right: none; }}
     .os-tab.active {{ background: #0969da; color: #fff; }}
     .os-tab:hover:not(.active) {{ background: #f0f0f0; }}
-    .install-cmd {{ position: relative; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 4px; padding: 0.5rem 4rem 0.5rem 0.75rem; overflow-x: auto; }}
+    .install-cmd {{ display: flex; align-items: flex-start; gap: 0.5rem; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 4px; padding: 0.5rem 0.75rem; }}
     .install-cmd.hidden {{ display: none; }}
+    .install-cmd-code {{ flex: 1; overflow-x: auto; }}
     .install-cmd code {{ font-size: 0.78rem; white-space: pre; font-family: ui-monospace, monospace; }}
-    .copy-btn {{ position: absolute; top: 0.35rem; right: 0.4rem; padding: 0.15rem 0.55rem; font-size: 0.72rem; background: #fff; border: 1px solid #d0d7de; border-radius: 3px; cursor: pointer; color: #555; white-space: nowrap; }}
+    .copy-btn {{ flex-shrink: 0; align-self: flex-start; padding: 0.15rem 0.55rem; font-size: 0.72rem; background: #fff; border: 1px solid #d0d7de; border-radius: 3px; cursor: pointer; color: #555; white-space: nowrap; }}
     .copy-btn:hover {{ background: #f0f0f0; }}
     footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #eee; font-size: 0.8rem; color: #999; }}
     footer a {{ color: #999; }}
