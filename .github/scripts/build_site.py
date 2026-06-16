@@ -50,6 +50,15 @@ def parse_frontmatter(path: Path) -> tuple[str, str]:
     return name, desc
 
 
+UPDATE_SECTION = """
+## Updating this skill
+
+This skill was installed from the OGC LLM Skills registry. To check for
+updates, read `.version` in this directory — it contains `commit`, `date`,
+`zip_url`, and `llms_txt`. Compare `commit` against the registry manifest
+and follow the update instructions at the `llms_txt` URL.
+"""
+
 skills = []
 repo_root = Path(".")
 # Collect (skill_dir, zip_stem, files) for the fat zip
@@ -74,21 +83,30 @@ for skill_md in sorted(repo_root.rglob("SKILL.md")):
 
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for f in skill_files:
-            zf.write(f, f.relative_to(skill_dir))
+            if f == skill_md:
+                zf.writestr(str(f.relative_to(skill_dir)),
+                            f.read_text(encoding="utf-8") + UPDATE_SECTION)
+            else:
+                zf.write(f, f.relative_to(skill_dir))
         zf.writestr(".version", json.dumps(version_obj, indent=2))
 
     name, desc = parse_frontmatter(skill_md)
     skills.append({"name": name, "description": desc, "zip": zip_name,
                    "commit": commit, "date": date})
-    all_skill_entries.append((zip_stem, skill_dir, skill_files, version_obj))
+    all_skill_entries.append((zip_stem, skill_dir, skill_md, skill_files, version_obj))
     print(f"  packaged: {zip_name}  ({name})")
 
 # Fat zip: all skills with their zip-stem as the directory prefix
 fat_zip_name = "all-skills.zip"
 with zipfile.ZipFile(out_dir / fat_zip_name, "w", zipfile.ZIP_DEFLATED) as zf:
-    for zip_stem, skill_dir, skill_files, version_obj in all_skill_entries:
+    for zip_stem, skill_dir, skill_md, skill_files, version_obj in all_skill_entries:
         for f in skill_files:
-            zf.write(f, Path(zip_stem) / f.relative_to(skill_dir))
+            arc_path = Path(zip_stem) / f.relative_to(skill_dir)
+            if f == skill_md:
+                zf.writestr(str(arc_path),
+                            f.read_text(encoding="utf-8") + UPDATE_SECTION)
+            else:
+                zf.write(f, arc_path)
         zf.writestr(str(Path(zip_stem) / ".version"), json.dumps(version_obj, indent=2))
 print(f"  packaged: {fat_zip_name}  (all skills)")
 
