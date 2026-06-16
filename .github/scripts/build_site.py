@@ -220,10 +220,10 @@ unzip /path/to/<skill-name>.zip -d ~/.claude/skills/<skill-name>
 Before proceeding, check that the required tools are available:
 
 ```
-which curl unzip   # or: which wget unzip
+which curl unzip wget
 ```
 
-If either is missing, download `{site_url}/install-skill.js` and run it instead
+If either unzip or both wget and curl are missing, download `{site_url}/install-skill.js` and run it instead
 (uses only Node.js built-ins — no external dependencies):
 
 ```
