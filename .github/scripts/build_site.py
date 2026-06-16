@@ -105,8 +105,27 @@ llms_txt = f"""\
 
 ## Installation
 
-Download a zip and extract its contents into `~/.claude/skills/<skill-name>/`,
-or download all skills at once and extract into `~/.claude/skills/`.
+Each skill zip contains files without a top-level wrapper directory. You must
+create the target directory yourself before extracting:
+
+```
+mkdir -p ~/.claude/skills/<skill-name>
+cd ~/.claude/skills/<skill-name>
+unzip /path/to/<skill-name>.zip
+```
+
+Requires `unzip` and either `curl` or `wget`. If those are not available in
+your environment (e.g. a minimal container), you will need to write a Node.js
+script using the built-in `zlib` and `https` modules to download and decompress
+the zip.
+
+After extraction, verify success by confirming that
+`~/.claude/skills/<skill-name>/SKILL.md` exists and its `name:` frontmatter
+field matches the skill name.
+
+Each `SKILL.md` has YAML frontmatter with `name:` (kebab-case identifier) and
+`description:` fields, followed by Markdown content that the agent reads to
+understand the skill's scope and sub-files.
 
 All skills: {site_url}/{fat_zip_name}
 
