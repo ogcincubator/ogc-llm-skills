@@ -55,8 +55,9 @@ UPDATE_SECTION = """
 
 This skill was installed from the OGC LLM Skills registry. To check for
 updates, read `.version` in this directory — it contains `commit`, `date`,
-`zip_url`, and `llms_txt`. Compare `commit` against the registry manifest
-and follow the update instructions at the `llms_txt` URL.
+`zip_url`, and `llms_txt`. Compare `commit` against the registry manifest;
+if they differ, delete this directory, re-create it, and extract the new zip
+into it. See the `llms_txt` URL for the full update procedure.
 """
 
 skills = []
@@ -177,9 +178,10 @@ To check whether installed skills are up to date:
 1. Fetch `{site_url}/manifest.json`.
 2. For each installed skill, read `~/.claude/skills/<skill-name>/.version`
    and compare its `commit` field against the `commit` field in the manifest.
-3. If they differ, the skill has been updated. Re-download the zip from
-   `zip_url` and extract it into `~/.claude/skills/<skill-name>/`, overwriting
-   existing files (same steps as initial installation).
+3. If they differ, the skill has been updated. Delete the skill directory,
+   re-create it, and extract the new zip into it (same steps as initial
+   installation). Do not overwrite in place — deleted or renamed files in
+   the new version would otherwise be left behind as stale copies.
 
 ## Available skills
 
