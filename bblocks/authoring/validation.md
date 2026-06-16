@@ -37,8 +37,11 @@ docker run --pull=always --rm --workdir /workspace \
 | `--clean true` | Delete old `build/` before running |
 | `--log-level DEBUG` | Verbose output: annotation steps, uplift, SHACL evaluation |
 | `--filter <id-or-path>` | Process only one block (by identifier or path to `bblock.json`) |
-| `--fail-on-errors` | Exit non-zero if any validation errors are found (used in CI) |
+| `--fail-on-error false` | Continue past errors instead of aborting (omit in CI) |
 | `--steps <list>` | Comma-separated subset of steps: `annotate,jsonld,tests,transforms,doc,register` |
+| `--skip-permissions true` | Skip interactive prompts for transforms/plugins (required for agent or CI runs) |
+
+For a full flag reference and iterative workflow examples see [local-iteration.md](local-iteration.md).
 
 Running the module directly (without Docker) also works if dependencies are installed:
 

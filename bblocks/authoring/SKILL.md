@@ -68,6 +68,7 @@ Start here and follow links for the topic you need:
 | [transforms.md](transforms.md) | How do I declare transforms? What built-in types are available? |
 | [transform-plugins.md](transform-plugins.md) | How do I add a custom transform type via a plugin? |
 | [validation.md](validation.md) | How does validation work? How do I interpret errors? |
+| [local-iteration.md](local-iteration.md) | How do I run the postprocessor locally for a fast edit→run loop? All CLI flags, step descriptions, and workflow examples for iterating on schema, uplift, transforms, or tests. |
 | [validation-plugins.md](validation-plugins.md) | How do I add a custom validator? |
 | [imports-profiles.md](imports-profiles.md) | How do I import another register? How do I profile a block? |
 | [extension-points.md](extension-points.md) | How do I specialize a block's referenced components? |
