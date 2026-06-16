@@ -37,6 +37,8 @@ def parse_frontmatter(path: Path) -> tuple[str, str]:
 
 skills = []
 repo_root = Path(".")
+# Collect (skill_dir, zip_stem, files) for the fat zip
+all_skill_entries = []
 
 for skill_md in sorted(repo_root.rglob("SKILL.md")):
     parts = skill_md.parts
@@ -45,17 +47,28 @@ for skill_md in sorted(repo_root.rglob("SKILL.md")):
 
     skill_dir = skill_md.parent
     # bblocks/authoring -> bblocks-authoring.zip
-    zip_name = str(skill_dir).lstrip("./").replace("/", "-") + ".zip"
+    zip_stem = str(skill_dir).lstrip("./").replace("/", "-")
+    zip_name = zip_stem + ".zip"
     zip_path = out_dir / zip_name
 
+    skill_files = sorted(f for f in skill_dir.rglob("*") if f.is_file())
+
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-        for f in sorted(skill_dir.rglob("*")):
-            if f.is_file():
-                zf.write(f, f.relative_to(skill_dir))
+        for f in skill_files:
+            zf.write(f, f.relative_to(skill_dir))
 
     name, desc = parse_frontmatter(skill_md)
     skills.append({"name": name, "description": desc, "zip": zip_name})
+    all_skill_entries.append((zip_stem, skill_dir, skill_files))
     print(f"  packaged: {zip_name}  ({name})")
+
+# Fat zip: all skills with their zip-stem as the directory prefix
+fat_zip_name = "all-skills.zip"
+with zipfile.ZipFile(out_dir / fat_zip_name, "w", zipfile.ZIP_DEFLATED) as zf:
+    for zip_stem, skill_dir, skill_files in all_skill_entries:
+        for f in skill_files:
+            zf.write(f, Path(zip_stem) / f.relative_to(skill_dir))
+print(f"  packaged: {fat_zip_name}  (all skills)")
 
 
 def skill_card(s: dict) -> str:
@@ -73,6 +86,8 @@ def skill_card(s: dict) -> str:
 
 cards = "\n".join(skill_card(s) for s in skills)
 
+fat_url = f"{fat_zip_name}?v={short_sha}"
+
 index_html = f"""\
 <!DOCTYPE html>
 <html lang="en">
@@ -84,10 +99,12 @@ index_html = f"""\
     body {{ font-family: system-ui, sans-serif; max-width: 820px; margin: 2rem auto; padding: 0 1.25rem; color: #1a1a1a; }}
     h1 {{ border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }}
     .intro {{ color: #444; line-height: 1.6; }}
+    .all-skills {{ margin: 1.5rem 0; padding: 0.75rem 1.25rem; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }}
+    .all-skills p {{ margin: 0; color: #555; font-size: 0.95rem; }}
     .skill {{ margin: 1.5rem 0; padding: 1rem 1.25rem; border: 1px solid #ddd; border-radius: 6px; }}
     .skill h2 {{ margin: 0 0 0.4rem; font-size: 1.05rem; font-family: monospace; }}
     .skill p {{ margin: 0 0 0.75rem; color: #555; font-size: 0.95rem; line-height: 1.5; }}
-    a.download {{ display: inline-block; padding: 0.35rem 0.85rem; background: #0969da; color: #fff; border-radius: 4px; text-decoration: none; font-size: 0.9rem; }}
+    a.download {{ display: inline-block; padding: 0.35rem 0.85rem; background: #0969da; color: #fff; border-radius: 4px; text-decoration: none; font-size: 0.9rem; white-space: nowrap; }}
     a.download:hover {{ background: #0550ae; }}
     footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #eee; font-size: 0.8rem; color: #999; }}
     footer a {{ color: #999; }}
@@ -101,6 +118,10 @@ index_html = f"""\
     compatible tool that supports the
     <a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview">Agent Skills</a> format.
   </p>
+  <div class="all-skills">
+    <p>Download all skills in one zip — extract into <code>~/.claude/skills/</code> to install everything at once.</p>
+    <a class="download" href="{fat_url}" download>{fat_zip_name}</a>
+  </div>
 {cards}
   <footer>
     Built from <a href="{repo_url}/commit/{sha}">{short_sha}</a>
