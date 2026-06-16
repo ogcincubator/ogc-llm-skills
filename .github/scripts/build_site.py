@@ -145,13 +145,12 @@ llms_txt = f"""\
 
 ## Installation
 
-Each skill zip contains files without a top-level wrapper directory. You must
-create the target directory yourself before extracting:
+Each skill zip contains files without a top-level wrapper directory. Create
+the target directory first, then extract into it:
 
 ```
 mkdir -p ~/.claude/skills/<skill-name>
-cd ~/.claude/skills/<skill-name>
-unzip /path/to/<skill-name>.zip
+unzip /path/to/<skill-name>.zip -d ~/.claude/skills/<skill-name>
 ```
 
 Requires `unzip` and either `curl` or `wget`. If those are not available in
