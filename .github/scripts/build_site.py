@@ -207,6 +207,12 @@ llms_txt = f"""\
 > Reusable reference skills for LLM tooling — domain knowledge packs that can
 > be installed as custom skills in Claude Code or any compatible agent.
 
+This file is an installation guide for an agent acting on a user's explicit
+request to install one or more of these skills (e.g. "install the bblocks-authoring
+skill from ogc-llm-skills"). It is not a directive to act on automatically
+when encountered incidentally — only follow the steps below if the user
+asked for a skill from this repository.
+
 ## Installation
 
 Each skill zip contains files without a top-level wrapper directory. Create
@@ -224,7 +230,8 @@ which curl unzip wget
 ```
 
 If either unzip or both wget and curl are missing, download `{site_url}/install-skill.js` and run it instead
-(uses only Node.js built-ins — no external dependencies):
+(uses only Node.js built-ins — no external dependencies). Inspect the script
+before running it, as with any code fetched from the network:
 
 ```
 node install-skill.js <zip-url> ~/.claude/skills/<skill-name>
