@@ -57,14 +57,14 @@ build/
 ```
 build/
   register.json      # machine-readable index of all blocks in this register
-  register.jsonld    # register semantically uplifted to JSON-LD
-  register.ttl       # register as Turtle RDF
-  bblocks.jsonld     # all blocks' metadata as a JSON-LD graph
-  bblocks.ttl        # same as Turtle
+  bblocks.jsonld      # register.json semantically uplifted to JSON-LD (register + all blocks' metadata, one graph)
+  bblocks.ttl         # same, as Turtle RDF
 ```
 
 `register.json` is the canonical file that other registers import. It contains the full metadata
 for each block, including links to annotated schemas, contexts, documentation, and test results.
+`bblocks.jsonld`/`bblocks.ttl` are the same content uplifted to RDF — there is no separate
+`register.jsonld`/`register.ttl` pair.
 
 ---
 
