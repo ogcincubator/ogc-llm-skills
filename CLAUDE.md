@@ -42,6 +42,7 @@ These are non-obvious and important for maintaining quality:
 - **One lookup unit per file.** Each file answers a set of questions a developer would look up together. Target 400–1500 words. If two topics always need each other to be actionable, merge them.
 - **Hierarchical navigation on demand.** The LLM reads `SKILL.md` first, then fetches sub-files via tool calls. Sub-files should be self-contained enough to be read independently.
 - **Schemas by URL, not copied.** Config file schemas live at `https://raw.githubusercontent.com/opengeospatial/bblocks-postprocess/master/ogc/bblocks/schemas/` — reference by URL so they stay current.
+- **No cross-links between separate skills.** Each top-level skill directory (e.g. `bblocks/authoring/`, `bblocks/consuming/`) must be self-contained: never link or relative-`../`-reference a file in a different skill. Users install skills individually, so a skill may be present without its sibling — a cross-link can point at a file that doesn't exist on disk. If content from another skill is relevant, inline the minimum needed or name the other skill in plain text (no link) so the reader knows it exists.
 
 ## Machine-readable entrypoints
 
