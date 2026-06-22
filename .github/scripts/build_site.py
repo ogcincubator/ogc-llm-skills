@@ -3,10 +3,10 @@ Build the GitHub Pages site for ogc-llm-skills.
 
 Usage: python3 build_site.py <out_dir> <sha> <repo_url> <site_url>
 
-Finds all SKILL.md files in the repo, zips each skill directory (contents at
-root, no parent path prefix), extracts name/description from frontmatter, and
-generates an index.html with download links, plus manifest.json and llms.txt
-for agent-driven installation.
+Finds all SKILL.md files in the repo, zips each skill directory (contents
+wrapped in a top-level folder named after the skill), extracts name/description
+from frontmatter, and generates an index.html with download links, plus
+manifest.json and llms.txt for agent-driven installation.
 """
 
 import sys
@@ -56,8 +56,9 @@ UPDATE_SECTION = """
 This skill was installed from the OGC LLM Skills registry. To check for
 updates, read `.version` in this directory — it contains `commit`, `date`,
 `zip_url`, and `llms_txt`. Compare `commit` against the registry manifest;
-if they differ, delete this directory, re-create it, and extract the new zip
-into it. See the `llms_txt` URL for the full update procedure.
+if they differ, delete this directory entirely, then extract the new zip
+into its parent skills directory (the zip recreates this directory itself).
+See the `llms_txt` URL for the full update procedure.
 """
 
 skills = []
@@ -84,12 +85,13 @@ for skill_md in sorted(repo_root.rglob("SKILL.md")):
 
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for f in skill_files:
+            arc_path = Path(zip_stem) / f.relative_to(skill_dir)
             if f == skill_md:
-                zf.writestr(str(f.relative_to(skill_dir)),
+                zf.writestr(str(arc_path),
                             f.read_text(encoding="utf-8") + UPDATE_SECTION)
             else:
-                zf.write(f, f.relative_to(skill_dir))
-        zf.writestr(".version", json.dumps(version_obj, indent=2))
+                zf.write(f, arc_path)
+        zf.writestr(str(Path(zip_stem) / ".version"), json.dumps(version_obj, indent=2))
 
     name, desc = parse_frontmatter(skill_md)
     skills.append({"name": name, "description": desc, "zip": zip_name,
@@ -215,12 +217,12 @@ asked for a skill from this repository.
 
 ## Installation
 
-Each skill zip contains files without a top-level wrapper directory. Create
-the target directory first, then extract into it:
+Each skill zip contains a single top-level directory named after the skill
+(kebab-case). Extract it directly into `~/.claude/skills`:
 
 ```
-mkdir -p ~/.claude/skills/<skill-name>
-unzip /path/to/<skill-name>.zip -d ~/.claude/skills/<skill-name>
+mkdir -p ~/.claude/skills
+unzip /path/to/<skill-name>.zip -d ~/.claude/skills
 ```
 
 Before proceeding, check that the required tools are available:
@@ -234,7 +236,7 @@ If either unzip or both wget and curl are missing, download `{site_url}/install-
 before running it, as with any code fetched from the network:
 
 ```
-node install-skill.js <zip-url> ~/.claude/skills/<skill-name>
+node install-skill.js <zip-url> ~/.claude/skills
 ```
 
 After extraction, verify success by confirming that
@@ -256,10 +258,11 @@ To check whether installed skills are up to date:
 1. Fetch `{site_url}/manifest.json`.
 2. For each installed skill, read `~/.claude/skills/<skill-name>/.version`
    and compare its `commit` field against the `commit` field in the manifest.
-3. If they differ, the skill has been updated. Delete the skill directory,
-   re-create it, and extract the new zip into it (same steps as initial
-   installation). Do not overwrite in place — deleted or renamed files in
-   the new version would otherwise be left behind as stale copies.
+3. If they differ, the skill has been updated. Delete the skill directory
+   (`~/.claude/skills/<skill-name>`) entirely, then extract the new zip into
+   `~/.claude/skills` (same steps as initial installation). Do not overwrite
+   in place — deleted or renamed files in the new version would otherwise be
+   left behind as stale copies.
 
 ## Available skills
 
@@ -304,20 +307,19 @@ def skill_card(s: dict) -> str:
     url = f"{s['zip']}?v={short_sha}"
     filename = html_lib.escape(s["zip"])
     zip_url = f"{site_url}/{s['zip']}"
-    skill_name = s["name"]
     zip_name_esc = s["zip"]
     unix_cmd = (
-        f"mkdir -p ~/.claude/skills/{skill_name} && "
+        f"mkdir -p ~/.claude/skills && "
         f"curl -fsSL \"{zip_url}\" -o /tmp/{zip_name_esc} && "
-        f"unzip -q /tmp/{zip_name_esc} -d ~/.claude/skills/{skill_name}"
+        f"unzip -q /tmp/{zip_name_esc} -d ~/.claude/skills"
     )
     win_cmd = (
         f"New-Item -ItemType Directory -Force -Path "
-        f"\"$env:USERPROFILE\\.claude\\skills\\{skill_name}\" | Out-Null; "
+        f"\"$env:USERPROFILE\\.claude\\skills\" | Out-Null; "
         f"Invoke-WebRequest -Uri \"{zip_url}\" "
         f"-OutFile \"$env:TEMP\\{zip_name_esc}\"; "
         f"Expand-Archive -Path \"$env:TEMP\\{zip_name_esc}\" "
-        f"-DestinationPath \"$env:USERPROFILE\\.claude\\skills\\{skill_name}\" -Force"
+        f"-DestinationPath \"$env:USERPROFILE\\.claude\\skills\" -Force"
     )
     block = install_block(unix_cmd, win_cmd)
     return f"""\

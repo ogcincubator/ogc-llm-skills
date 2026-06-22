@@ -39,16 +39,17 @@ in the Claude Help Center.
 
 ### Claude Code
 
-Extract the zip into a skills directory:
+Each zip wraps its contents in a top-level directory named after the skill
+(e.g. `bblocks-authoring/`), so extract it directly into a skills directory:
 
 ```bash
 # Project-level (only available in this project)
 mkdir -p .claude/skills
-unzip bblocks-authoring.zip -d .claude/skills/bblocks-authoring
+unzip bblocks-authoring.zip -d .claude/skills
 
 # User-level (available in all projects)
 mkdir -p ~/.claude/skills
-unzip bblocks-authoring.zip -d ~/.claude/skills/bblocks-authoring
+unzip bblocks-authoring.zip -d ~/.claude/skills
 ```
 
 Claude Code discovers skills automatically at startup.
@@ -92,9 +93,11 @@ See [Use Skills with the Claude API](https://platform.claude.com/docs/en/build-w
 On every push to `main` (and on manual trigger), a GitHub Actions workflow:
 
 1. Finds all `SKILL.md` files in the repository.
-2. Zips each skill directory (contents at the zip root, no parent path prefix).
+2. Zips each skill directory, with contents wrapped in a top-level folder
+   named after the skill.
 3. Names each zip after its directory path with slashes replaced by hyphens
-   (e.g. `bblocks/authoring/` → `bblocks-authoring.zip`).
+   (e.g. `bblocks/authoring/` → `bblocks-authoring.zip`, containing a
+   `bblocks-authoring/` folder).
 4. Generates an `index.html` listing all skills with download links.
 5. Deploys everything to GitHub Pages.
 
