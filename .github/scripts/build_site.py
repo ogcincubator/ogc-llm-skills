@@ -54,11 +54,19 @@ UPDATE_SECTION = """
 ## Updating this skill
 
 This skill was installed from the OGC LLM Skills registry. To check for
-updates, read `.version` in this directory — it contains `commit`, `date`,
-`zip_url`, and `llms_txt`. Compare `commit` against the registry manifest;
-if they differ, delete this directory entirely, then extract the new zip
-into its parent skills directory (the zip recreates this directory itself).
-See the `llms_txt` URL for the full update procedure.
+updates, read `.version` in this directory — it contains `name`, `commit`,
+`date`, `zip_url`, `manifest_url`, and `llms_txt`.
+
+Fetch `manifest_url` (e.g. with `curl -s <manifest_url>`) and read its raw
+JSON yourself rather than through a tool that summarizes fetched content —
+a single mis-transcribed character in a commit hash silently breaks the
+comparison. In the manifest's `skills` array, find the entry whose `name`
+matches the `name` in `.version` and compare its `commit` field.
+
+If the commits differ, delete this skill directory entirely, then extract
+the new zip (that entry's `zip_url`) into its parent skills directory (the
+zip recreates this directory itself). Do not overwrite in place. See
+`llms_txt` for the full procedure across all installed skills.
 """
 
 skills = []
@@ -79,8 +87,10 @@ for skill_md in sorted(repo_root.rglob("SKILL.md")):
 
     skill_files = sorted(f for f in skill_dir.rglob("*") if f.is_file())
     commit, date = get_skill_version(skill_dir)
-    version_obj = {"commit": commit, "date": date,
+    name, desc = parse_frontmatter(skill_md)
+    version_obj = {"name": name, "commit": commit, "date": date,
                    "zip_url": f"{site_url}/{zip_name}",
+                   "manifest_url": f"{site_url}/manifest.json",
                    "llms_txt": f"{site_url}/llms.txt"}
 
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
@@ -93,7 +103,6 @@ for skill_md in sorted(repo_root.rglob("SKILL.md")):
                 zf.write(f, arc_path)
         zf.writestr(str(Path(zip_stem) / ".version"), json.dumps(version_obj, indent=2))
 
-    name, desc = parse_frontmatter(skill_md)
     skills.append({"name": name, "description": desc, "zip": zip_name,
                    "commit": commit, "date": date})
     all_skill_entries.append((zip_stem, skill_dir, skill_md, skill_files, version_obj))
