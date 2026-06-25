@@ -23,7 +23,7 @@ See [semantic/shacl.md](semantic/shacl.md) for SHACL details.
 ## Running locally
 
 ```bash
-docker run --pull=always --rm --workdir /workspace \
+docker run -it --pull=always --rm --workdir /workspace \
   -v "$(pwd):/workspace" \
   ghcr.io/opengeospatial/bblocks-postprocess \
   --clean true \

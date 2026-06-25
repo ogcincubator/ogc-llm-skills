@@ -10,7 +10,7 @@ whether you are iterating on a schema, a JSON-LD context, semantic uplift, trans
 Full invocation:
 
 ```bash
-docker run --pull=always --rm --workdir /workspace \
+docker run -it --pull=always --rm --workdir /workspace \
   -v "$(pwd):/workspace" \
   ghcr.io/opengeospatial/bblocks-postprocess \
   [flags]
@@ -70,7 +70,7 @@ alongside these flags without error — it will simply have no effect.
 ### Iterate on a single block (all steps)
 
 ```bash
-docker run --pull=always --rm --workdir /workspace \
+docker run -it --pull=always --rm --workdir /workspace \
   -v "$(pwd):/workspace" \
   ghcr.io/opengeospatial/bblocks-postprocess \
   --filter ogc.my.namespace.myblock \
@@ -89,7 +89,7 @@ Or by path:
 Edit the JSON-LD context or uplift config, then run only the steps needed to see the effect:
 
 ```bash
-docker run --pull=always --rm --workdir /workspace \
+docker run -it --pull=always --rm --workdir /workspace \
   -v "$(pwd):/workspace" \
   ghcr.io/opengeospatial/bblocks-postprocess \
   --filter ogc.my.namespace.myblock \
@@ -103,7 +103,7 @@ Inspect `build-local/tests/<block-id>/` for the uplifted `.jsonld` and `.ttl` fi
 ### Iterate on transforms only
 
 ```bash
-docker run --pull=always --rm --workdir /workspace \
+docker run -it --pull=always --rm --workdir /workspace \
   -v "$(pwd):/workspace" \
   ghcr.io/opengeospatial/bblocks-postprocess \
   --filter ogc.my.namespace.myblock \
@@ -115,7 +115,7 @@ docker run --pull=always --rm --workdir /workspace \
 ### Iterate on schema / validation only
 
 ```bash
-docker run --pull=always --rm --workdir /workspace \
+docker run -it --pull=always --rm --workdir /workspace \
   -v "$(pwd):/workspace" \
   ghcr.io/opengeospatial/bblocks-postprocess \
   --filter ogc.my.namespace.myblock \
@@ -128,7 +128,7 @@ docker run --pull=always --rm --workdir /workspace \
 ### Full clean run (e.g. before committing)
 
 ```bash
-docker run --pull=always --rm --workdir /workspace \
+docker run -it --pull=always --rm --workdir /workspace \
   -v "$(pwd):/workspace" \
   ghcr.io/opengeospatial/bblocks-postprocess \
   --clean true \
