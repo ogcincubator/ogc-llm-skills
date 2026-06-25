@@ -10,15 +10,17 @@ that JSON Schema cannot express.
 
 ### Auto-detected
 
-Place a `shapes.ttl` file in the block directory. It is picked up automatically.
+Place a `shapes.shacl` file in the block directory. It is picked up automatically. (A legacy
+`rules.shacl` filename is also auto-detected as a fallback when `shapes.shacl` is absent, but new
+blocks should use `shapes.shacl`.)
 
 ### Via `bblock.json`
 
 ```json
 {
   "shaclShapes": [
-    "shapes.ttl",
-    "https://example.org/shared-shapes.ttl"
+    "shapes.shacl",
+    "https://example.org/shared-shapes.shacl"
   ]
 }
 ```
@@ -40,7 +42,7 @@ SHACL validation runs:
 
 ```json
 {
-  "shaclShapes": ["shapes.ttl"],
+  "shaclShapes": ["shapes.shacl"],
   "shaclClosures": [
     "vocabs/my-codelist.ttl",
     "https://example.org/static-vocabulary.ttl"

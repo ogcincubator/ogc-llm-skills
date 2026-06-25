@@ -31,7 +31,7 @@ JSON instance + assembled context
         ↓  JSON-LD uplift
 .jsonld (expanded/compacted) + .ttl (Turtle)
         ↓  SHACL validation
-shapes.ttl + shaclClosures → validation report
+shapes.shacl + shaclClosures → validation report
 ```
 
 ---

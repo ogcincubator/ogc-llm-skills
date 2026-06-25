@@ -99,7 +99,7 @@ Turtle and JSON-LD snippets are validated directly against SHACL shapes — no u
   "version": "0.1",
   "ontology": "ontology.ttl",
   "concept": ["https://example.org/vocab#ObservationPattern"],
-  "shaclShapes": ["shapes.ttl"]
+  "shaclShapes": ["shapes.shacl"]
 }
 ```
 
@@ -107,15 +107,23 @@ Note `itemClass: model` — this is the appropriate class for ontology/data mode
 
 ---
 
-## `rdfData`
+## Associated RDF data
 
-For blocks that associate raw RDF data without defining it as an ontology, use the `rdfData` field:
+For blocks that associate raw RDF data without defining it as an ontology, use `resources` with
+`role: data`:
 
 ```json
 {
-  "rdfData": "data/codelist.ttl"
+  "resources": [
+    { "ref": "data/codelist.ttl", "format": "text/turtle", "role": "data" }
+  ]
 }
 ```
 
-`rdfData` is published in the register entry and `build/` output. It does not trigger the same
-auto-detection logic as `ontology`.
+A `data.ttl` file in the block directory is auto-detected and added as a `role: data` resource
+even without a `resources` entry.
+
+The data resource is published in the register entry and `build/` output. `rdfData` is a
+**deprecated** alias for this (a plain string or array of strings, normalized into `resources`
+with `role: data` and `format: text/turtle`) — it may appear in older repositories but new blocks
+should use `resources` directly.

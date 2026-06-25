@@ -19,7 +19,7 @@ my-bblocks-repo/
         bblock.json          # block metadata → metadata.md
         schema.yaml          # JSON Schema → schema.md
         context.jsonld       # JSON-LD context → semantic/context.md
-        shapes.ttl           # SHACL shapes → semantic/shacl.md
+        shapes.shacl          # SHACL shapes → semantic/shacl.md
         examples.yaml        # examples → examples.md
         tests.yaml           # explicit test resources → tests.md
         tests/               # auto-detected test files → tests.md

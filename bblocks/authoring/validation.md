@@ -12,7 +12,7 @@ snippet in `examples.yaml` goes through the validation pipeline:
 
 1. **JSON Schema validation** — if the block has a schema
 2. **Semantic uplift** — JSON → `.jsonld` + `.ttl` (if context is present)
-3. **SHACL validation** — against `shapes.ttl` / `shaclShapes` (if defined)
+3. **SHACL validation** — against `shapes.shacl` / `shaclShapes` (if defined)
 4. **Plugin validation** — if [validator plugins](validation-plugins.md) are configured
 
 See [tests.md](tests.md) for how to declare test resources.

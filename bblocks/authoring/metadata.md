@@ -93,7 +93,7 @@ Schema:
 | Field | Description |
 |-------|-------------|
 | `schema` | URL to the JSON Schema. Auto-derived when `schema.yaml` or `schema.json` is present. |
-| `openAPIDocument` | URL or path to an OpenAPI document. |
+| `openAPIDocument` | URL or path to an OpenAPI document. Auto-derived when `openapi.yaml` or `openapi.yml` is present. |
 | `ldContext` | URL to the JSON-LD context. Auto-derived when `context.jsonld` is present. See [semantic/context.md](semantic/context.md). |
 | `extends` | Schema inheritance from another block. See [extension-points.md](extension-points.md). |
 | `extensionPoints` | Substitution mappings for referenced blocks. See [extension-points.md](extension-points.md). |
@@ -102,7 +102,7 @@ Schema:
 
 | Field | Description |
 |-------|-------------|
-| `shaclShapes` | Array of SHACL shape files (paths or URLs). `shapes.ttl` in the block directory is auto-detected. `shaclRules` is a deprecated alias — treat as `shaclShapes`. |
+| `shaclShapes` | Array of SHACL shape files (paths or URLs). `shapes.shacl` in the block directory is auto-detected. `shaclRules` is a deprecated alias — treat as `shaclShapes`. |
 | `shaclClosures` | Array of RDF files or URLs merged into every test snippet as a SHACL closure. See [semantic/shacl.md](semantic/shacl.md). |
 | `requirementClasses` | Array of ModSpec requirement class URIs for validation. |
 | `conformanceClasses` | Array of ModSpec conformance class URIs this block refers to. |
@@ -152,7 +152,7 @@ Schema:
     { "title": "GeoJSON (RFC 7946)", "link": "https://www.rfc-editor.org/rfc/rfc7946" }
   ],
   "isProfileOf": "bblocks://ogc.geo.json-fg.feature",
-  "shaclShapes": ["shapes.ttl"],
+  "shaclShapes": ["shapes.shacl"],
   "shaclClosures": ["vocabs/my-codelist.ttl"],
   "concept": ["https://www.opengis.net/def/metamodel/ogc-na/Feature"],
   "rdfType": ["http://www.w3.org/ns/sosa/Sample"]
