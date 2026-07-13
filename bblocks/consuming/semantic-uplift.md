@@ -40,3 +40,14 @@ different things and both are meaningful.
 
 See [snippets/uplift_json.py](snippets/uplift_json.py) for a runnable version of steps 1–3 using
 `bblocks-client-python`, and [no-library.md](no-library.md) for the equivalent without it.
+
+## Displaying uplifted data
+
+If the goal is showing uplifted JSON-LD to a human rather than just validating it,
+[`@opengeospatial/jsonld-ui-utils`](https://github.com/ogcincubator/jsonld-ui-utils)
+([npm](https://www.npmjs.com/package/@opengeospatial/jsonld-ui-utils)) is a JS/TS library that
+renders a JSON-LD feature and its context as a nested HTML properties table, resolving property
+names and values against RDF labels/descriptions fetched from the vocabularies they point to. It
+also has a Leaflet plugin that renders a GeoJSON `FeatureCollection` as a map layer with these
+semantically-enriched tables as popups, instead of raw property dumps — see
+[viewer.md](viewer.md) for where this shows up in `bblocks-viewer`.
