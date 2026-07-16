@@ -68,6 +68,69 @@ build/tests/
 
 Open `build/tests/report.html` in a browser for the easiest overview.
 
+### `report.json` structure — don't read it top to bottom
+
+`report.json` is large (one entry per test resource, including every passing step). Never `cat`/`Read`
+the whole file — query it with `jq` instead:
+
+```
+{
+  "summary": { "total": 25, "passed": 23, "failed": 2, "result": false },
+  "bblocks": {
+    "<bblock-id>": {
+      "bblockId": "<bblock-id>",
+      "result": false,
+      "counts": { "total": 1, "passed": 0, "failed": 1 },
+      "items": [
+        {
+          "source": { "type": "EXAMPLE", "filename": "...", "exampleIndex": 1, "snippetIndex": 1 },
+          "result": false,
+          "sections": [
+            { "name": "FILES", "entries": [ { "op": "...", "isError": false, "message": "..." } ] },
+            { "name": "JSON_SCHEMA", "entries": [ { "op": "validation", "isError": true, "message": "...", "errorMessage": "..." } ] },
+            { "name": "SHACL", "entries": [ { "op": "shacl-report", "isError": true, "graph": "...", "message": "..." } ] }
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+
+Every entry with `"isError": true` is an actual failure; everything else (the majority of the file) is
+passing-step noise. Go straight to the failures:
+
+```bash
+# 1. Overall pass/fail counts
+jq '.summary' build/tests/report.json
+
+# 2. Which blocks failed
+jq '[.bblocks | to_entries[] | select(.value.result == false) | .key]' build/tests/report.json
+
+# 3. For one failing block, only the failed items + which sections failed in each
+jq '.bblocks["<bblock-id>"].items[] | select(.result == false) |
+    {source: .source.filename, failedSections: [.sections[] | select(.entries[].isError) | .name]}' \
+  build/tests/report.json
+
+# 4. The actual error entries for one block (skips all passing steps)
+jq '.bblocks["<bblock-id>"].items[].sections[].entries[] | select(.isError == true)' \
+  build/tests/report.json
+```
+
+A `JSON_SCHEMA` error entry carries `errorMessage` (the jsonschema exception message) and `exception`
+(the exception class). A `SHACL` error entry carries `graph` (the full SHACL validation report as
+Turtle — parse `sh:resultMessage`/`sh:resultPath`/`sh:focusNode` from it) rather than a flat message.
+
+If `jq` isn't installed locally, the postprocessing pipeline already requires Docker, so run the same
+queries through the `jq` image instead of reading the raw file:
+
+```bash
+docker run -i --rm stedolan/jq '.summary' < build/tests/report.json
+```
+
+Any of the queries above work the same way — pipe `report.json` in on stdin and pass the filter as the
+image's argument instead of a trailing filename.
+
 ---
 
 ## Interpreting errors
