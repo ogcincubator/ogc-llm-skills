@@ -213,7 +213,10 @@ Use `--log-level DEBUG` on the postprocessor for verbose output when debugging.
 ## 9. Commit and push
 
 The GitHub Actions workflow in the template will run automatically on push, post-process all blocks,
-and deploy the output to GitHub Pages.
+and deploy the output to GitHub Pages. The workflow commits the generated outputs
+(`register.json`, per-block index files, etc.) back to the branch, so the remote will have moved
+ahead of your local branch after CI finishes. Run `git pull -r` (or a pull with merge) before
+pushing further source changes, or the push will be rejected as non-fast-forward.
 
 ---
 
