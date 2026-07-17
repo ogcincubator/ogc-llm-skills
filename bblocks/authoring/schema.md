@@ -94,6 +94,16 @@ for the full annotation mechanism.
 
 ---
 
+## Identifier property
+
+It's good practice to give the schema an identifier property (commonly `id`), even if nothing in
+the immediate use case requires it. Linked data entities generally need an IRI to be referenced
+from elsewhere and merged correctly across graphs, and retrofitting an identifier later is a
+breaking change for anyone already producing instances. If the block has a JSON-LD context, map
+this property to `@id` — see [semantic/context.md](semantic/context.md#mapping-an-identifier-field-to-id).
+
+---
+
 ## Version compatibility
 
 The postprocessor auto-generates OAS 3.0 and OAS 3.1 compatible schemas from the source.

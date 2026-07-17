@@ -102,6 +102,27 @@ enclosing context.
 
 ---
 
+## Mapping an identifier field to `@id`
+
+If the schema has an identifier property (commonly `id`), map it to JSON-LD's `@id` keyword rather
+than to a regular predicate:
+
+```json
+{
+  "@context": {
+    "id": "@id"
+  }
+}
+```
+
+This makes the property's value the subject IRI of the entity instead of a literal/predicate value,
+which is usually what's intended — linked data entities need an IRI to be referenced from elsewhere
+and to merge correctly across graphs. Map **at most one** property per object to `@id`; mapping two
+is invalid JSON-LD (or ambiguous, depending on the processor) and only one can hold the entity's
+identity anyway.
+
+---
+
 ## Testing your context
 
 Use these tools while developing:
