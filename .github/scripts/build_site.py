@@ -98,7 +98,7 @@ for skill_md in sorted(repo_root.rglob("SKILL.md")):
             arc_path = Path(zip_stem) / f.relative_to(skill_dir)
             if f == skill_md:
                 zf.writestr(str(arc_path),
-                            f.read_text(encoding="utf-8") + UPDATE_SECTION)
+                            f.read_text(encoding="utf-8").rstrip("\n") + "\n" + UPDATE_SECTION)
             else:
                 zf.write(f, arc_path)
         zf.writestr(str(Path(zip_stem) / ".version"), json.dumps(version_obj, indent=2))
@@ -116,7 +116,7 @@ with zipfile.ZipFile(out_dir / fat_zip_name, "w", zipfile.ZIP_DEFLATED) as zf:
             arc_path = Path(zip_stem) / f.relative_to(skill_dir)
             if f == skill_md:
                 zf.writestr(str(arc_path),
-                            f.read_text(encoding="utf-8") + UPDATE_SECTION)
+                            f.read_text(encoding="utf-8").rstrip("\n") + "\n" + UPDATE_SECTION)
             else:
                 zf.write(f, arc_path)
         zf.writestr(str(Path(zip_stem) / ".version"), json.dumps(version_obj, indent=2))
