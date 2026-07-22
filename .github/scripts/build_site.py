@@ -260,6 +260,12 @@ understand the skill's scope and sub-files.
 
 All skills: {site_url}/{fat_zip_name}
 
+If the user asks to install or update *all* skills (rather than one or a
+few by name), download and extract `{fat_zip_name}` once instead of looping
+the single-skill steps above per skill — it contains every skill directory
+already prefixed correctly, so the same `unzip ... -d ~/.claude/skills`
+command extracts them all in one shot.
+
 ## Checking for and applying updates
 
 To check whether installed skills are up to date:
@@ -271,7 +277,9 @@ To check whether installed skills are up to date:
    (`~/.claude/skills/<skill-name>`) entirely, then extract the new zip into
    `~/.claude/skills` (same steps as initial installation). Do not overwrite
    in place — deleted or renamed files in the new version would otherwise be
-   left behind as stale copies.
+   left behind as stale copies. If several installed skills are out of date
+   at once, delete each of their directories and extract `{fat_zip_name}`
+   once rather than re-downloading a zip per skill.
 
 ## Available skills
 
