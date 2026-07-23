@@ -34,6 +34,10 @@ schema-oas30-downcompile: false
 # Viewer settings (optional)
 viewer:
   show-imported-depth: 0   # 0 = local only, N = N levels deep, -1 = all
+  view-plugins:            # custom client-side visualizations — see view-plugins.md
+    - url: https://example.org/my-plugin/dist/index.js
+      export: MyPlugin
+      weight: 100
 
 # SPARQL push (optional — see section below)
 sparql:
@@ -67,6 +71,12 @@ Controls which imported blocks appear in the published viewer:
 - `0` (default) — only local blocks
 - `N` — local + imported up to N levels deep
 - `-1` — show all imported blocks
+
+### `viewer.view-plugins`
+
+Declares custom client-side visualizations (ES modules loaded at runtime) for example snippets or
+transform outputs. See [view-plugins.md](view-plugins.md) for the full declaration format, the
+plugin interface, and how to write one.
 
 ---
 

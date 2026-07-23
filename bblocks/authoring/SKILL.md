@@ -75,6 +75,7 @@ Start here and follow links for the topic you need:
 | [extension-points.md](extension-points.md) | How do I specialize a block's referenced components? |
 | [rdf-only.md](rdf-only.md) | How do I define a block with no JSON Schema — only RDF/ontology content? |
 | [outputs.md](outputs.md) | What does the postprocessor produce, and where? |
+| [view-plugins.md](view-plugins.md) | How do I add a custom viewer visualization to a register? How do I write a view plugin, and is a given implementation correct? |
 
 ---
 
