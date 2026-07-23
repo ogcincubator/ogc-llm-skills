@@ -4,6 +4,16 @@
 you need to actually run one, you dispatch on `type` yourself. This file covers the built-in types
 and custom types added via transform plugins.
 
+## Media type values
+
+`inputs.mediaTypes`/`outputs.mediaTypes` (and a snippet's declared language, see
+[examples-and-docs.md](examples-and-docs.md)) are already canonicalized by the register's
+postprocessor before publishing — you'll only ever see the canonical MIME string, never a bare
+alias/shorthand. As of this writing the known set is: `application/json`, `text/turtle`,
+`application/rdf+xml`, `application/ld+json`, `application/xml`, `application/x-yaml`, `text/csv`,
+`application/geo+json`. Match against these exactly; don't also try to match aliases like `ttl`,
+`jsonld`, `turtle`, or `rdf/xml` — those never appear in published output.
+
 ## What you already have
 
 A block's `transforms` array (present directly in the `bblocks[]` summary — see
