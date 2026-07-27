@@ -28,6 +28,13 @@ identifier-prefix: myorg.myproject.
 imports:
   - default
 
+# Default license for the register and every block in it (optional)
+# At least one of name/url is required. A block overrides this with its own
+# "license" in bblock.json — see metadata.md.
+license:
+  name: Apache-2.0
+  url: https://www.apache.org/licenses/LICENSE-2.0
+
 # Generate OAS 3.0-compatible schemas in addition to the default OAS 3.1 output (optional)
 schema-oas30-downcompile: false
 
@@ -64,6 +71,13 @@ Each entry is either:
 - A URL to another register's `register.json`
 
 Imported blocks can be referenced via `bblocks://` URIs in schemas and are available for profiling.
+
+### `license`
+
+`{ name?, url? }` — at least one is required. Applies to the register as a whole and, unless
+overridden, to every block in it (a block's own `license` in `bblock.json` takes precedence — see
+[metadata.md](metadata.md)). If `url` is omitted and a `LICENSE`, `LICENSE.md` or `LICENSE.txt`
+file exists at the repository root, its published URL is filled in automatically.
 
 ### `viewer.show-imported-depth`
 

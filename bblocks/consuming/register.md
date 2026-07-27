@@ -19,6 +19,7 @@ data you can safely ignore.
 | `gitRepository`, `gitHubRepository` | Source repo URL; the latter is a browsable (`/blob/...`) GitHub URL. |
 | `modified` | ISO 8601 timestamp of the last build. |
 | `sparqlEndpoint` | SPARQL query endpoint for this register's RDF, if pushed to a triplestore. |
+| `license` | `{name?, url?}` — the register's default license, inherited by any block that doesn't declare its own (see per-block `license` below). |
 | `remoteCacheDir` | URL where cached external resources (e.g. imported schemas) are mirrored. |
 | `validationReport`, `validationReportJson` | URLs to the register-wide test report (HTML / JSON) — see [validation.md](validation.md#reading-validation-results-from-the-register-itself). |
 | `tooling` | Dict with build-tool versions/commit info (provenance, not consumption-relevant). |
@@ -47,6 +48,7 @@ metadata, an `{identifier: [url, ...]}` dict here).
 | `register` | Name of the register this block belongs to (useful once you've merged several via `imports`). |
 | `maturity`, `scope` | Free-text classification fields (e.g. `development`/`stable`, `stable`/`unstable`). |
 | `group`, `tags`, `highlighted`, `sources` | Display/categorization metadata. |
+| `license` | `{name?, url?}` — this block's license, already resolved from its own `bblock.json` or inherited from the register's `license` (see above). |
 | `dependsOn` | Array of identifiers this block has a runtime dependency on. |
 | `isProfileOf` | Array of identifiers this block profiles (stricter specialization). |
 | `extensionPoints` | Substitution mappings letting this block's schema swap in a different block at a defined extension point. |

@@ -71,6 +71,7 @@ Schema:
 | `sources` | Array of `{ title, link }` objects listing specs or papers this block is based on. |
 | `link` | Single URL to external documentation. |
 | `links` | Array of `{ title, href, rel?, notes? }` objects for richer link sets. |
+| `license` | `{ name?, url? }` object (at least one required). Overrides the register-wide `license` from `bblocks-config.yaml` if set — see [register-config.md](register-config.md). |
 
 ### Lifecycle and relationships
 
