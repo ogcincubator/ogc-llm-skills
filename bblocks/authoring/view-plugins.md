@@ -200,6 +200,10 @@ after generating one), verify:
   `context.depResolver` being undefined as "load a bundled copy instead" — a CDN-loading plugin
   that adopted this pattern still needs its own unconditional CDN fallback for that case (see
   "Sharing a dependency via `context.depResolver`" above).
+- If the plugin ships (or was started from) the starter's `publish-dist.yml` workflow, don't assume
+  its `dist` branch's published URL reflects a tagged release just because the repo has version
+  tags — by default it republishes on every push to `master` unless the workflow's trigger was
+  deliberately changed (see "Publishing `dist/`" below).
 
 ### Third-party dependencies
 
@@ -304,8 +308,35 @@ whole `dist/` directory together** — chunk files are fetched relative to `inde
 For local testing, serve `dist/` from any static file server (same-origin as the register/build
 directory being previewed is simplest) and point a local viewer instance's register config at it. A
 GitHub Gist's raw URL does **not** work as a plugin source (served as `text/plain` regardless of
-extension, rejected as a module script by the browser) — use a real repository (e.g. GitHub Pages)
-instead.
+extension, rejected as a module script by the browser) — use a real repository instead.
+
+### Publishing `dist/`
+
+A plugin started from bblocks-view-plugin-starter already has this solved:
+`.github/workflows/publish-dist.yml` builds `dist/` and pushes it to a `dist` branch (orphan
+history, force-pushed each run — not meant to be read or built on top of) on every push to
+`master`, then purges jsDelivr's cache for the changed files. That gives the plugin a stable,
+CORS-enabled URL with no GitHub Pages setup or separate hosting account:
+
+```
+https://cdn.jsdelivr.net/gh/<org>/<repo>@dist/index.js
+```
+
+Worth knowing when recommending or reviewing this:
+
+- **It publishes on every push to `master` by default** — there's no tag/release gate built in. If
+  a plugin author wants consumers pinned to reviewed releases rather than whatever's currently on
+  `master`, that requires editing the workflow's `on:` trigger yourself (e.g. `push: tags: ['v*']`)
+  — don't assume this happens automatically just because the plugin has version tags.
+- jsDelivr's `gh` CDN mode only covers real `user/repo` GitHub repositories, not gists — same
+  restriction as above.
+- If a plugin repo predates this pattern or wasn't started from the starter, the same workflow file
+  can be copied in directly (see
+  [bblocks-viewer-base-plugins](https://github.com/ogcincubator/bblocks-viewer-base-plugins)'s and
+  [bblocks-viewer-topo-feature-plugin](https://github.com/ogcincubator/bblocks-viewer-topo-feature-plugin)'s
+  own `.github/workflows/publish-dist.yml` for real examples) — GitHub Pages remains a valid
+  alternative but needs the repo's Pages source flipped to "GitHub Actions" first, a manual
+  one-time setting change this jsDelivr-based approach avoids entirely.
 
 ### Reference material
 
