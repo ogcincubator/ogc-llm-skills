@@ -71,7 +71,7 @@ Start here and follow links for the topic you need:
 | [validation.md](validation.md) | How does validation work? How do I interpret errors? |
 | [local-iteration.md](local-iteration.md) | How do I run the postprocessor locally for a fast edit→run loop? All CLI flags, step descriptions, and workflow examples for iterating on schema, uplift, transforms, or tests. |
 | [validation-plugins.md](validation-plugins.md) | How do I add a custom validator? |
-| [imports-profiles.md](imports-profiles.md) | How do I import another register? How do I profile a block? |
+| [imports-profiles.md](imports-profiles.md) | How do I import another register? How do I find a block to reuse/profile? How do I profile a block? |
 | [extension-points.md](extension-points.md) | How do I specialize a block's referenced components? |
 | [rdf-only.md](rdf-only.md) | How do I define a block with no JSON Schema — only RDF/ontology content? |
 | [outputs.md](outputs.md) | What does the postprocessor produce, and where? |

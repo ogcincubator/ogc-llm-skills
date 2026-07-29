@@ -19,6 +19,29 @@ imports:
 - If the URL ends with `build/register.json` or `register.json`, you can omit the suffix — the
   postprocessor tries the base URL and common suffixes automatically.
 
+### Finding blocks to reuse
+
+Before you can reference a block via `bblocks://<identifier>`, you need its identifier. If an MCP
+server for searching bblocks registers is available in your environment, prefer it — it's likely to
+offer keyword/semantic search across more registers than just the ones you've imported, without a
+manual per-register fetch. Otherwise, query the imported register's `register.json` directly: it
+publishes a `bblocks` array of summary objects, each with at least `itemIdentifier`, `name`,
+`abstract`, `status`, and `dependsOn`.
+
+```bash
+curl -s https://<register-base-url>/build/register.json -o /tmp/register.json
+
+# List every identifier with its name, to skim for a candidate
+jq '.bblocks[] | {itemIdentifier, name, status}' /tmp/register.json
+
+# Search by keyword in name/abstract
+jq '.bblocks[] | select((.name + " " + .abstract) | test("feature"; "i")) |
+    {itemIdentifier, name}' /tmp/register.json
+```
+
+Only `stable` (or at least non-`retired`/non-`invalid`) blocks are safe to build on for anything
+beyond experimentation — check `status` before committing to a dependency.
+
 ### What importing gives you
 
 - `bblocks://` URIs in schema `$ref` are resolved to the imported block's annotated schema URL.
