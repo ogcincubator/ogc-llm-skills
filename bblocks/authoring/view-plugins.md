@@ -64,8 +64,12 @@ of these visualizations for a media type it doesn't match by default.
 Start from [bblocks-view-plugin-starter](https://github.com/ogcincubator/bblocks-view-plugin-starter)
 (usable as a GitHub template, or `git clone`d directly). It provides a minimal plugin skeleton in
 both TypeScript and JavaScript, two complete worked examples (a JSON tree view, a CSV table view),
-the full interface as types (`src/view-plugin.d.ts`), and a Vite build producing a single deployable
-`dist/index.js`.
+and a Vite build producing a single deployable `dist/index.js`. The full interface as types comes
+from [bblocks-viewer-plugin-types](https://github.com/ogcincubator/bblocks-viewer-plugin-types),
+the canonical, dependency-free source — the starter (and every first-party plugin repo) depends on
+it as a `github:ogcincubator/bblocks-viewer-plugin-types` devDependency (types only, never a
+runtime dependency) and imports from `@ogc/bblocks-viewer-plugin-types`. The
+`ViewPluginContext`/`DependencyResolver` interfaces below mirror that canonical file.
 
 ```bash
 git clone https://github.com/ogcincubator/bblocks-view-plugin-starter my-plugin
@@ -94,6 +98,21 @@ interface ViewPluginCandidate {
 interface ViewPluginContext {
   bblock: Record<string, unknown> | null;       // full bblock (json-full shape); null if unavailable
   viewerConfig: Record<string, unknown> | null;  // viewer's resolved runtime config; null if unavailable
+  depResolver?: DependencyResolver;  // optional shared-dependency cache; see "Sharing a dependency" below
+}
+
+interface DependencyResolver {
+  // Returns a cached, version-compatible module if one is already loaded or in flight for `name`;
+  // otherwise calls load() and caches the resulting promise under `version` so a concurrent or
+  // later caller with a compatible `range` gets the same instance instead of loading its own.
+  // Rejection propagates to every caller sharing that promise; a failed load() does not
+  // permanently poison the cache slot -- the next call after a failure retries.
+  resolve<T>(opts: {
+    name: string;    // registry key, e.g. 'three' -- must match what other plugins register under
+    range: string;   // semver range this call can accept from an already-cached version
+    version: string; // exact version load() will fetch if nothing compatible is cached
+    load: () => Promise<T>;
+  }): Promise<T>;
 }
 
 interface ViewPluginInstance {
@@ -176,6 +195,11 @@ after generating one), verify:
   guarded against duplicate injection — a *dynamic* `import()` of a `?raw` CSS asset is rejected by
   the browser (most static hosts serve it with a Content-Type that fails module-script MIME
   checking).
+- If the plugin uses `context.depResolver`, it always `await`s (or otherwise consumes) the promise
+  `resolve()` returns before touching the module it resolves to, and it does not treat
+  `context.depResolver` being undefined as "load a bundled copy instead" — a CDN-loading plugin
+  that adopted this pattern still needs its own unconditional CDN fallback for that case (see
+  "Sharing a dependency via `context.depResolver`" above).
 
 ### Third-party dependencies
 
@@ -195,6 +219,60 @@ class MyPlugin {
 
 A lightweight top-level import is fine — every declared plugin module gets imported unconditionally
 just to read `static supportedTypes`, so this only matters for genuinely heavy dependencies.
+
+### Sharing a dependency via `context.depResolver`
+
+Bundling (above) is still the right default for most plugins. `context.depResolver` is optional
+infrastructure for the narrower case where a genuinely heavy dependency is shared with *another*
+plugin the same host might load at the same time (e.g. two 3D-rendering plugins both needing
+`three`) — it lets both share one runtime module instance instead of each fetching (and
+parsing/executing) their own copy:
+
+```js
+const THREE_VERSION = '0.184.0';
+const loadThree = () => import(`https://esm.sh/three@${THREE_VERSION}`);
+
+class MyPlugin {
+  constructor(candidates, context = {}) {
+    this.candidates = candidates;
+    this._context = context;
+  }
+
+  async render(el) {
+    const THREE = this._context.depResolver
+      ? await this._context.depResolver.resolve({
+          name: 'three', range: `^${THREE_VERSION}`, version: THREE_VERSION, load: loadThree,
+        })
+      : await loadThree();
+    // use THREE
+  }
+}
+```
+
+Preconditions and limits worth knowing before recommending this pattern:
+
+- It only makes sense if the dependency is loaded from a CDN (e.g. `esm.sh`), not bundled — two
+  independently bundled copies are two separate module instances regardless of `depResolver`, so
+  there's nothing to dedupe. Adopting the CDN-loading pattern is itself a bigger commitment than it
+  looks: the plugin now depends on a public CDN being reachable at runtime for every user,
+  including any host deployment on a restrictive network. Don't suggest it as a drop-in
+  optimization over bundling without flagging that tradeoff.
+- **It dedupes only the exact `name`/`range` a plugin explicitly registers — nothing more.** It does
+  not walk a package's own dependency tree, and it cannot discover that two unrelated top-level
+  packages happen to share some common transitive dependency unless both plugin authors
+  independently notice that and register it under the same `name` themselves. Do not describe
+  `depResolver` as general dependency deduplication — it shares only what a plugin author
+  explicitly names.
+- `range` and `version` are not cross-checked by `resolve()` — keeping them consistent (`range`
+  actually describing what `load()` fetches) is the plugin author's responsibility. Getting this
+  wrong doesn't corrupt another plugin's cache entry, since the cache stores the fetched `version`,
+  not the `range` that was searched with — it just means this plugin's own future cache hits
+  silently degrade to "load your own copy."
+- Its absence (`context.depResolver` undefined) does not mean "fall back to bundling" — it means
+  "skip the sharing optimization, still load from the CDN," as in the ternary above.
+
+See [bblocks-viewer-base-plugins](https://github.com/ogcincubator/bblocks-viewer-base-plugins)'
+`three-d-plugin.js` (`resolveThree()`) for a real worked example.
 
 ### Injecting CSS
 
@@ -231,7 +309,13 @@ instead.
 
 ### Reference material
 
+- [bblocks-viewer-plugin-types](https://github.com/ogcincubator/bblocks-viewer-plugin-types) —
+  the canonical, single-source-of-truth, dependency-free type contract (`ViewPluginCandidate`,
+  `ViewPluginContext`, `DependencyResolver`, `ViewPluginInstance`, `ViewPluginClass`). Every plugin
+  repo below depends on it as a `github:` devDependency rather than keeping its own copy — it was
+  briefly a subpath export of `bblocks-viewer` itself, but that made every plugin repo's
+  `npm install` clone the whole app just for its types, hence the standalone repo.
 - [bblocks-view-plugin-starter](https://github.com/ogcincubator/bblocks-view-plugin-starter) —
-  starter template: skeleton plugins, two worked examples, typed interface, build setup.
+  starter template: skeleton plugins, two worked examples, build setup.
 - [bblocks-viewer-base-plugins](https://github.com/ogcincubator/bblocks-viewer-base-plugins) — the
   viewer's own map/3D/web-view plugins, a larger real-world reference against the same interface.
