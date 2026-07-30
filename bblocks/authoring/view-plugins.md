@@ -146,8 +146,8 @@ interface ViewPluginClass {
   // with no overlapping type is never instantiated (its constructor/matches()/render() never run).
   supportedTypes: string[];
 
-  // Tab label. Falls back to the class name if omitted.
-  viewName?: string;
+  // Tab label. Required — also used to generate the tab's shareable link.
+  viewName: string;
 
   // MDI icon name (e.g. 'mdi-map') for the tab. Falls back to 'mdi-puzzle-outline' if omitted.
   icon?: string;
@@ -171,8 +171,14 @@ attempting its own fetch of `url`.
 4. `matches()` is called (default `true` if unimplemented). If it returns `false`, the plugin is
    skipped — no tab added.
 5. Otherwise a tab is added; `render(el)` runs when the tab is activated.
-6. A plugin that throws during construction, `matches()`, or `render()` is logged to the console and
-   skipped — never breaks the rest of the match pass or any other plugin's tab.
+6. A plugin that throws during construction or `matches()` is logged to the console and skipped —
+   no tab, never breaks the rest of the match pass or any other plugin's tab. A synchronous throw
+   from `render()` is different: by then the tab is already showing, so the host catches it, tears
+   down whatever mounted, and shows a visible error banner in the tab (plus a console error) instead
+   of leaving it blank. This only covers synchronous throws from `render()` itself — an error from
+   the plugin's own async code afterward (an unawaited rejected promise, a `requestAnimationFrame`
+   loop, an event handler) is outside anything the host can catch, so a plugin should catch and
+   surface those itself rather than relying on the host.
 
 ### Validating whether a candidate plugin implementation is correct
 
@@ -182,7 +188,9 @@ after generating one), verify:
 - It's a genuine ES module (`export`/`export default`) — no IIFE/UMD/global-script form is
   supported.
 - The exported class (or each named export listed in `export:`) has a non-empty static
-  `supportedTypes` array of MIME-type strings (wildcards `'text/*'`/`'*/*'` allowed).
+  `supportedTypes` array of MIME-type strings (wildcards `'text/*'`/`'*/*'` allowed), and a
+  non-empty static `viewName` string — a class missing it is skipped by the host with a console
+  warning, same as a failed `matches()`.
 - The constructor accepts `(candidates, context)` and does not throw for an empty or
   partially-null-content `candidates` array — the constructor may run before content resolves.
 - If `matches()` is implemented, it takes no arguments and returns a plain boolean synchronously.
@@ -309,6 +317,11 @@ For local testing, serve `dist/` from any static file server (same-origin as the
 directory being previewed is simplest) and point a local viewer instance's register config at it. A
 GitHub Gist's raw URL does **not** work as a plugin source (served as `text/plain` regardless of
 extension, rejected as a module script by the browser) — use a real repository instead.
+
+If the user is testing a plugin live rather than just asking for it to be written, tell them to keep
+the browser devtools console open while doing so. A synchronous `render()` throw gets a visible
+error banner in the tab, but anything from the plugin's own async code (see point 6 under
+"Host-side matching flow" above) has no on-page indication at all and only ever shows up there.
 
 ### Publishing `dist/`
 
