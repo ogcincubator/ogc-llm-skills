@@ -3,6 +3,9 @@
 This file covers how to run the postprocessor efficiently in a tight edit→run→inspect loop,
 whether you are iterating on a schema, a JSON-LD context, semantic uplift, transforms, or tests.
 
+Working on a fork to submit changes upstream? See [contributing.md](contributing.md) for the
+fork → PR workflow and how to avoid `build/`-directory merge conflicts.
+
 ---
 
 ## Postprocessor CLI reference

@@ -1,0 +1,96 @@
+# Contributing to an existing register (fork → PR)
+
+Covers the fork-based contribution workflow: why `build/` causes merge conflicts, how
+`create-clean-pr.sh` avoids them, and how to override fork-specific config without leaking it
+upstream.
+
+---
+
+## The problem: `build/` merge conflicts
+
+The postprocessing workflow commits its output (`build/`) to your fork on every push (see
+[outputs.md](outputs.md)). If you open a Pull Request straight from your fork's `master`/`main`
+branch, those generated artifacts get dragged into the review and collide with the same directory
+on the upstream register — creating merge conflicts that have nothing to do with your actual
+change.
+
+## `create-clean-pr.sh`
+
+[create-clean-pr.sh](https://github.com/opengeospatial/bblocks-postprocess/raw/refs/heads/master/scripts/create-clean-pr.sh)
+produces a PR-ready branch with all `build/` history stripped out, so the Pull Request only shows
+your real source changes.
+
+Typical setup and use:
+
+1. Fork the upstream register on GitHub, then enable Actions on the fork (GitHub disables them on
+   forks by default — "Actions" tab → enable workflows) so postprocessing runs on your pushes.
+2. Clone the fork and add the upstream repository as a remote, conventionally named `fork-parent`
+   — this is the default remote name the script looks for (configurable to something else, e.g.
+   `upstream`).
+3. Work on the fork's `master`/`main` branch as usual: edit sources, commit, push. Each push
+   triggers postprocessing and previews the register on the fork's own GitHub Pages site.
+4. Before running the script, commit or stash any pending changes — it rewrites history and
+   requires a clean working tree.
+5. Run the script locally in the register's directory. It will:
+   - create a new branch with a random name,
+   - strip all changes to `build/` from that branch's history,
+   - push the branch to your fork,
+   - print a ready-to-use compare URL for opening the Pull Request.
+6. Open the PR from the printed URL — **not** from `master`/`main`.
+
+It depends on [`git-filter-repo`](https://github.com/newren/git-filter-repo) (a Python script): if
+already installed it's used directly, otherwise the script downloads a temporary copy and deletes
+it afterward. A working Python environment is required either way.
+
+On Windows, run it from Git Bash or WSL — it's a bash script with no `.bat`/PowerShell equivalent.
+
+### Automating steps with `gh`
+
+If the `gh` CLI is available, an agent can drive most of this workflow without a browser instead of
+telling the user to click through the GitHub UI:
+
+```bash
+# Fork the upstream register and clone it, in one step
+gh repo fork <upstream-owner>/<upstream-repo> --clone
+
+# Enable Actions on the fork (the UI equivalent of the "Actions" tab's
+# "I understand my workflows, enable them" button, which forks require)
+gh api -X PUT repos/<your-user>/<upstream-repo>/actions/permissions -f enabled=true
+
+# After create-clean-pr.sh prints its compare URL, open the PR directly instead of visiting it:
+gh pr create --repo <upstream-owner>/<upstream-repo> \
+  --head <your-user>:<printed-branch-name> \
+  --title "..." --body "..."
+```
+
+Confirm with the user before forking a repository or opening a PR on their behalf — these are
+visible, hard-to-fully-reverse actions on a shared/public repository.
+
+### Updating an existing PR
+
+Each run creates a brand-new temporary branch and a new compare URL — it does **not** update a
+previously created branch or PR. If you keep committing to `master`/`main` after opening a PR,
+re-run the script and either retarget the existing PR at the new branch, or close it and open a new
+one from the newly printed URL. The old temporary branch can then be deleted.
+
+---
+
+## Fork-specific config overrides
+
+While working on a fork you may want different `bblocks-config.yaml` settings than the ones you
+intend to submit upstream — e.g. a different `identifier-prefix` or `imports` list for local
+testing — without those changes leaking into the PR.
+
+Create `bblocks-config-override.yml` (or `.yaml`) at the repository root. Any top-level key present
+overrides the corresponding value from `bblocks-config.yaml`:
+
+```yaml
+# bblocks-config-override.yml
+identifier-prefix: my-fork.
+imports:
+  - https://www.example.com/overriden-import-1
+  - https://www.example.com/overriden-import-2
+```
+
+`create-clean-pr.sh` automatically excludes this file from the clean PR branch, so fork-specific
+overrides never appear in the Pull Request.
