@@ -5,10 +5,10 @@
 ```
 my-bblocks-repo/
   bblocks-config.yaml        # register-level config → register-config.md
-  bblocks-config-local.yml   # local URL mappings for testing (gitignored) → see below
+  bblocks-config-local.yml   # local URL mappings for testing (gitignored) → imports-profiles.md
   build.sh                   # convenience wrapper: runs postprocessor via Docker → local-iteration.md
   view.sh                    # launches the bblocks viewer against build-local/ → local-iteration.md
-  .volumes                   # extra Docker volume mounts for build.sh (gitignored, optional)
+  .volumes                   # extra Docker volume mounts for build.sh (gitignored, optional) → imports-profiles.md
   docker-compose.yml         # alternative to build.sh / view.sh
   .github/
     workflows/
@@ -71,23 +71,5 @@ copied directly to the GitHub Pages output alongside the block. Use them for ima
 
 ## Local URL mappings
 
-`bblocks-config-local.yml` (gitignored) allows redirecting remote URLs to local paths during testing:
-
-```yaml
-url-mappings:
-  'https://example.com/imported/': '/local/path/to/imported-register/'
-  'https://example.com/relative/': '../../other-register'
-```
-
-When running via Docker, local paths must also be mounted as volumes:
-
-```bash
-docker run ... -v "/local/path/to/imported-register:/local/path/to/imported-register" ...
-```
-
-If using `build.sh`, add entries to a `.volumes` file instead:
-
-```
-/absolute/path:/container/mount
-../relative/path:/container/mount2
-```
+`bblocks-config-local.yml` (gitignored) redirects remote import URLs to local paths for offline or
+restricted-network testing — see [imports-profiles.md](imports-profiles.md).
