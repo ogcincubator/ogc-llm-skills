@@ -55,8 +55,18 @@ allOf:
             enum: [temperature, pressure, humidity]
 ```
 
-JSON Schema profiling is genuinely complex; see [extension-points.md](extension-points.md) for an
-alternative mechanism that handles recursive substitution in imported schemas.
+JSON Schema profiling is genuinely complex, but two mechanisms already cover the common cases —
+prefer these over hand-writing `allOf` yourself where they fit:
+
+- `extends` in `bblock.json` joins this block's schema with a base block's schema using `allOf`,
+  optionally inserting it at a specific property path. See [metadata.md](metadata.md).
+- [extension-points.md](extension-points.md) (experimental) lets you specialize a base block by
+  constraining specific blocks it references — including ones reached transitively through its
+  imports — to a more specific block, without hand-editing the base schema.
+
+Beyond those two, general JSON Schema profiling remains an open problem — no wizard tool or
+constraint DSL exists yet, so complex cases still require hand-written `allOf` composition as shown
+above.
 
 ---
 
@@ -106,9 +116,18 @@ this property to `@id` — see [semantic/context.md](semantic/context.md#mapping
 
 ## Version compatibility
 
-The postprocessor auto-generates OAS 3.0 and OAS 3.1 compatible schemas from the source.
-Write schemas using modern JSON Schema (draft 2020-12 or 2019-09) and let the postprocessor
-handle downward compatibility. Avoid `$dynamicRef` if OAS 3.0 compatibility is important.
+Write schemas using modern JSON Schema (draft 2020-12 or 2019-09) and let the postprocessor handle
+downward compatibility, rather than hand-restricting to older JSON Schema features. The postprocessor
+generates OAS 3.1-compatible output by default; an additional OAS 3.0-compatible down-compiled
+schema is generated only if you opt in with `schema-oas30-downcompile: true` in
+`bblocks-config.yaml` (see [register-config.md](register-config.md)) — it is disabled by default.
+Avoid `$dynamicRef` if OAS 3.0 compatibility is important, since reuse mechanisms like it may not be
+down-compilable.
+
+OGC APIs are currently bound to OAS 3.0, which limits which JSON Schema patterns are supported —
+complex structural hierarchies often need to be recreated and composed via `allOf[]` to place
+constraints at the right location, rather than relying on more modern JSON Schema composition
+features.
 
 ---
 

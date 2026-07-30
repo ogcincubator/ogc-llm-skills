@@ -120,8 +120,51 @@ Schema:
 
 | Field | Description |
 |-------|-------------|
-| `resources` | Array of external artifacts (data files, vocabularies, XSD schemas…). Each entry has `ref` (URL or relative path), `format`, and optionally `role` and `conformsTo`. Use `role: validation` to expose resources to validator plugins via `meta.context.validation_resources`; use `role: data` for associated RDF data files (replaces the deprecated `rdfData` field). |
+| `resources` | Array of external artifacts that don't fit a dedicated property (`schema`, `ontology`, `ldContext`). See [entry fields](#resources-entry-fields) below. |
 | `rdfData` | **Deprecated.** Use `resources` with `role: data` instead. May appear in older repositories. |
+
+#### `resources` entry fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `role` | yes | Relationship of this resource to the block. Accepts any URI; see [well-known roles](#well-known-resource-roles) for recognised short names. |
+| `ref` | yes | File path (relative to the block directory) or URL. |
+| `format` | yes | MIME type, e.g. `text/turtle`, `application/json`. |
+| `title` | no | Human-readable label. |
+| `conformsTo` | no | URI of a profile or specification this resource conforms to. |
+
+#### Well-known resource roles
+
+Seven of these short names are the Resource Role instances defined by the W3C [Profiles Vocabulary
+(PROF)](https://www.w3.org/TR/dx-prof/#resource-role-instances), under the `role:` namespace
+`http://www.w3.org/ns/dx/prof/role/` — bblocks reuses PROF's terms rather than inventing its own.
+`data` is a bblocks-specific addition, not part of PROF.
+
+| Role | Description |
+|------|-------------|
+| `constraints` | Descriptions of obligations, limitations, or extensions the block/profile defines |
+| `data` | *(not in PROF)* RDF or other data associated with the block — a `data.ttl` file in the block directory is auto-added with this role and `format: text/turtle` if not already declared |
+| `example` | Sample instance data conforming to the block |
+| `guidance` | Non-authoritative, human-readable documentation on how to use the block |
+| `mapping` | Describes conversions between two specifications |
+| `schema` | Machine-readable structural description of data defined by the block (PROF alt. labels: Shape, Structure) |
+| `specification` | Authoritative, human-readable definition of the block |
+| `validation` | Instructions for verifying conformance of data to the block; implies inclusion/import of inherited constraints — exposed to validator plugins via `meta.context.validation_resources` (see [validation-plugins.md](validation-plugins.md)) |
+| `vocabulary` | Defines terms used in the block's specification |
+
+PROF flags this role list as a "feature at risk" pending wider agreement — treat it as extensible: a
+`role` value can be any URI, and applications (including bblocks) may add specialised roles beyond
+this set.
+
+```json
+{
+  "resources": [
+    { "role": "data", "ref": "data.ttl", "format": "text/turtle", "title": "Background ontology data" },
+    { "role": "specification", "ref": "https://example.org/my-spec.html", "format": "text/html" },
+    { "role": "vocabulary", "ref": "vocab.ttl", "format": "text/turtle", "conformsTo": "https://www.w3.org/TR/skos-reference/" }
+  ]
+}
+```
 
 ---
 

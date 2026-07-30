@@ -24,25 +24,33 @@ Typical setup and use:
 
 1. Fork the upstream register on GitHub, then enable Actions on the fork (GitHub disables them on
    forks by default — "Actions" tab → enable workflows) so postprocessing runs on your pushes.
-2. Clone the fork and add the upstream repository as a remote, conventionally named `fork-parent`
+2. The fork is a separate repository, so it needs its own **Pages** configuration too: **Settings →
+   Pages → Source → GitHub Actions** (same setting as initial repo creation, see
+   [quickstart.md](quickstart.md#enable-github-pages)). Without this the fork's preview build
+   succeeds but isn't published anywhere.
+3. The postprocessing workflow only runs automatically on a push. If you need output *before* your
+   first push (or to confirm the setup works right after enabling Actions), trigger it manually:
+   **Actions tab → "validate and postprocess" workflow → Run workflow** (`workflow_dispatch`), or
+   `gh workflow run "validate and postprocess"` if the `gh` CLI is available.
+4. Clone the fork and add the upstream repository as a remote, conventionally named `fork-parent`
    — this is the default remote name the script looks for (configurable to something else, e.g.
    `upstream`).
-3. Work on the fork's `master`/`main` branch as usual: edit sources, commit, push. Each push
+5. Work on the fork's `master`/`main` branch as usual: edit sources, commit, push. Each push
    triggers postprocessing and previews the register on the fork's own GitHub Pages site.
-4. Before running the script, commit or stash any pending changes — it rewrites history and
+6. Before running the script, commit or stash any pending changes — it rewrites history and
    requires a clean working tree.
-5. Run the script locally in the register's directory. It will:
+7. Run the script locally in the register's directory. It will:
    - create a new branch with a random name,
    - strip all changes to `build/` from that branch's history,
    - push the branch to your fork,
    - print a ready-to-use compare URL for opening the Pull Request.
-6. Open the PR from the printed URL — **not** from `master`/`main`.
+8. Open the PR from the printed URL — **not** from `master`/`main`.
 
 It depends on [`git-filter-repo`](https://github.com/newren/git-filter-repo) (a Python script): if
 already installed it's used directly, otherwise the script downloads a temporary copy and deletes
 it afterward. A working Python environment is required either way.
 
-On Windows, run it from Git Bash or WSL — it's a bash script with no `.bat`/PowerShell equivalent.
+It's a bash script — see [Prerequisites](SKILL.md#prerequisites) for the Windows/Git-Bash/WSL note.
 
 ### Automating steps with `gh`
 

@@ -27,7 +27,7 @@ my-bblocks-repo/
         transforms.yaml      # transforms → transforms.md
         semantic-uplift.yaml # semantic uplift config → semantic/uplift.md
         assets/              # static files (images, etc.) — no fixed name required
-        description.md       # long-form Markdown block docs → metadata.md
+        description.md       # long-form Markdown block docs → see below
   build/                     # NEVER edit — postprocessor output committed for CI/GitHub Pages → outputs.md
   build-local/               # gitignored local postprocessor output; inspect here when iterating locally → local-iteration.md, outputs.md
 ```
@@ -63,6 +63,16 @@ treated as namespaces and are part of the identifier but have no block of their 
 
 The `build/` directory **must never be edited by hand**. Applications and other registers should
 reference resources from `build/`, not `_sources/`.
+
+## Human-readable documentation (`description.md`)
+
+Long-form Markdown documentation for a block goes in `description.md` in the block directory.
+
+- Relative links and images (`some/relative/link.ext`) are resolved to full source URLs when the
+  block is published.
+- To cross-reference *another block* from within the prose (as opposed to a schema `$ref`), use the
+  `bblocks://my.prefix.my.bb` URL scheme as a plain link target — this resolves on deployed pages
+  and in the local viewer alike, e.g. `[see also](bblocks://ogc.geo.features.feature)`.
 
 ## Static assets
 
