@@ -104,7 +104,7 @@ for skill_md in sorted(repo_root.rglob("SKILL.md")):
         zf.writestr(str(Path(zip_stem) / ".version"), json.dumps(version_obj, indent=2))
 
     skills.append({"name": name, "description": desc, "zip": zip_name,
-                   "commit": commit, "date": date})
+                   "commit": commit, "date": date, "path": str(skill_dir)})
     all_skill_entries.append((zip_stem, skill_dir, skill_md, skill_files, version_obj))
     print(f"  packaged: {zip_name}  ({name})")
 
@@ -293,9 +293,11 @@ To check whether installed skills are up to date:
 print("  wrote: llms.txt")
 
 
-def install_block(unix_cmd: str, win_cmd: str) -> str:
+def install_block(npx_cmd: str, unix_cmd: str, win_cmd: str) -> str:
+    npx_esc = html_lib.escape(npx_cmd)
     unix_esc = html_lib.escape(unix_cmd)
     win_esc = html_lib.escape(win_cmd)
+    npx_attr = html_lib.escape(npx_cmd, quote=True)
     unix_attr = html_lib.escape(unix_cmd, quote=True)
     win_attr = html_lib.escape(win_cmd, quote=True)
     return f"""\
@@ -303,9 +305,18 @@ def install_block(unix_cmd: str, win_cmd: str) -> str:
     <div class="install-header">
       <span class="install-title">Install on Claude Code</span>
       <div class="os-tabs">
+        <button class="os-tab" data-os="npx">npx skills</button>
         <button class="os-tab" data-os="unix">macOS / Linux</button>
         <button class="os-tab" data-os="win">Windows</button>
       </div>
+    </div>
+    <div class="install-cmd" data-os="npx">
+      <div class="install-cmd-code">
+        <code>{npx_esc}</code>
+        <div class="install-note">Installs straight from source — skips the <code>.version</code> file and
+        "Updating this skill" section baked into the zip. Use the macOS/Linux or Windows tab for those.</div>
+      </div>
+      <button class="copy-btn" data-clipboard="{npx_attr}">Copy</button>
     </div>
     <div class="install-cmd" data-os="unix">
       <div class="install-cmd-code"><code>{unix_esc}</code></div>
@@ -338,7 +349,8 @@ def skill_card(s: dict) -> str:
         f"Expand-Archive -Path \"$env:TEMP\\{zip_name_esc}\" "
         f"-DestinationPath \"$env:USERPROFILE\\.claude\\skills\" -Force"
     )
-    block = install_block(unix_cmd, win_cmd)
+    npx_cmd = f"npx skills add {repo_url}/tree/master/{s['path']}"
+    block = install_block(npx_cmd, unix_cmd, win_cmd)
     return f"""\
   <div class="skill">
     <h2>{name}</h2>
@@ -365,7 +377,8 @@ fat_win_cmd = (
     f"Expand-Archive -Path \"$env:TEMP\\{fat_zip_name}\" "
     f"-DestinationPath \"$env:USERPROFILE\\.claude\\skills\" -Force"
 )
-fat_block = install_block(fat_unix_cmd, fat_win_cmd)
+fat_npx_cmd = f"npx skills add {repo_url}/tree/master --full-depth"
+fat_block = install_block(fat_npx_cmd, fat_unix_cmd, fat_win_cmd)
 
 index_html = f"""\
 <!DOCTYPE html>
@@ -400,6 +413,8 @@ index_html = f"""\
     .install-cmd.hidden {{ display: none; }}
     .install-cmd-code {{ flex: 1; overflow-x: auto; }}
     .install-cmd code {{ font-size: 0.78rem; white-space: pre; font-family: ui-monospace, monospace; }}
+    .install-note {{ margin-top: 0.35rem; font-size: 0.78rem; color: #777; line-height: 1.5; white-space: normal; }}
+    .install-note code {{ font-size: 0.9em; }}
     .copy-btn {{ flex-shrink: 0; align-self: flex-start; padding: 0.15rem 0.55rem; font-size: 0.72rem; background: #fff; border: 1px solid #d0d7de; border-radius: 3px; cursor: pointer; color: #555; white-space: nowrap; }}
     .copy-btn:hover {{ background: #f0f0f0; }}
     footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #eee; font-size: 0.8rem; color: #999; }}
@@ -446,7 +461,7 @@ index_html = f"""\
     document.querySelectorAll(".os-tab").forEach(function(btn) {{
       btn.addEventListener("click", function() {{ setOS(btn.dataset.os); }});
     }});
-    setOS(localStorage.getItem(OS_KEY) || "unix");
+    setOS(localStorage.getItem(OS_KEY) || "npx");
     document.querySelectorAll(".copy-btn").forEach(function(btn) {{
       btn.addEventListener("click", function() {{
         navigator.clipboard.writeText(btn.dataset.clipboard).then(function() {{

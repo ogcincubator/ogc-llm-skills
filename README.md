@@ -46,17 +46,42 @@ in the Claude Help Center.
 
 ### Claude Code
 
+**`npx skills` (recommended if you have it)**
+
+```bash
+npx skills add https://github.com/ogcincubator/ogc-llm-skills/tree/master/bblocks/authoring
+```
+
+Swap in the path of the skill you want (see the table above), or install
+everything at once with:
+
+```bash
+npx skills add https://github.com/ogcincubator/ogc-llm-skills/tree/master --full-depth
+```
+
+This installs straight from source, so it skips the `.version` file and the
+"Updating this skill" section that the published zips carry — use the manual
+method below if you want those.
+
+**Manual**
+
 Each zip wraps its contents in a top-level directory named after the skill
 (e.g. `bblocks-authoring/`), so extract it directly into a skills directory:
 
 ```bash
-# Project-level (only available in this project)
+# macOS / Linux — project-level (only available in this project)
 mkdir -p .claude/skills
 unzip bblocks-authoring.zip -d .claude/skills
 
-# User-level (available in all projects)
+# macOS / Linux — user-level (available in all projects)
 mkdir -p ~/.claude/skills
 unzip bblocks-authoring.zip -d ~/.claude/skills
+```
+
+```powershell
+# Windows — user-level (available in all projects)
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills" | Out-Null
+Expand-Archive -Path bblocks-authoring.zip -DestinationPath "$env:USERPROFILE\.claude\skills" -Force
 ```
 
 Claude Code discovers skills automatically at startup.
