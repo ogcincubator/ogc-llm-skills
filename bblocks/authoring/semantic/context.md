@@ -75,6 +75,15 @@ assembles a combined `context.jsonld` that includes the imported block's context
 The assembled context is written to `build/.../context.jsonld` and is the canonical context to use
 when processing instances of this block.
 
+**It's normal for a source `context.jsonld` to end up empty.** If a block's schema only adds
+constraints (e.g. a stricter `const` on an inherited `type`, or a narrower `minItems`) without
+introducing any property name that isn't already mapped by an imported block's context, there is
+nothing new to declare. `{"@context": {}}` is the correct, expected content in that case — not a
+sign something was forgotten. Don't copy-paste mappings from a sibling block's context "just to be
+safe"; if the term is already reachable through a `bblocks://` `$ref`, redeclaring it locally only
+risks the block's own value silently diverging from the inherited one (see "Shadowing imported
+context properties" below).
+
 ---
 
 ## Local contexts and `@base`
