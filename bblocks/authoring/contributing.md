@@ -16,9 +16,13 @@ change.
 
 ## `create-clean-pr.sh`
 
-[create-clean-pr.sh](https://github.com/opengeospatial/bblocks-postprocess/raw/refs/heads/master/scripts/create-clean-pr.sh)
-produces a PR-ready branch with all `build/` history stripped out, so the Pull Request only shows
-your real source changes.
+Every register scaffolded from [bblocks-template](https://github.com/opengeospatial/bblocks-template) already
+has `create-clean-pr.sh` at its root, alongside `build.sh`/`view.sh` — postprocessing keeps it up to date (and
+adds it back if missing) automatically, so it usually doesn't need to be fetched manually. If a register predates
+it or it's missing for some other reason, grab the current version directly:
+[create-clean-pr.sh](https://github.com/opengeospatial/bblocks-template/raw/refs/heads/master/create-clean-pr.sh).
+It produces a PR-ready branch with all `build/` history stripped out, so the Pull Request only shows the real
+source changes.
 
 Typical setup and use:
 
