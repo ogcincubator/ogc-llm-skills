@@ -24,6 +24,55 @@ GitHub URLs (`git+https://...`), local paths.
 
 ---
 
+## Package layout
+
+A transform plugin is an ordinary installable Python package — no entry points, decorators, or
+special package metadata are needed. `pip` just needs to be able to install it; the postprocessor
+then imports the module(s) listed under `modules` and scans them by duck typing.
+
+Minimal layout:
+
+```
+my-bblocks-plugin/
+├── pyproject.toml
+└── my_bblocks_plugin/
+    └── __init__.py       # defines the transformer class(es)
+```
+
+```toml
+# pyproject.toml
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "my-bblocks-plugin"
+version = "0.1.0"
+dependencies = []          # runtime deps the transform code needs, e.g. "jinja2"
+```
+
+The distribution name (`my-bblocks-plugin`) and the importable module name
+(`my_bblocks_plugin`, listed under `modules`) don't have to match.
+
+**Local development loop:** while iterating, point `pip:` at the plugin's local directory instead
+of a Git URL — a relative path resolves from wherever you invoke the postprocessor (the register
+root, with the standard Docker invocation). The postprocessor reinstalls from that path on every
+run, so edits take effect immediately with no publish step:
+
+```yaml
+plugins:
+  transforms:
+    - pip: ../my-bblocks-plugin
+      modules:
+        - my_bblocks_plugin
+```
+
+Then run the postprocessor against a scratch block with `--filter ... --skip-permissions true`
+(see [local-iteration.md](local-iteration.md)) to exercise the plugin end to end. Switch `pip:`
+back to the published Git URL/version before committing `bblocks-config.yaml`.
+
+---
+
 ## How a plugin is recognized
 
 The postprocessor scans the listed Python modules for classes that have:

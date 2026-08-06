@@ -20,6 +20,55 @@ plugins:
 
 ---
 
+## Package layout
+
+A validator plugin is an ordinary installable Python package — no entry points, decorators, or
+special package metadata are needed. `pip` just needs to be able to install it; the postprocessor
+then imports the module(s) listed under `modules` and scans them by duck typing.
+
+Minimal layout:
+
+```
+my-bblocks-validator-plugin/
+├── pyproject.toml
+└── my_bblocks_validator_plugin/
+    └── __init__.py       # defines the validator class(es)
+```
+
+```toml
+# pyproject.toml
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "my-bblocks-validator-plugin"
+version = "0.1.0"
+dependencies = []          # runtime deps the validator code needs, e.g. "shapely"
+```
+
+The distribution name (`my-bblocks-validator-plugin`) and the importable module name
+(`my_bblocks_validator_plugin`, listed under `modules`) don't have to match.
+
+**Local development loop:** while iterating, point `pip:` at the plugin's local directory instead
+of a Git URL — a relative path resolves from wherever you invoke the postprocessor (the register
+root, with the standard Docker invocation). The postprocessor reinstalls from that path on every
+run, so edits take effect immediately with no publish step:
+
+```yaml
+plugins:
+  validators:
+    - pip: ../my-bblocks-validator-plugin
+      modules:
+        - my_bblocks_validator_plugin
+```
+
+Then run the postprocessor against a scratch block with `--filter ... --skip-permissions true`
+(see [local-iteration.md](local-iteration.md)) to exercise the plugin end to end. Switch `pip:`
+back to the published Git URL/version before committing `bblocks-config.yaml`.
+
+---
+
 ## How a plugin is recognized
 
 The postprocessor scans listed modules for classes with:
