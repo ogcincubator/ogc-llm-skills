@@ -161,3 +161,18 @@ SPARQL_USERNAME=user SPARQL_PASSWORD=pass \
     ghcr.io/opengeospatial/bblocks-postprocess \
     --enable-sparql true
 ```
+
+### Disabling SPARQL push on a fork
+
+If the upstream register configures `sparql.push`, a fork inherits that same endpoint — and postprocessing on the
+fork will try to push there too, failing since the fork isn't authorized. To disable it without editing the
+upstream `bblocks-config.yaml` (and without that change leaking into your PR), set `sparql` to `false` or `null` in
+`bblocks-config-override.yml` at the repository root:
+
+```yaml
+# bblocks-config-override.yml
+sparql: false
+```
+
+This suppresses both the postprocessor's own push step and the separate "upload to triplestore" workflow job. See
+`contributing.md` for more on `bblocks-config-override.yml`.

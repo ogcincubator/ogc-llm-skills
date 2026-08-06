@@ -106,3 +106,9 @@ imports:
 
 `create-clean-pr.sh` automatically excludes this file from the clean PR branch, so fork-specific
 overrides never appear in the Pull Request.
+
+**Pitfall — SPARQL push on forks.** If upstream's `bblocks-config.yaml` sets `sparql.push`, a fork inherits that
+same endpoint, and postprocessing will try (and fail) to push to it since the fork isn't authorized. Disable it
+per-fork with `sparql: false` (or `null`) in `bblocks-config-override.yml` — this silences both the postprocessor's
+own push step and the separate "upload to triplestore" workflow job, without touching upstream's config. See
+`register-config.md`.
