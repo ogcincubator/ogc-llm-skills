@@ -46,7 +46,7 @@ The `metadata` argument passed to `transform()`:
 | `input_data` | `str` | The example snippet text |
 | `source_mime_type` | `str` | MIME type of the input |
 | `target_mime_type` | `str` | MIME type of the declared output |
-| `metadata` | namespace | Extra metadata from the transform declaration (keys starting with `_` excluded) |
+| `metadata` | namespace | Extra metadata from the transform declaration (keys starting with `_` excluded). Supports both attribute and dict-style access |
 | `ctx` | `SimpleNamespace` | Full [transform context](transforms.md#transform-context) |
 
 ---
