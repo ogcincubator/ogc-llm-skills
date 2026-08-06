@@ -69,8 +69,11 @@ assembles a combined `context.jsonld` that includes the imported block's context
 
 - **You only need to map the properties your block adds.** Inherited properties from the imported
   block's context are already handled.
-- **Property name conflicts across imported contexts must be avoided.** If two imported blocks map
-  the same JSON property name to different URIs, the result is undefined.
+- **Property name conflicts across unrelated imported contexts must be avoided.** If two imported
+  blocks map the same JSON property name to different URIs, and neither is a schema the other one
+  actually inherits from, the result is undefined. (If one *is* an ancestor of the other via
+  `allOf`/`$ref`, the conflict resolves deterministically instead — see [Overriding an inherited
+  binding](#overriding-an-inherited-binding) below.)
 
 The assembled context is written to `build/.../context.jsonld` and is the canonical context to use
 when processing instances of this block.
@@ -83,6 +86,41 @@ sign something was forgotten. Don't copy-paste mappings from a sibling block's c
 safe"; if the term is already reachable through a `bblocks://` `$ref`, redeclaring it locally only
 risks the block's own value silently diverging from the inherited one (see "Shadowing imported
 context properties" below).
+
+---
+
+## Overriding an inherited binding
+
+A block can redeclare a term it inherits from a schema it references via `allOf`/`$ref` (including
+through `extends`) and have its own mapping win, deliberately. Base block's `context.jsonld`:
+
+```json
+{ "@context": { "note": "http://www.w3.org/2004/02/skos/core#note" } }
+```
+
+Referencing block's own `context.jsonld`, mapping the same property name more specifically:
+
+```json
+{ "@context": { "note": "http://www.w3.org/2004/02/skos/core#definition" } }
+```
+
+Each block is annotated from its own context in isolation — the base schema ends up with `note`
+baked in as `skos:note`, the referencing schema ends up with its own `note` baked in as
+`skos:definition`, independently. The override itself is resolved later, during assembly, purely by
+branch order: for a property mapped by more than one branch of an `allOf`, the mapping from the
+*last* branch wins. `extends` (and any `bblocks://` reference) always places the referenced schema's
+`$ref` before the referencing block's own properties, so the referencing block's mapping is the one
+that survives.
+
+The override is per JSON-LD keyword, not the whole binding: if the base context also sets `@type` for
+`note` and yours doesn't redeclare one, the base's `@type` is still inherited alongside your
+overridden `@id`.
+
+**There's no opt-in for this.** Redeclaring a term overrides it whether you meant to or not —
+reusing a property name from a referenced block's context for an unrelated reason shadows its
+binding exactly the way a deliberate specialisation would, with no warning either way. If a property
+maps to something unexpected in the assembled context, check every schema in the `allOf`/`$ref`
+chain that declares that property name for an unintended override.
 
 ---
 
@@ -153,9 +191,12 @@ written to `build/tests/`. Inspect these to verify your context maps properties 
 
 - **Mapping a property to the wrong type**: e.g. forgetting `"@type": "@id"` for URI-valued properties
   means the value will be treated as a string literal in RDF.
-- **Shadowing imported context properties**: If an imported block maps `type` to some URI, and your
-  block's context also maps `type` to a different URI, one will silently win. Use local (nested)
-  contexts to scope your overrides.
+- **Shadowing imported context properties unintentionally**: If an imported block maps `type` to
+  some URI, and your block's context also maps `type` to a different URI, yours can win — with no
+  warning either way. If the imported block is one your schema actually inherits from via
+  `allOf`/`$ref`, this is deterministic and can be used deliberately (see [Overriding an inherited
+  binding](#overriding-an-inherited-binding)); if it's an unrelated sibling import, treat the
+  outcome as undefined. Use local (nested) contexts to scope terms you don't intend to override.
 - **Using `context.jsonld` for the assembled output**: The file in your source directory is the
   *source* context. The *assembled* context (which includes inherited mappings) is in `build/`. Do
   not copy the build output back into `_sources/`.
