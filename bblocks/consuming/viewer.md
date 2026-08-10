@@ -47,3 +47,12 @@ one.
 Use this as an orientation step, not as a substitute for the programmatic access covered elsewhere in
 this skill — the viewer is for humans; an agent should still fetch `register.json` and the per-block
 outputs directly.
+
+## Browsing or searching across every known register
+
+`bblocks-viewer` (and `viewerURL` above) shows one register at a time. To browse or search across every register
+the ecosystem knows about instead — organizations, registers, and blocks in a single catalog — see the
+[OGC Blocks meta-register](https://defs-dev.opengis.net/bblocks-meta-register) web UI, or its
+[MCP server](https://defs-dev.opengis.net/bblocks-meta-register-backend/mcp)/[REST API](https://defs-dev.opengis.net/bblocks-meta-register-backend/)
+for programmatic access (see [register.md](register.md#finding-a-block-outside-a-known-register)). Still a
+development project — the URL may change once a production deployment exists.

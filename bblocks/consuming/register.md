@@ -86,6 +86,23 @@ tool consumes the register. Both `bblocks-client-python` and `bblocks-viewer` do
    `documentation['json-full'].url` — when you need examples, the inline annotated schema text, or
    semantic uplift step definitions.
 
+## Finding a block outside a known register
+
+Everything above only finds a block if you already know which register (or import chain) it lives in. If you need
+to resolve a `bblocks://` reference, a `dependsOn`/`isProfileOf` identifier, or just search by keyword, and it
+isn't in any register you're already walking, the
+[OGC Blocks meta-register](https://defs-dev.opengis.net/bblocks-meta-register) crawls and indexes every register in
+the ecosystem — not just the ones a given register happens to `import`. Query it via:
+
+- its [MCP server](https://defs-dev.opengis.net/bblocks-meta-register-backend/mcp) (streamable HTTP transport) if
+  your environment supports MCP tools — hybrid keyword/semantic search plus dependency-graph traversal in both
+  directions (what a block depends on, and what depends on it — the latter isn't derivable from any single
+  register's own `register.json`);
+- its [REST API](https://defs-dev.opengis.net/bblocks-meta-register-backend/) otherwise.
+
+**Still a development project** — the deployment above is a dev instance; expect the URL to change once a
+production ("definitive") register is available. Stay tuned.
+
 ## Relationships between blocks
 
 These are derived from fields already present on each summary — there is no separate relationship

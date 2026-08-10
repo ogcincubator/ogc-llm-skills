@@ -56,12 +56,15 @@ tries to check for a newer image on every run even when one is already cached lo
 
 ### Finding blocks to reuse
 
-Before you can reference a block via `bblocks://<identifier>`, you need its identifier. If an MCP
-server for searching bblocks registers is available in your environment, prefer it — it's likely to
-offer keyword/semantic search across more registers than just the ones you've imported, without a
-manual per-register fetch. Otherwise, query the imported register's `register.json` directly: it
-publishes a `bblocks` array of summary objects, each with at least `itemIdentifier`, `name`,
-`abstract`, `status`, and `dependsOn`.
+Before you can reference a block via `bblocks://<identifier>`, you need its identifier. The
+[OGC Blocks meta-register](https://defs-dev.opengis.net/bblocks-meta-register) offers hybrid keyword/semantic
+search across every register it knows about, not just the ones you've imported, without a manual per-register
+fetch — prefer it when available, via its
+[MCP server](https://defs-dev.opengis.net/bblocks-meta-register-backend/mcp) if your environment supports MCP
+tools, or its [REST API](https://defs-dev.opengis.net/bblocks-meta-register-backend/) otherwise. (It's still a
+development project — the URL may change once a production deployment exists.) Otherwise, query the imported
+register's `register.json` directly: it publishes a `bblocks` array of summary objects, each with at least
+`itemIdentifier`, `name`, `abstract`, `status`, and `dependsOn`.
 
 ```bash
 curl -s https://<register-base-url>/build/register.json -o /tmp/register.json
