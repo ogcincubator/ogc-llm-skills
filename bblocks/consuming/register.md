@@ -98,7 +98,8 @@ the ecosystem — not just the ones a given register happens to `import`. Query 
   your environment supports MCP tools — hybrid keyword/semantic search plus dependency-graph traversal in both
   directions (what a block depends on, and what depends on it — the latter isn't derivable from any single
   register's own `register.json`);
-- its [REST API](https://defs-dev.opengis.net/bblocks-meta-register-backend/) otherwise.
+- its [REST API](https://defs-dev.opengis.net/bblocks-meta-register-backend/openapi.json) otherwise — fetch the
+  OpenAPI doc to see available endpoints (the bare backend URL 404s; `/docs` is a Swagger UI meant for humans).
 
 **Still a development project** — the deployment above is a dev instance; expect the URL to change once a
 production ("definitive") register is available. Stay tuned.

@@ -102,7 +102,7 @@ From a register's published `register.json` alone, without cloning it, you can c
 
 The [OGC Blocks meta-register catalog](https://defs-dev.opengis.net/bblocks-meta-register) indexes this across
 known registers so you can look up declared plugins, imports, and license without cloning — via its
-[REST API](https://defs-dev.opengis.net/bblocks-meta-register-backend/) or, for MCP-capable tools, its
+[REST API](https://defs-dev.opengis.net/bblocks-meta-register-backend/openapi.json) or, for MCP-capable tools, its
 [MCP server](https://defs-dev.opengis.net/bblocks-meta-register-backend/mcp). Still a development project — the
 URL above is a dev deployment and may change once a production register exists.
 
