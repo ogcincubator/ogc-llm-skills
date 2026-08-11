@@ -55,18 +55,13 @@ allOf:
             enum: [temperature, pressure, humidity]
 ```
 
-JSON Schema profiling is genuinely complex, but two mechanisms already cover the common cases —
-prefer these over hand-writing `allOf` yourself where they fit:
+JSON Schema profiling is genuinely complex, but the `allOf`/`$ref` pattern shown above is the basic,
+standard mechanism for it. [extension-points.md](extension-points.md) (experimental) covers a more
+specific case: specializing a base block by constraining specific blocks it references — including
+ones reached transitively through its imports — without hand-editing the base schema.
 
-- `extends` in `bblock.json` joins this block's schema with a base block's schema using `allOf`,
-  optionally inserting it at a specific property path. See [metadata.md](metadata.md).
-- [extension-points.md](extension-points.md) (experimental) lets you specialize a base block by
-  constraining specific blocks it references — including ones reached transitively through its
-  imports — to a more specific block, without hand-editing the base schema.
-
-Beyond those two, general JSON Schema profiling remains an open problem — no wizard tool or
-constraint DSL exists yet, so complex cases still require hand-written `allOf` composition as shown
-above.
+Beyond that, general JSON Schema profiling remains an open problem — no wizard tool or constraint DSL
+exists yet, so complex cases still require hand-written `allOf` composition as shown above.
 
 ---
 

@@ -46,16 +46,7 @@ shapes are inherited from both the base and the extension targets (unless explic
 Substituting a referenced block is a separate mechanism from overriding a single term's own mapping —
 for the latter (e.g. narrowing an inherited `skos:note` to `skos:definition`), see
 [semantic/context.md](semantic/context.md#overriding-an-inherited-binding). That works for plain
-`extends`/`allOf` composition too, without needing `extensionPoints` at all.
-
----
-
-## `extends` vs. `extensionPoints`
-
-Both live in `bblock.json` and are part of the same mechanism:
-
-- `extends` is a simpler form: declares schema inheritance without explicit extension mappings.
-- `extensionPoints` is the full form: declares the base block and the substitution map.
+`allOf` composition too, without needing `extensionPoints` at all.
 
 ---
 

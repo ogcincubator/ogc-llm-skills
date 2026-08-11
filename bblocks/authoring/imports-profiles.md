@@ -132,19 +132,6 @@ block's JSON Schema (using `allOf` and additional constraints) and SHACL shapes.
 
 ---
 
-## `extends` vs. `isProfileOf`
-
-| | `isProfileOf` | `extends` |
-|-|---------------|-----------|
-| Where declared | `bblock.json` | `bblock.json` |
-| What it does | Metadata relationship declaration | Schema compilation with extension points |
-| Schema output | None directly | Compiled schema with substituted references |
-| Experimental | No | Yes |
-
-See [extension-points.md](extension-points.md) for `extends` / `extensionPoints`.
-
----
-
 ## Conformance and requirement classes
 
 For blocks that relate to OGC/ModSpec specifications:

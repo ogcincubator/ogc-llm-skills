@@ -91,8 +91,8 @@ context properties" below).
 
 ## Overriding an inherited binding
 
-A block can redeclare a term it inherits from a schema it references via `allOf`/`$ref` (including
-through `extends`) and have its own mapping win, deliberately. Base block's `context.jsonld`:
+A block can redeclare a term it inherits from a schema it references via `allOf`/`$ref` and have its
+own mapping win, deliberately. Base block's `context.jsonld`:
 
 ```json
 { "@context": { "note": "http://www.w3.org/2004/02/skos/core#note" } }
@@ -108,9 +108,8 @@ Each block is annotated from its own context in isolation — the base schema en
 baked in as `skos:note`, the referencing schema ends up with its own `note` baked in as
 `skos:definition`, independently. The override itself is resolved later, during assembly, purely by
 branch order: for a property mapped by more than one branch of an `allOf`, the mapping from the
-*last* branch wins. `extends` (and any `bblocks://` reference) always places the referenced schema's
-`$ref` before the referencing block's own properties, so the referencing block's mapping is the one
-that survives.
+*last* branch wins. Any `bblocks://` reference always places the referenced schema's `$ref` before the
+referencing block's own properties, so the referencing block's mapping is the one that survives.
 
 The override is per JSON-LD keyword, not the whole binding: if the base context also sets `@type` for
 `note` and yours doesn't redeclare one, the base's `@type` is still inherited alongside your

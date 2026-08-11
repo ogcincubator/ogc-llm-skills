@@ -96,7 +96,6 @@ Schema:
 | `schema` | URL to the JSON Schema. Auto-derived when `schema.yaml` or `schema.json` is present. |
 | `openAPIDocument` | URL or path to an OpenAPI document. Auto-derived when `openapi.yaml` or `openapi.yml` is present. |
 | `ldContext` | URL to the JSON-LD context. Auto-derived when `context.jsonld` is present. See [semantic/context.md](semantic/context.md). |
-| `extends` | Schema inheritance from another block. See [extension-points.md](extension-points.md). |
 | `extensionPoints` | Substitution mappings for referenced blocks. See [extension-points.md](extension-points.md). |
 
 ### Validation
