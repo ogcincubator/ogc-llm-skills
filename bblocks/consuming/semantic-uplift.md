@@ -7,6 +7,15 @@ which RDF predicate/class). "Uplift" is the process of combining a JSON document
 context to get JSON-LD, then parsing that into an RDF graph — which you can then SHACL-validate,
 SPARQL-query, or merge with other linked data.
 
+## Finding a block by an RDF term you already have
+
+If you're starting from the other direction — you have data (or a target ontology) that already uses a
+specific RDF predicate/class URI, and want to know whether some bblock documents a JSON representation for
+it — the [OGC Blocks meta-register](https://defs-dev.opengis.net/bblocks-meta-register)'s MCP server exposes
+a semantic-binding lookup tool for exactly this: it searches by the URI a block's JSON-LD context or SHACL
+shape actually maps to, rather than by keyword. (Still a development project — the URL may change once a
+production deployment exists.)
+
 ## Which context to use
 
 Each block has **two** context documents:

@@ -95,9 +95,11 @@ isn't in any register you're already walking, the
 the ecosystem — not just the ones a given register happens to `import`. Query it via:
 
 - its [MCP server](https://defs-dev.opengis.net/bblocks-meta-register-backend/mcp) (streamable HTTP transport) if
-  your environment supports MCP tools — hybrid keyword/semantic search plus dependency-graph traversal in both
-  directions (what a block depends on, and what depends on it — the latter isn't derivable from any single
-  register's own `register.json`);
+  your environment supports MCP tools — hybrid keyword/semantic search, direct lookup by identifier,
+  dependency-graph traversal in both directions (what a block depends on, and what depends on it — the latter
+  isn't derivable from any single register's own `register.json`), and lookup by semantic binding (an RDF
+  predicate/class URI a block's JSON-LD context or SHACL shape already maps to, when you have that URI rather
+  than a keyword);
 - its [REST API](https://defs-dev.opengis.net/bblocks-meta-register-backend/openapi.json) otherwise — fetch the
   OpenAPI doc to see available endpoints (the bare backend URL 404s; `/docs` is a Swagger UI meant for humans).
 

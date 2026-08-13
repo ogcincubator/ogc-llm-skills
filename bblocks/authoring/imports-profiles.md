@@ -67,6 +67,12 @@ development project — the URL may change once a production deployment exists.)
 register's `register.json` directly: it publishes a `bblocks` array of summary objects, each with at least
 `itemIdentifier`, `name`, `abstract`, `status`, and `dependsOn`.
 
+If you're about to model a JSON-LD term or SHACL shape for a concept that already has a well-known ontology
+URI (e.g. `geosparql:hasGeometry`, `schema:startDate`), check the meta-register's semantic-binding lookup first
+(its MCP server exposes this as a distinct tool from keyword/semantic search) — an existing bblock may already
+bind that exact predicate/class, and reusing it beats minting a competing binding that can't interoperate with
+data uplifted through the other one.
+
 ```bash
 curl -s https://<register-base-url>/build/register.json -o /tmp/register.json
 
