@@ -84,7 +84,7 @@ Schema:
 |-------|-------------|
 | `predecessor` | `bblocks://` URI or bare identifier of the block this one supersedes; full URI for external resources. |
 | `successor` | `bblocks://` URI or bare identifier of the block that supersedes this one; full URI for external resources. |
-| `dependsOn` | Array of `bblocks://` URIs (or bare identifiers) for blocks this one has a runtime dependency on (distinct from `isProfileOf`). **Omit blocks already referenced via `bblocks://` in `schema.json`** — per [imports-profiles.md](imports-profiles.md), a schema `$ref` alone resolves the block and inherits its context and SHACL shapes; listing it again in `dependsOn` is redundant. Reserve `dependsOn` for dependencies invisible to the schema graph: transform-time or narrative-only prerequisites. |
+| `dependsOn` | Array of `bblocks://` URIs (or bare identifiers) for blocks this one has a runtime dependency on (distinct from `isProfileOf`). **Omit blocks already referenced via `bblocks://` in `schema.yaml`/`schema.json`** — per [imports-profiles.md](imports-profiles.md), a schema `$ref` alone resolves the block and inherits its context and SHACL shapes; listing it again in `dependsOn` is redundant. Reserve `dependsOn` for dependencies invisible to the schema graph: transform-time or narrative-only prerequisites. |
 | `seeAlso` | Array of `bblocks://` URIs or bare identifiers for related blocks, or full URIs for external resources. |
 | `isProfileOf` | `bblocks://` URI(s) (or bare identifier(s)) of the block(s) this one profiles — a stricter, backward-compatible specialization. See [imports-profiles.md](imports-profiles.md). |
 
