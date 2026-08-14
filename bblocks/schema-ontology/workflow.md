@@ -128,7 +128,25 @@ Linked Data resolution / multilingual labels — is in [packaging.md](packaging.
 
 ---
 
-## Step 8 — Validate the round trip
+## Step 8 — Add validating examples and SHACL shapes (default: do this)
+
+Give the ontology block worked examples and SHACL shapes that check them, so the vocabulary is
+self-testing and consumers get concrete usage. **Do this by default; only skip if the user asks to.**
+Tell the user you are adding it (and that they may skip it) rather than silently omitting it.
+
+- **Draw examples from the source/extension documentation**, not invented data — reuse the real example
+  instances the upstream spec publishes, so sample values are authoritative and recognizable. Cite them.
+- For an **RDF-only ontology block**, add Turtle (or JSON-LD) snippets in `examples.yaml`; these are
+  validated directly against the shapes with no uplift step. For a schema block, JSON examples are
+  uplifted via the context first.
+- Add **SHACL shapes** (e.g. `shapes.shacl`) constraining the ontology's own properties — datatypes,
+  cardinalities — and declare them with `"shaclShapes": ["shapes.shacl"]` in the block's `bblock.json`.
+- Keep shapes honest with the extension: only constrain what the spec actually requires (e.g. do **not**
+  force `maxCount 1` on a field the spec allows to repeat).
+- If a shape references terms not expected in the instance (a background vocabulary), supply it via
+  `shaclClosures`.
+
+## Step 9 — Validate the round trip
 
 - Run the postprocessor locally and inspect the uplifted `.ttl` / `.jsonld` under `build/tests/`.
 - Confirm the RDF uses the **ontology's** URIs and asserts the intended `rdf:type`s, and that
