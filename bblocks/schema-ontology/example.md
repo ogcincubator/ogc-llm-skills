@@ -123,8 +123,13 @@ to `schema.org` (`schema:name`, `schema:keywords`). The retrofit above produces 
 Per packaging.md, do not overwrite the schema.org context. Instead:
 
 1. Keep the ontology as its own reusable block.
-2. Package the richer `context.jsonld` above as a **new JSON-LD mapping block**, `myreg.catalog.record.
-   rich-ld`, that declares dependencies on **both** the schema block and the ontology block.
+2. Package the richer `context.jsonld` above as a **new JSON-LD mapping block**, identifier
+   `myreg.catalog.record.rich-ld`. Give it its own `schema.yaml` that composes the target —
+   `allOf: [{ $ref: bblocks://myreg.catalog.record }]` — since that composition is what makes the
+   postprocessor assemble its context against the schema's own and, per the last-branch-wins rule, let
+   its `title`/`keywords` mappings win over the inherited schema.org ones. `dependsOn` the ontology
+   block too (its terms aren't reached through the schema graph), and `isProfileOf` the schema block
+   for register discoverability.
 3. Warn the user that this override replaces the generic semantics for consumers who select it, while
    the schema.org mapping remains available as the default.
 

@@ -53,8 +53,8 @@ from re-describing an *inherited* block element (which is never allowed). The te
 
 - **Never invent a URI or a definition.** A plausible-looking URI that resolves to nothing, or a
   paraphrase that drifts from the authority, is worse than an honest gap.
-- If an authoritative definition cannot be found, mark the term **provisional** (e.g. a `skos:editorial
-  Note`) and surface it for human review rather than guessing.
+- If an authoritative definition cannot be found, mark the term **provisional** (e.g. a
+  `skos:editorialNote`) and surface it for human review rather than guessing.
 - Copy definitions faithfully and cite them with `dct:source` / `prov:wasDerivedFrom`.
 
 ---
