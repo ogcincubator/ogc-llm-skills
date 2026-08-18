@@ -28,12 +28,23 @@ identifier-prefix: myorg.myproject.
 imports:
   - default
 
+# Default license for the register and every block in it (optional)
+# At least one of name/url is required. A block overrides this with its own
+# "license" in bblock.json — see metadata.md.
+license:
+  name: Apache-2.0
+  url: https://www.apache.org/licenses/LICENSE-2.0
+
 # Generate OAS 3.0-compatible schemas in addition to the default OAS 3.1 output (optional)
 schema-oas30-downcompile: false
 
 # Viewer settings (optional)
 viewer:
   show-imported-depth: 0   # 0 = local only, N = N levels deep, -1 = all
+  view-plugins:            # custom client-side visualizations — see view-plugins.md
+    - url: https://example.org/my-plugin/dist/index.js
+      export: MyPlugin
+      weight: 100
 
 # SPARQL push (optional — see section below)
 sparql:
@@ -61,12 +72,25 @@ Each entry is either:
 
 Imported blocks can be referenced via `bblocks://` URIs in schemas and are available for profiling.
 
+### `license`
+
+`{ name?, url? }` — at least one is required. Applies to the register as a whole and, unless
+overridden, to every block in it (a block's own `license` in `bblock.json` takes precedence — see
+[metadata.md](metadata.md)). If `url` is omitted and a `LICENSE`, `LICENSE.md` or `LICENSE.txt`
+file exists at the repository root, its published URL is filled in automatically.
+
 ### `viewer.show-imported-depth`
 
 Controls which imported blocks appear in the published viewer:
 - `0` (default) — only local blocks
 - `N` — local + imported up to N levels deep
 - `-1` — show all imported blocks
+
+### `viewer.view-plugins`
+
+Declares custom client-side visualizations (ES modules loaded at runtime) for example snippets or
+transform outputs. See [view-plugins.md](view-plugins.md) for the full declaration format, the
+plugin interface, and how to write one.
 
 ---
 
@@ -137,3 +161,18 @@ SPARQL_USERNAME=user SPARQL_PASSWORD=pass \
     ghcr.io/opengeospatial/bblocks-postprocess \
     --enable-sparql true
 ```
+
+### Disabling SPARQL push on a fork
+
+If the upstream register configures `sparql.push`, a fork inherits that same endpoint — and postprocessing on the
+fork will try to push there too, failing since the fork isn't authorized. To disable it without editing the
+upstream `bblocks-config.yaml` (and without that change leaking into your PR), set `sparql` to `false` or `null` in
+`bblocks-config-override.yml` at the repository root:
+
+```yaml
+# bblocks-config-override.yml
+sparql: false
+```
+
+This suppresses both the postprocessor's own push step and the separate "upload to triplestore" workflow job. See
+`contributing.md` for more on `bblocks-config-override.yml`.

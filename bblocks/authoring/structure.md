@@ -5,10 +5,11 @@
 ```
 my-bblocks-repo/
   bblocks-config.yaml        # register-level config → register-config.md
-  bblocks-config-local.yml   # local URL mappings for testing (gitignored) → see below
+  bblocks-config-local.yml   # local URL mappings for testing (gitignored) → imports-profiles.md
+  bblocks-config-override.yml # fork-specific config overrides, excluded from PRs (gitignored) → contributing.md
   build.sh                   # convenience wrapper: runs postprocessor via Docker → local-iteration.md
   view.sh                    # launches the bblocks viewer against build-local/ → local-iteration.md
-  .volumes                   # extra Docker volume mounts for build.sh (gitignored, optional)
+  .volumes                   # extra Docker volume mounts for build.sh (gitignored, optional) → imports-profiles.md
   docker-compose.yml         # alternative to build.sh / view.sh
   .github/
     workflows/
@@ -26,7 +27,7 @@ my-bblocks-repo/
         transforms.yaml      # transforms → transforms.md
         semantic-uplift.yaml # semantic uplift config → semantic/uplift.md
         assets/              # static files (images, etc.) — no fixed name required
-        description.md       # long-form Markdown block docs → metadata.md
+        description.md       # long-form Markdown block docs → see below
   build/                     # NEVER edit — postprocessor output committed for CI/GitHub Pages → outputs.md
   build-local/               # gitignored local postprocessor output; inspect here when iterating locally → local-iteration.md, outputs.md
 ```
@@ -63,6 +64,16 @@ treated as namespaces and are part of the identifier but have no block of their 
 The `build/` directory **must never be edited by hand**. Applications and other registers should
 reference resources from `build/`, not `_sources/`.
 
+## Human-readable documentation (`description.md`)
+
+Long-form Markdown documentation for a block goes in `description.md` in the block directory.
+
+- Relative links and images (`some/relative/link.ext`) are resolved to full source URLs when the
+  block is published.
+- To cross-reference *another block* from within the prose (as opposed to a schema `$ref`), use the
+  `bblocks://my.prefix.my.bb` URL scheme as a plain link target — this resolves on deployed pages
+  and in the local viewer alike, e.g. `[see also](bblocks://ogc.geo.features.feature)`.
+
 ## Static assets
 
 Any files in an `assets/` subdirectory (or any subdirectory, really — the name is a convention) are
@@ -71,23 +82,5 @@ copied directly to the GitHub Pages output alongside the block. Use them for ima
 
 ## Local URL mappings
 
-`bblocks-config-local.yml` (gitignored) allows redirecting remote URLs to local paths during testing:
-
-```yaml
-url-mappings:
-  'https://example.com/imported/': '/local/path/to/imported-register/'
-  'https://example.com/relative/': '../../other-register'
-```
-
-When running via Docker, local paths must also be mounted as volumes:
-
-```bash
-docker run ... -v "/local/path/to/imported-register:/local/path/to/imported-register" ...
-```
-
-If using `build.sh`, add entries to a `.volumes` file instead:
-
-```
-/absolute/path:/container/mount
-../relative/path:/container/mount2
-```
+`bblocks-config-local.yml` (gitignored) redirects remote import URLs to local paths for offline or
+restricted-network testing — see [imports-profiles.md](imports-profiles.md).

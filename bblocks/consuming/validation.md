@@ -61,3 +61,71 @@ examples): `tests/report.json` / `tests/report.html` at the register root, and p
 `*.validation_passed.txt` / `*.validation_failed.txt` files under `tests/<identifier>/`. These tell you
 whether the block's *own* examples currently validate — useful as a sanity check before you build
 against a block, but not a substitute for validating your own payloads.
+
+### `report.json` structure — don't read it top to bottom
+
+`report.json` is large (one entry per test resource, including every passing step). Fetch it once, then
+query it with `jq` instead of reading the whole thing:
+
+```
+{
+  "summary": { "total": 25, "passed": 23, "failed": 2, "result": false },
+  "bblocks": {
+    "<bblock-id>": {
+      "bblockId": "<bblock-id>",
+      "result": false,
+      "counts": { "total": 1, "passed": 0, "failed": 1 },
+      "items": [
+        {
+          "source": { "type": "EXAMPLE", "filename": "...", "exampleIndex": 1, "snippetIndex": 1 },
+          "result": false,
+          "sections": [
+            { "name": "FILES", "entries": [ { "op": "...", "isError": false, "message": "..." } ] },
+            { "name": "JSON_SCHEMA", "entries": [ { "op": "validation", "isError": true, "message": "...", "errorMessage": "..." } ] },
+            { "name": "SHACL", "entries": [ { "op": "shacl-report", "isError": true, "graph": "...", "message": "..." } ] }
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+
+Every entry with `"isError": true` is an actual failure; everything else (the majority of the file) is
+passing-step noise. Go straight to the failures:
+
+```bash
+curl -s https://<register-base-url>/build/tests/report.json -o /tmp/report.json
+
+# 1. Overall pass/fail counts
+jq '.summary' /tmp/report.json
+
+# 2. Which blocks failed
+jq '[.bblocks | to_entries[] | select(.value.result == false) | .key]' /tmp/report.json
+
+# 3. For one failing block, only the failed items + which sections failed in each
+jq '.bblocks["<bblock-id>"].items[] | select(.result == false) |
+    {source: .source.filename, failedSections: [.sections[] | select(.entries[].isError) | .name]}' \
+  /tmp/report.json
+
+# 4. The actual error entries for one block (skips all passing steps)
+jq '.bblocks["<bblock-id>"].items[].sections[].entries[] | select(.isError == true)' \
+  /tmp/report.json
+```
+
+A `JSON_SCHEMA` error entry carries `errorMessage` (the jsonschema exception message) and `exception`
+(the exception class). A `SHACL` error entry carries `graph` (the full SHACL validation report as
+Turtle — parse `sh:resultMessage`/`sh:resultPath`/`sh:focusNode` from it) rather than a flat message.
+
+### Fetching one block's report directly
+
+If you only care about a single block, skip the top-level `report.json` entirely: each block also
+publishes its own report as `_report.json` inside its test output directory — same shape as that
+block's entry under `.bblocks["<bblock-id>"]` in the top-level file (`title`, `bblockName`, `result`,
+`items`, ...), just pre-filtered to that one block. One fetch instead of a large download + `jq`
+filter.
+
+The directory is the summary's `testOutputs` field — note it's a GitHub blob (HTML) URL, not raw
+content, so swap `github.com/<org>/<repo>/blob/<branch>/` for
+`raw.githubusercontent.com/<org>/<repo>/<branch>/` (or use `baseURL` + the same path, since
+`testOutputs` mirrors the register's own `build/tests/` layout) before appending `_report.json`.

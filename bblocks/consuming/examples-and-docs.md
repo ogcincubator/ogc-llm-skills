@@ -6,11 +6,26 @@ block look like / how do I produce valid data for it" questions, prefer these ch
 
 ## Bundled examples
 
-A block's full metadata (`documentation['json-full'].url`) includes an `examples` array. Each example
-has one or more language-tagged snippets (JSON, sometimes other formats) that are known-valid sample
-data for the block — they're checked by the register's own CI. These are good few-shot material:
-fetch the full block, pull a snippet, use it directly as a template for new data, or as grounding when
-asking an LLM to generate data conforming to the block.
+A block's full metadata (`documentation['json-full'].url`) includes an `examples` array:
+
+```json
+"examples": [
+  {
+    "title": "Example for uplift",
+    "snippets": [
+      { "language": "json", "url": "https://.../example_1_1.json", "code": "{\n  \"one\": 1,\n  ...\n}" },
+      { "language": "jsonld", "url": "https://.../example_1_1.jsonld", "code": "..." },
+      { "language": "ttl", "url": "https://.../example_1_1.ttl", "code": "..." }
+    ]
+  }
+]
+```
+
+Each example has a `title` and one or more `snippets` — `language` is a plain tag (`json`, `jsonld`,
+`ttl`, ...), not a MIME type. `code` is the snippet inlined as text; `url` points at the same content
+as a standalone file. These are known-valid sample data for the block — checked by the register's own
+CI. They're good few-shot material: fetch the full block, pull a snippet's `code`, use it directly as
+a template for new data, or as grounding when asking an LLM to generate data conforming to the block.
 
 ## Generated documentation
 

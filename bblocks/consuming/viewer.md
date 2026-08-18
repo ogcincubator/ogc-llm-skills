@@ -35,6 +35,24 @@ this works against any published register, not just one you authored.
 | Validation | SHACL shapes + pass/fail report | [validation.md](validation.md) |
 | Transforms | declared transforms (if any) | [transforms.md](transforms.md) |
 
+A register may also add extra tabs beyond this default set via **view plugins** — custom
+client-side visualizations for a specific example/transform-output content type, declared in the
+register's `bblocks-config.yaml` (`viewer.view-plugins` / `register.json`'s `viewer.viewPlugins`).
+The Examples/Transforms tabs above (map, 3D, web view) are themselves implemented this way, as the
+out-of-the-box plugins in
+[bblocks-viewer-base-plugins](https://github.com/ogcincubator/bblocks-viewer-base-plugins). See the
+`bblocks-authoring` skill's `view-plugins.md` for how a register declares these and how to write
+one.
+
 Use this as an orientation step, not as a substitute for the programmatic access covered elsewhere in
 this skill — the viewer is for humans; an agent should still fetch `register.json` and the per-block
 outputs directly.
+
+## Browsing or searching across every known register
+
+`bblocks-viewer` (and `viewerURL` above) shows one register at a time. To browse or search across every register
+the ecosystem knows about instead — organizations, registers, and blocks in a single catalog — see the
+[OGC Blocks meta-register](https://defs-dev.opengis.net/bblocks-meta-register) web UI, or its
+[MCP server](https://defs-dev.opengis.net/bblocks-meta-register-backend/mcp)/[REST API](https://defs-dev.opengis.net/bblocks-meta-register-backend/openapi.json)
+for programmatic access (see [register.md](register.md#finding-a-block-outside-a-known-register)). Still a
+development project — the URL may change once a production deployment exists.

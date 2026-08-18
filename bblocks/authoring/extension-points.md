@@ -43,14 +43,10 @@ a single mapping and the postprocessor compiles the result.
 Semantic mappings from the target blocks are also included in the generated JSON-LD context. SHACL
 shapes are inherited from both the base and the extension targets (unless explicitly disabled).
 
----
-
-## `extends` vs. `extensionPoints`
-
-Both live in `bblock.json` and are part of the same mechanism:
-
-- `extends` is a simpler form: declares schema inheritance without explicit extension mappings.
-- `extensionPoints` is the full form: declares the base block and the substitution map.
+Substituting a referenced block is a separate mechanism from overriding a single term's own mapping —
+for the latter (e.g. narrowing an inherited `skos:note` to `skos:definition`), see
+[semantic/context.md](semantic/context.md#overriding-an-inherited-binding). That works for plain
+`allOf` composition too, without needing `extensionPoints` at all.
 
 ---
 

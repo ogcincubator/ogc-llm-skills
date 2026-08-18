@@ -13,6 +13,17 @@ code-level identifier used in file names, identifiers, and tooling.
 
 ---
 
+## Prerequisites
+
+Running the postprocessor or viewer locally (see [local-iteration.md](local-iteration.md),
+[quickstart.md](quickstart.md)) requires **Docker**. All commands in this skill are written for a
+POSIX shell (bash-style syntax, e.g. `$(pwd)`). **On Windows**, run them from
+[Git Bash](https://git-scm.com/downloads/win) (bundled with Git for Windows) or, for the smoothest
+experience, [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) with Docker Desktop's WSL 2
+integration enabled — there is no `.bat`/PowerShell equivalent.
+
+---
+
 ## What is an OGC Block?
 
 An OGC Block is a reusable specification component packaged as a directory of source files. Each block
@@ -35,6 +46,28 @@ The postprocessor reads these sources and produces:
 - a `register.json` index
 
 A **register** is a collection of blocks published from a single repository.
+
+---
+
+## Design patterns
+
+Blocks are commonly combined in a handful of recurring patterns. These aren't mutually exclusive —
+a block can combine several — but naming the pattern you're after helps you find the right file:
+
+| Pattern | What it is | See |
+|---------|-----------|-----|
+| **Aggregation/Composition** | A schema built by aggregating other blocks (e.g. via `$ref`/`allOf`) | [schema.md](schema.md) |
+| **Extension** | Adds properties to another schema/model. Also a form of profiling: it constrains what an "open to extension" schema's extra content must look like | [schema.md](schema.md) |
+| **Specialisation** | Constrains an existing attribute with a more specific model — e.g. fixing a `FeatureCollection`'s feature type | [extension-points.md](extension-points.md) |
+| **Semantic annotation** | Binds schema elements to definitions via JSON-LD. Matters most when one schema could map to more than one ontology | [semantic/context.md](semantic/context.md) |
+| **Profiling** | Adds constraints for a particular context; may combine specialisation, extension, rules, or vocabulary bindings. Declared via `isProfileOf` in `bblock.json` — the same relationship as `prof:isProfileOf` in the W3C [Profiles Vocabulary (PROF)](https://www.w3.org/TR/dx-prof/) | [imports-profiles.md](imports-profiles.md) |
+| **Vocabulary Bindings** | Constrains a value to a controlled vocabulary — static, or dynamic/service-backed (the latter needs a custom validator, since no standard covers it) | [validation-plugins.md](validation-plugins.md) |
+| **Transformations** | A block defined around a transformation between specifications; validated against the post-transform target if that target is itself a block | [transforms.md](transforms.md) |
+| **Testing examples** | A block scoped purely to supplying/testing examples for another specification | [examples.md](examples.md), [tests.md](tests.md) |
+| **Documenting validators** | A block whose job is providing test cases, docs, and CI for a validation tool — typically tied to specific profiles | [validation-plugins.md](validation-plugins.md) |
+
+The `resources` well-known role vocabulary (see [metadata.md](metadata.md#well-known-resource-roles))
+is likewise reused directly from PROF's Resource Role instances, not invented independently.
 
 ---
 
@@ -70,11 +103,14 @@ Start here and follow links for the topic you need:
 | [transform-plugins.md](transform-plugins.md) | How do I add a custom transform type via a plugin? |
 | [validation.md](validation.md) | How does validation work? How do I interpret errors? |
 | [local-iteration.md](local-iteration.md) | How do I run the postprocessor locally for a fast edit→run loop? All CLI flags, step descriptions, and workflow examples for iterating on schema, uplift, transforms, or tests. |
+| [contributing.md](contributing.md) | How do I submit a PR to an existing register from a fork? How do I avoid `build/`-directory merge conflicts? What does `create-clean-pr.sh` do? How do I override config on my fork without it leaking into the PR? |
 | [validation-plugins.md](validation-plugins.md) | How do I add a custom validator? |
-| [imports-profiles.md](imports-profiles.md) | How do I import another register? How do I profile a block? |
+| [imports-profiles.md](imports-profiles.md) | How do I import another register? How do I find a block to reuse/profile? How do I profile a block? How do I work with an imported register that's offline or on a restricted network? |
 | [extension-points.md](extension-points.md) | How do I specialize a block's referenced components? |
 | [rdf-only.md](rdf-only.md) | How do I define a block with no JSON Schema — only RDF/ontology content? |
 | [outputs.md](outputs.md) | What does the postprocessor produce, and where? |
+| [view-plugins.md](view-plugins.md) | How do I add a custom viewer visualization to a register? How do I write a view plugin, and is a given implementation correct? |
+| [security.md](security.md) | What should `SECURITY.md` say? What can transforms/plugins/imports execute, and when? What should I check before trusting an import or a plugin reference? |
 
 ---
 
