@@ -66,10 +66,17 @@ For each **minted** term (reused terms need no local declaration):
   `owl:DatatypeProperty`) with `rdfs:domain` and `rdfs:range`.
 - For **every** term: `rdfs:label`, a definition (`skos:definition` or `rdfs:comment`),
   `rdfs:isDefinedBy` the ontology, and `dct:source` / `prov:wasDerivedFrom` → the authority.
+- For a **fixed enumeration minted as `skos:Concept`s**, `skos:definition` is not optional the way
+  `rdfs:comment` sometimes is for a minor OWL property — give every concept one, and add `skos:example`
+  wherever the source material shows a real worked value. See sourcing.md's "SKOS concepts" section.
 - **Alignment axioms** to reused vocabularies where the term is a specialization.
 
 Keep the ontology and the data honest with each other: only assert a `domain`/`range` that the context
 and uplift will actually satisfy.
+
+Once the ontology is authored, populate the block's `bblock.json` `sources` array with every document you
+actually consulted (see sourcing.md's "Recording sources" section) — do this as part of this step, not as
+an afterthought once the Turtle is done.
 
 ---
 

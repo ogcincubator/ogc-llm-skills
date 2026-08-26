@@ -49,6 +49,47 @@ from re-describing an *inherited* block element (which is never allowed). The te
 
 ---
 
+## SKOS concepts: definitions and examples
+
+When an owned element is a fixed, extension-defined enumeration (see workflow.md step 2's "Enumeration /
+codelist" row), each value becomes a `skos:Concept`. Two annotations are easy to skip and both come
+straight out of the sourcing work you already did — do not skip them:
+
+- **`skos:definition`** on every concept, not just a `skos:prefLabel`. A bare label ("Cirrus") is not a
+  definition; copy or tightly paraphrase the authority's own wording (a spec table cell, a README
+  paragraph) the same way you would for an OWL term's `rdfs:comment`. If the source gives a bare
+  enum value with no prose at all, say so rather than inventing meaning.
+- **`skos:example`** wherever the source material actually shows one — a worked value from the spec's own
+  example JSON/data, a named real-world instance the docs call out (an instrument, a model, a dataset).
+  Do not add `skos:example` just to fill the slot: a fabricated example is worse than none. It is normal
+  for some concepts in a scheme to carry one and others not to, depending on what the source actually
+  offers.
+
+Both annotations are sourced the same way as everything else in this file — never invented, always
+traceable to something you read.
+
+---
+
+## Recording sources in `bblock.json`
+
+The ontology block's `bblock.json` must carry a `sources` array (same shape as any schema block's, see
+`bblocks-authoring`'s `metadata.md`) listing the actual documents consulted while authoring it — typically
+the extension/spec's GitHub repository, the specific versioned schema document (e.g. a `schema.json` at a
+pinned tag), and its README if definitions were drawn from prose rather than the schema alone:
+
+```json
+"sources": [
+  { "title": "GitHub Repository", "link": "https://github.com/<org>/<extension>" },
+  { "title": "JSON Schema (v2.0.0)", "link": "https://.../v2.0.0/schema.json" }
+]
+```
+
+Add an entry for every distinct document you actually fetched and used — not a single generic repo link
+standing in for all of them. This is what lets a future reader (human or agent) re-verify or update the
+ontology against the same authority without re-discovering where the definitions came from.
+
+---
+
 ## No fabrication
 
 - **Never invent a URI or a definition.** A plausible-looking URI that resolves to nothing, or a
@@ -69,3 +110,6 @@ Complete all of these before authoring `ontology.ttl`:
 - [ ] Each owned element checked against upstream vocabularies for an existing reusable term.
 - [ ] Reuse-vs-mint decided per owned element, with each mint justified by a named gap.
 - [ ] A source/provenance URI captured for every minted term.
+- [ ] Every `skos:Concept` has a `skos:definition`; `skos:example` added wherever the source shows one.
+- [ ] `bblock.json`'s `sources` array lists every document actually consulted (repo, versioned schema,
+      README), not a single placeholder link.
