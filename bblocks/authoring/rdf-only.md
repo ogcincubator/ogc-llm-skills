@@ -27,7 +27,9 @@ Declare an ontology document in `bblock.json`:
 ```
 
 If `ontology` is not set, the postprocessor auto-detects `ontology.ttl` or `ontology.owl` in the
-block directory. The ontology is published in `build/` and included in the register entry.
+block directory. The ontology is published in `build/` and included in the register entry. It
+also feeds this block's SHACL closure graph — and is inherited into the closure graph of any
+block that `dependsOn`/`isProfileOf` this one — see [semantic/shacl.md](semantic/shacl.md#inheritance).
 
 ---
 
@@ -127,3 +129,8 @@ The data resource is published in the register entry and `build/` output. `rdfDa
 **deprecated** alias for this (a plain string or array of strings, normalized into `resources`
 with `role: data` and `format: text/turtle`) — it may appear in older repositories but new blocks
 should use `resources` directly.
+
+A `role: data` resource whose `format` is an RDF serialization also feeds this block's SHACL
+closure graph, inherited by dependents the same way as `ontology` — see
+[semantic/shacl.md](semantic/shacl.md#inheritance). Non-RDF data resources (CSV, NetCDF, etc.)
+are unaffected; they stay published artifacts only.

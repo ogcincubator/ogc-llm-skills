@@ -57,6 +57,27 @@ Use `shaclClosures` for:
 
 ---
 
+## Inheritance
+
+A block's SHACL closure graph is not just its own declared `shaclClosures`: it's assembled from
+the *entire* `dependsOn`/`isProfileOf` chain (the same chain `shaclShapes` is inherited across —
+see [imports-profiles.md](../imports-profiles.md)), and from more than just `shaclClosures`. For
+every block in that chain (including itself), the closure graph picks up:
+
+- its declared `shaclClosures`;
+- its `ontology`, if it has one (auto-detected `ontology.ttl`/`ontology.owl` counts too);
+- any `resources` entry with `role: data` whose `format` is an RDF serialization (Turtle,
+  RDF/XML, JSON-LD, N-Triples, N3, TriG). A `role: data` resource that's actually a CSV or
+  NetCDF file, for example, is skipped — it can't be parsed into an RDF closure graph, and stays
+  purely a published artifact.
+
+So a block that depends on (or profiles) another block which declares an ontology defining
+`eg:Bird rdfs:subClassOf eg:Animal`, for instance, gets that class hierarchy for free when
+validating a `sh:class eg:Animal` shape against `eg:Bird` instances — no need to redeclare it as
+a `shaclClosures` entry.
+
+---
+
 ## Writing SHACL shapes
 
 ```turtle

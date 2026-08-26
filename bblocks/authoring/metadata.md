@@ -111,7 +111,7 @@ Schema:
 
 | Field | Description |
 |-------|-------------|
-| `ontology` | Path or URL to an RDF ontology file. `ontology.ttl` or `ontology.owl` are auto-detected. See [rdf-only.md](rdf-only.md). |
+| `ontology` | Path or URL to an RDF ontology file. `ontology.ttl` or `ontology.owl` are auto-detected. Feeds the SHACL closure graph (own and inherited by dependents), see [semantic/shacl.md](semantic/shacl.md#inheritance). See [rdf-only.md](rdf-only.md). |
 | `concept` | Array of URIs for RDF concepts this block represents (`skos:closeMatch`). |
 | `rdfType` | Array of URIs for RDF classes that instances conform to (`rdfs:subClassOf`). |
 
@@ -119,7 +119,7 @@ Schema:
 
 | Field | Description |
 |-------|-------------|
-| `resources` | Array of external artifacts that don't fit a dedicated property (`schema`, `ontology`, `ldContext`). See [entry fields](#resources-entry-fields) below. |
+| `resources` | Array of external artifacts that don't fit a dedicated property (`schema`, `ontology`, `ldContext`). `role: data` entries in an RDF format also feed the SHACL closure graph (own and inherited by dependents), see [semantic/shacl.md](semantic/shacl.md#inheritance). See [entry fields](#resources-entry-fields) below. |
 | `rdfData` | **Deprecated.** Use `resources` with `role: data` instead. May appear in older repositories. |
 
 #### `resources` entry fields

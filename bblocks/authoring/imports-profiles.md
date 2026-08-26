@@ -93,6 +93,9 @@ beyond experimentation — check `status` before committing to a dependency.
 - `bblocks://` URIs in metadata fields (`isProfileOf`, `dependsOn`, `extensionPoints`) are resolved to the referenced block. Bare identifiers are also accepted in these fields, but `bblocks://` URIs are preferred for consistency.
 - The imported block's JSON-LD context is inherited into the assembled context.
 - The imported block's SHACL shapes are inherited for validation.
+- The imported block's SHACL closure graph — declared `shaclClosures`, its `ontology`, and any
+  RDF (not e.g. CSV/NetCDF) `resources` with `role: data` — is inherited too. See
+  [semantic/shacl.md](semantic/shacl.md#inheritance).
 
 ---
 
@@ -163,7 +166,8 @@ To reference another block's schema from your own:
 ```
 
 At postprocessing time, this is resolved to the actual annotated schema URL from the imported register.
-The referenced block's JSON-LD context and SHACL shapes are automatically inherited.
+The referenced block's JSON-LD context, SHACL shapes, and SHACL closure graph (closures, ontology,
+RDF data resources) are automatically inherited.
 
 This only works for blocks in imported registers. If the register is not listed in `imports`, the
 `bblocks://` URI will fail to resolve.
