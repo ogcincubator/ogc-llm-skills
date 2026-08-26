@@ -3,6 +3,17 @@
 This file covers how to run the postprocessor efficiently in a tight edit→run→inspect loop,
 whether you are iterating on a schema, a JSON-LD context, semantic uplift, transforms, or tests.
 
+Working on a fork to submit changes upstream? See [contributing.md](contributing.md) for the
+fork → PR workflow and how to avoid `build/`-directory merge conflicts.
+
+**If you are an LLM/agent, do not run `build.sh` or `view.sh` directly.** Both scripts' `docker run`
+call includes `-it` (interactive, pseudo-TTY), which hangs or fails outside a real terminal. Either
+ask the user to run the script themselves, or run the equivalent `docker run` command yourself
+without `-it`, adding `--skip-permissions true` (see the flags table below) so it doesn't block on
+an interactive prompt. That prompt is what would otherwise ask a human to confirm each plugin
+install and each transform-code execution against examples — read [security.md](security.md)
+before passing `--skip-permissions` on a register you haven't already reviewed.
+
 ---
 
 ## Postprocessor CLI reference

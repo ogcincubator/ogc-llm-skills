@@ -36,20 +36,23 @@ The context that binds schema→ontology can sit in one of two places:
 ontology's terms. The schema block depends on the ontology block. Good default when there is one
 natural mapping for the schema.
 
-**B. In a dedicated JSON-LD mapping block.** The context is packaged as its **own building block that
-depends on *both* the schema block and the ontology block.** This is more than tidiness — it enables:
+**B. In a dedicated JSON-LD mapping block.** The context is packaged as its **own building block.**
+This is more than tidiness — it enables:
 
 - **Multiple mappings for one schema** — e.g. a default mapping plus one or more alternative mappings.
 - **Override of a default mapping** without touching the schema (see below).
 
-The mapping block declares both dependencies so the postprocessor can assemble the full context and so
-consumers can discover it.
+Give the mapping block a `schema.yaml` of its own that `allOf`/`$ref`s the target schema block
+(`bblocks://<schema-block>`) — that schema composition is what makes the postprocessor assemble the
+mapping block's context against the schema's own and, in the override case, win per the postprocessor's
+branch-order rule. Set `isProfileOf` on the mapping block too, so the relationship is recorded in the
+register for discovery. Separately, `dependsOn` the ontology block — its terms aren't reached through
+the schema graph, so a plain dependency reference is enough there.
 
 ```
-ontology block  ────────────────┐  (reusable vocabulary; no context)
-                                 ▼
-schema block  ──►  JSON-LD mapping block  ──►  binds schema properties to ontology terms
-   (depends on both schema + ontology)
+ontology block  ─────────dependsOn───────┐  (reusable vocabulary; no context)
+                                          ▼
+schema block  ──allOf/$ref──►  JSON-LD mapping block  ──►  binds schema properties to ontology terms
 ```
 
 ---
@@ -66,11 +69,13 @@ block) already carries a generic/default context (schema.org, a placeholder, or 
 the new ontology describes the same elements more precisely. Point out that:
 
 - The intent and effect will be to **override** the existing generic mapping.
-- The correct vehicle is a **new, specific JSON-LD override block** (arrangement B), not editing the
-  generic one — so the generic mapping stays intact for consumers who want it, and the richer one is a
-  discoverable alternative that depends on both the schema and the new ontology.
+- The correct vehicle is a **new, specific JSON-LD override block** (arrangement B) whose own
+  `schema.yaml` `allOf`/`$ref`s the target schema — not editing the generic mapping in place — so the
+  generic mapping stays intact for consumers who want it, and the richer one is a discoverable
+  alternative that composes the schema and re-maps its properties to the new ontology.
 
-Do not overwrite an inherited/generic context in place; add an override mapping block instead.
+Do not overwrite an inherited/generic context in place; add an override mapping block instead, wired as
+described above.
 
 ---
 

@@ -127,8 +127,11 @@ If instances are processed at runtime, these steps must run at runtime too — t
 The ontology (reusable) and the mapping (schema-specific) are separate concerns, and the context is
 **never** placed inside the ontology block. **Default to creating a new ontology block** — do not
 prompt to confirm — and only ask the user about an inline layout when the situation is genuinely
-ambiguous. Wire the ontology as a dependency of whatever block holds the mapping, and use a dedicated
-mapping block when a schema needs multiple mappings or an override of a generic default.
+ambiguous. Wire the ontology as a `dependsOn` of whatever block holds the mapping, and use a dedicated
+mapping block when a schema needs multiple mappings or an override of a generic default — in that case
+give the mapping block its own `schema.yaml` that `allOf`/`$ref`s the target schema too: that schema
+composition is what makes the postprocessor assemble the mapping's context against the schema's own
+and, for an override, win over it.
 
 The full decision — arrangements, dependency wiring, the schema.org override warning, and run-time
 Linked Data resolution / multilingual labels — is in [packaging.md](packaging.md).

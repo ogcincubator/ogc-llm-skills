@@ -44,7 +44,7 @@ fetchable over HTTP.
 
 | File | What questions it answers |
 |------|--------------------------|
-| [register.md](register.md) | What does `register.json` contain? How do I look up a block by identifier? How do imports/dependencies chain across registers? |
+| [register.md](register.md) | What does `register.json` contain? How do I look up a block by identifier? How do imports/dependencies chain across registers? How do I find a block that isn't in any register I already know about? |
 | [schema-integration.md](schema-integration.md) | Which schema file should I reference? How do `bblocks://` refs resolve? How do I `$ref` a block's schema from my own? |
 | [validation.md](validation.md) | How do I validate a JSON payload against a block's schema, including cross-block `$ref`s? |
 | [semantic-uplift.md](semantic-uplift.md) | How do I turn JSON into JSON-LD/RDF using a block's context, and then SHACL-validate it? |

@@ -19,6 +19,7 @@ data you can safely ignore.
 | `gitRepository`, `gitHubRepository` | Source repo URL; the latter is a browsable (`/blob/...`) GitHub URL. |
 | `modified` | ISO 8601 timestamp of the last build. |
 | `sparqlEndpoint` | SPARQL query endpoint for this register's RDF, if pushed to a triplestore. |
+| `license` | `{name?, url?}` — the register's default license, inherited by any block that doesn't declare its own (see per-block `license` below). |
 | `remoteCacheDir` | URL where cached external resources (e.g. imported schemas) are mirrored. |
 | `validationReport`, `validationReportJson` | URLs to the register-wide test report (HTML / JSON) — see [validation.md](validation.md#reading-validation-results-from-the-register-itself). |
 | `tooling` | Dict with build-tool versions/commit info (provenance, not consumption-relevant). |
@@ -47,6 +48,7 @@ metadata, an `{identifier: [url, ...]}` dict here).
 | `register` | Name of the register this block belongs to (useful once you've merged several via `imports`). |
 | `maturity`, `scope` | Free-text classification fields (e.g. `development`/`stable`, `stable`/`unstable`). |
 | `group`, `tags`, `highlighted`, `sources` | Display/categorization metadata. |
+| `license` | `{name?, url?}` — this block's license, already resolved from its own `bblock.json` or inherited from the register's `license` (see above). |
 | `dependsOn` | Array of identifiers this block has a runtime dependency on. |
 | `isProfileOf` | Array of identifiers this block profiles (stricter specialization). |
 | `extensionPoints` | Substitution mappings letting this block's schema swap in a different block at a defined extension point. |
@@ -83,6 +85,26 @@ tool consumes the register. Both `bblocks-client-python` and `bblocks-viewer` do
    on something else, what status it's in). Only fetch the **full** block — via
    `documentation['json-full'].url` — when you need examples, the inline annotated schema text, or
    semantic uplift step definitions.
+
+## Finding a block outside a known register
+
+Everything above only finds a block if you already know which register (or import chain) it lives in. If you need
+to resolve a `bblocks://` reference, a `dependsOn`/`isProfileOf` identifier, or just search by keyword, and it
+isn't in any register you're already walking, the
+[OGC Blocks meta-register](https://defs-dev.opengis.net/bblocks-meta-register) crawls and indexes every register in
+the ecosystem — not just the ones a given register happens to `import`. Query it via:
+
+- its [MCP server](https://defs-dev.opengis.net/bblocks-meta-register-backend/mcp) (streamable HTTP transport) if
+  your environment supports MCP tools — hybrid keyword/semantic search, direct lookup by identifier,
+  dependency-graph traversal in both directions (what a block depends on, and what depends on it — the latter
+  isn't derivable from any single register's own `register.json`), and lookup by semantic binding (an RDF
+  predicate/class URI a block's JSON-LD context or SHACL shape already maps to, when you have that URI rather
+  than a keyword);
+- its [REST API](https://defs-dev.opengis.net/bblocks-meta-register-backend/openapi.json) otherwise — fetch the
+  OpenAPI doc to see available endpoints (the bare backend URL 404s; `/docs` is a Swagger UI meant for humans).
+
+**Still a development project** — the deployment above is a dev instance; expect the URL to change once a
+production ("definitive") register is available. Stay tuned.
 
 ## Relationships between blocks
 

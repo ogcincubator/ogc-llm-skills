@@ -7,6 +7,15 @@ which RDF predicate/class). "Uplift" is the process of combining a JSON document
 context to get JSON-LD, then parsing that into an RDF graph — which you can then SHACL-validate,
 SPARQL-query, or merge with other linked data.
 
+## Finding a block by an RDF term you already have
+
+If you're starting from the other direction — you have data (or a target ontology) that already uses a
+specific RDF predicate/class URI, and want to know whether some bblock documents a JSON representation for
+it — the [OGC Blocks meta-register](https://defs-dev.opengis.net/bblocks-meta-register)'s MCP server exposes
+a semantic-binding lookup tool for exactly this: it searches by the URI a block's JSON-LD context or SHACL
+shape actually maps to, rather than by keyword. (Still a development project — the URL may change once a
+production deployment exists.)
+
 ## Which context to use
 
 Each block has **two** context documents:
@@ -24,10 +33,25 @@ Each block has **two** context documents:
    has a top-level `@context`, you need to merge rather than overwrite — check whether one is already
    present).
 3. Parse the result as JSON-LD into an RDF graph (e.g. `rdflib.Graph().parse(data=..., format="json-ld")`).
-4. Some blocks declare additional **pre-uplift** or **post-uplift** steps in their metadata
-   (`semantic_uplift` / `semanticUplift`), of type `shacl`, `sparql-update`, `sparql-construct`, or
-   `jq`. These run before/after step 3 respectively, and may be inline code or fetched from a `ref`
-   URL. Skip this unless the block you're consuming actually declares such steps — most don't.
+4. Some blocks declare additional **pre-uplift** or **post-uplift** steps, published as
+   `semanticUplift.additionalSteps` on the full block (`documentation['json-full'].url`):
+
+   ```json
+   "semanticUplift": {
+     "additionalSteps": [
+       { "type": "jq", "stage": "pre", "code": ".three = 3" },
+       { "type": "sparql-update", "stage": "post", "ref": "https://.../update.sparql" }
+     ]
+   }
+   ```
+
+   | Field | Meaning |
+   |---|---|
+   | `type` | `shacl`, `sparql-update`, `sparql-construct`, or `jq`. |
+   | `stage` | `pre` (runs before step 3, on the plain JSON/JSON-LD) or `post` (runs after, on the RDF graph). |
+   | `code` / `ref` | Exactly one is present: inline step code, or a URL to fetch it from. |
+
+   Skip this unless the block you're consuming actually declares such steps — most don't.
 
 ## Then validate
 

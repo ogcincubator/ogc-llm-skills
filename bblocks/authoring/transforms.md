@@ -153,6 +153,13 @@ SPARQL, SHACL-AF, and `semantic-uplift` are not supported as targets.
 
 Cycle detection raises an error if a transform is called recursively.
 
+Each invoked transform receives **its own** declared `metadata` from `transforms.yaml`, not the
+caller's — pass `extra_metadata` (Python) / `opts.extraMetadata` (Node) to forward values
+explicitly; they're merged on top of (and take priority over) the target's own declared metadata.
+
+The target transform's metadata also gains `_nested_transform: true` when invoked this way, letting
+a transform behave differently as a sub-transform versus running as a top-level postprocessing step.
+
 ---
 
 ## Output profile validation
@@ -182,17 +189,35 @@ and run. Key fields:
 | Field | Description |
 |-------|-------------|
 | `bblock_id` | Block identifier |
+| `bblock_files_path` | Absolute path to the block's source directory |
 | `bblock_metadata` | Full block metadata snapshot at transform time |
+| `working_dir` | Working directory at postprocessing time |
 | `source_schema_path` | Relative path to the source schema |
 | `annotated_schema_path` | Relative path to the annotated schema |
 | `jsonld_context_path` | Relative path to the generated JSON-LD context |
 | `example_index` | Zero-based index of the current example |
+| `example` | Full example object (title, prefixes, etc.) — `snippets` excluded |
 | `snippet_index` | Zero-based index of the current snippet |
+| `snippet` | Full snippet object (language, url, ref, json-path, prefixes, etc.) — `code` excluded (use `input_data`/`inputData` instead) |
 | `output_file` | Absolute path where transform output will be written |
 | `base_url` | Base URL for generated output |
 
 > `bblock_metadata` reflects the state at transform time — fields populated later (e.g., `documentation`)
 > will not be present yet.
+
+> When a snippet uses `json-path` (see [examples.md](examples.md)), `snippet['full-code']` holds the
+> complete content of the referenced file *before* path extraction — useful when the transform needs
+> more context than the extracted value alone.
+
+> `snippet['shacl-closure']` holds the merged, deduplicated list of SHACL closure entries from both
+> the block's `shaclClosures` (`bblock.json`) and the snippet's own `shacl-closure` (`examples.yaml`).
+> Entries may be URLs or paths relative to the block's source directory:
+> ```python
+> import os
+> closures = context.snippet.get('shacl-closure') or []
+> resolved = [c if c.startswith('http') else os.path.join(context.working_dir, context.bblock_files_path, c)
+>             for c in closures]
+> ```
 
 ---
 
