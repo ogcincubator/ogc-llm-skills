@@ -78,6 +78,27 @@ a `shaclClosures` entry.
 
 ---
 
+## Per-example closures (`shacl-closure`)
+
+Individual snippets in `examples.yaml` can add their own closure data on top of the block's closure
+graph, via the snippet-level `shacl-closure` property:
+
+```yaml
+examples:
+  - snippets:
+      - language: json
+        code: '{ "type": "Bird" }'
+        shacl-closure:
+          - extra-taxonomy.ttl
+```
+
+It's merged with the block's `shaclClosures` (and everything inherited per the section above) — use it
+for RDF data that's specific to one example rather than the whole block. See
+[examples.md](../examples.md#per-snippet-shacl-closures) for the snippet-vs-example distinction and how
+it interacts with auto-generated JSON-LD/Turtle doc snippets.
+
+---
+
 ## Writing SHACL shapes
 
 ```turtle
