@@ -16,9 +16,9 @@ Code, and the Claude API.
 
 | Skill | Description |
 |-------|-------------|
-| [`bblocks/authoring`](bblocks/authoring/SKILL.md) | Authoring OGC Blocks registers: source file structure, metadata, schemas, examples, tests, semantic annotations, transforms, and validation. |
-| [`bblocks/consuming`](bblocks/consuming/SKILL.md) | Consuming published OGC Blocks registers: resolving `bblocks://` refs, validating data, semantic uplift, and the `bblocks-client-python` library. |
-| [`bblocks/schema-ontology`](bblocks/schema-ontology/SKILL.md) | Retrofitting formal semantics to an existing schema OGC Block: authoring a reusable ontology block and binding it via a JSON-LD context, with optional semantic uplift. |
+| [`bblocks/authoring`](skills/bblocks/authoring/SKILL.md) | Authoring OGC Blocks registers: source file structure, metadata, schemas, examples, tests, semantic annotations, transforms, and validation. |
+| [`bblocks/consuming`](skills/bblocks/consuming/SKILL.md) | Consuming published OGC Blocks registers: resolving `bblocks://` refs, validating data, semantic uplift, and the `bblocks-client-python` library. |
+| [`bblocks/schema-ontology`](skills/bblocks/schema-ontology/SKILL.md) | Retrofitting formal semantics to an existing schema OGC Block: authoring a reusable ontology block and binding it via a JSON-LD context, with optional semantic uplift. |
 
 More skill sets are planned — see the [open issues](https://github.com/ogcincubator/ogc-llm-skills/issues) for what's coming.
 
@@ -50,11 +50,11 @@ in the Claude Help Center.
 **`npx skills` (recommended if you have it)**
 
 ```bash
-npx skills add https://github.com/ogcincubator/ogc-llm-skills/tree/master/bblocks/authoring
+npx skills add https://github.com/ogcincubator/ogc-llm-skills/tree/master/skills/bblocks/authoring
 ```
 
-Swap in the path of the skill you want (see the table above), or install
-everything at once with:
+Swap in the path of the skill you want (see the table above, prefixed with
+`skills/`), or install everything at once with:
 
 ```bash
 npx skills add https://github.com/ogcincubator/ogc-llm-skills/tree/master --full-depth
@@ -63,6 +63,17 @@ npx skills add https://github.com/ogcincubator/ogc-llm-skills/tree/master --full
 This installs straight from source, so it skips the `.version` file and the
 "Updating this skill" section that the published zips carry — use the manual
 method below if you want those.
+
+**`gh skill` (GitHub CLI, preview feature)**
+
+```bash
+gh skill install ogcincubator/ogc-llm-skills bblocks/authoring --agent claude-code
+```
+
+Swap in the skill you want (see the table above), or install everything at
+once with `--all` instead of a skill name. Like `npx skills`, this installs
+straight from source. Requires a `gh` build with the
+[`skill` command](https://cli.github.com/manual/gh_skill_install).
 
 **Manual**
 
@@ -96,7 +107,7 @@ See [Use Skills with the Claude API](https://platform.claude.com/docs/en/build-w
 
 ## Adding a new skill
 
-1. Create a directory under an appropriate namespace (e.g. `bblocks/consuming/`).
+1. Create a directory under an appropriate namespace inside `skills/` (e.g. `skills/bblocks/consuming/`).
 2. Add a `SKILL.md` with required YAML frontmatter:
 
    ```markdown
@@ -130,9 +141,9 @@ On every push to `master` (and on manual trigger), a GitHub Actions workflow:
    named after the skill, plus a generated `.version` file (`commit`, `date`,
    `zip_url`, `manifest_url`, `llms_txt`) and an "Updating this skill" section
    appended to `SKILL.md` — neither of which lives in the source directory.
-3. Names each zip after its directory path with slashes replaced by hyphens
-   (e.g. `bblocks/authoring/` → `bblocks-authoring.zip`, containing a
-   `bblocks-authoring/` folder).
+3. Names each zip after its directory path relative to `skills/`, with slashes
+   replaced by hyphens (e.g. `skills/bblocks/authoring/` → `bblocks-authoring.zip`,
+   containing a `bblocks-authoring/` folder).
 4. Builds `all-skills.zip`, bundling every skill the same way.
 5. Generates `manifest.json` and `llms.txt` for agent-driven install/update.
 6. Generates an `index.html` listing all skills with download links.

@@ -22,6 +22,8 @@ sha = sys.argv[2]
 repo_url = sys.argv[3]
 site_url = sys.argv[4].rstrip("/")
 short_sha = sha[:7]
+# "https://github.com/ogcincubator/ogc-llm-skills" -> "ogcincubator/ogc-llm-skills"
+repo_slug = "/".join(repo_url.rstrip("/").split("/")[-2:])
 
 out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -80,8 +82,11 @@ for skill_md in sorted(repo_root.rglob("SKILL.md")):
         continue
 
     skill_dir = skill_md.parent
-    # bblocks/authoring -> bblocks-authoring.zip
-    zip_stem = str(skill_dir).lstrip("./").replace("/", "-")
+    # skills/bblocks/authoring -> bblocks-authoring.zip (leading "skills/" wrapper,
+    # kept only for gh skill CLI discovery, is not part of the skill's identity)
+    rel_dir = str(skill_dir).lstrip("./")
+    gh_skill_name = rel_dir[len("skills/"):] if rel_dir.startswith("skills/") else rel_dir
+    zip_stem = gh_skill_name.replace("/", "-")
     zip_name = zip_stem + ".zip"
     zip_path = out_dir / zip_name
 
@@ -104,7 +109,8 @@ for skill_md in sorted(repo_root.rglob("SKILL.md")):
         zf.writestr(str(Path(zip_stem) / ".version"), json.dumps(version_obj, indent=2))
 
     skills.append({"name": name, "description": desc, "zip": zip_name,
-                   "commit": commit, "date": date, "path": str(skill_dir)})
+                   "commit": commit, "date": date, "path": str(skill_dir),
+                   "gh_skill_name": gh_skill_name})
     all_skill_entries.append((zip_stem, skill_dir, skill_md, skill_files, version_obj))
     print(f"  packaged: {zip_name}  ({name})")
 
@@ -293,11 +299,13 @@ To check whether installed skills are up to date:
 print("  wrote: llms.txt")
 
 
-def install_block(npx_cmd: str, unix_cmd: str, win_cmd: str) -> str:
+def install_block(npx_cmd: str, gh_cmd: str, unix_cmd: str, win_cmd: str) -> str:
     npx_esc = html_lib.escape(npx_cmd)
+    gh_esc = html_lib.escape(gh_cmd)
     unix_esc = html_lib.escape(unix_cmd)
     win_esc = html_lib.escape(win_cmd)
     npx_attr = html_lib.escape(npx_cmd, quote=True)
+    gh_attr = html_lib.escape(gh_cmd, quote=True)
     unix_attr = html_lib.escape(unix_cmd, quote=True)
     win_attr = html_lib.escape(win_cmd, quote=True)
     return f"""\
@@ -306,6 +314,7 @@ def install_block(npx_cmd: str, unix_cmd: str, win_cmd: str) -> str:
       <span class="install-title">Install on Claude Code</span>
       <div class="os-tabs">
         <button class="os-tab" data-os="npx">npx skills</button>
+        <button class="os-tab" data-os="gh">gh skill</button>
         <button class="os-tab" data-os="unix">macOS / Linux</button>
         <button class="os-tab" data-os="win">Windows</button>
       </div>
@@ -317,6 +326,15 @@ def install_block(npx_cmd: str, unix_cmd: str, win_cmd: str) -> str:
         "Updating this skill" section baked into the zip. Use the macOS/Linux or Windows tab for those.</div>
       </div>
       <button class="copy-btn" data-clipboard="{npx_attr}">Copy</button>
+    </div>
+    <div class="install-cmd" data-os="gh">
+      <div class="install-cmd-code">
+        <code>{gh_esc}</code>
+        <div class="install-note">Uses the GitHub CLI's <code>gh skill</code> extension (preview, subject to
+        change) — installs straight from source like <code>npx skills</code> above. Requires
+        <a href="https://cli.github.com/manual/gh_skill_install">gh</a> with the <code>skill</code> command.</div>
+      </div>
+      <button class="copy-btn" data-clipboard="{gh_attr}">Copy</button>
     </div>
     <div class="install-cmd" data-os="unix">
       <div class="install-cmd-code"><code>{unix_esc}</code></div>
@@ -350,7 +368,8 @@ def skill_card(s: dict) -> str:
         f"-DestinationPath \"$env:USERPROFILE\\.claude\\skills\" -Force"
     )
     npx_cmd = f"npx skills add {repo_url}/tree/master/{s['path']}"
-    block = install_block(npx_cmd, unix_cmd, win_cmd)
+    gh_cmd = f"gh skill install {repo_slug} {s['gh_skill_name']} --agent claude-code"
+    block = install_block(npx_cmd, gh_cmd, unix_cmd, win_cmd)
     return f"""\
   <div class="skill">
     <h2>{name}</h2>
@@ -378,7 +397,8 @@ fat_win_cmd = (
     f"-DestinationPath \"$env:USERPROFILE\\.claude\\skills\" -Force"
 )
 fat_npx_cmd = f"npx skills add {repo_url}/tree/master --full-depth"
-fat_block = install_block(fat_npx_cmd, fat_unix_cmd, fat_win_cmd)
+fat_gh_cmd = f"gh skill install {repo_slug} --all --agent claude-code"
+fat_block = install_block(fat_npx_cmd, fat_gh_cmd, fat_unix_cmd, fat_win_cmd)
 
 index_html = f"""\
 <!DOCTYPE html>
