@@ -28,6 +28,9 @@ identifier-prefix: myorg.myproject.
 imports:
   - default
 
+# Meta-registry used to resolve "@org/register" import aliases (optional; see below)
+# meta-registry: https://w3id.org/ogc/bblocks/meta-register.json
+
 # Default license for the register and every block in it (optional)
 # At least one of name/url is required. A block overrides this with its own
 # "license" in bblock.json — see metadata.md.
@@ -66,11 +69,30 @@ Example: `myorg.myproject.` + `_sources/geom/point/` → `myorg.myproject.geom.p
 
 ### `imports`
 
-Each entry is either:
+Each entry is one of:
 - `"default"` — alias for the main OGC Building Blocks Register
+- `"@org/register"` — an alias resolved against a meta-registry (preferred over a raw URL — see below)
 - A URL to another register's `register.json`
 
 Imported blocks can be referenced via `bblocks://` URIs in schemas and are available for profiling.
+
+#### `@org/register` aliases
+
+Prefer this form over a raw URL — it survives the target register moving host or repo:
+
+```yaml
+imports:
+  - "@ogc/main"        # equivalent to "default"
+  - "@acme/my-bblocks"
+```
+
+Aliases are resolved at build time against a meta-registry index (default:
+`https://w3id.org/ogc/bblocks/meta-register.json`, overridable via `meta-registry` — see the
+top-level fields example above). If resolution fails against a cached copy of the index, the
+postprocessor refreshes it and retries once before giving up. `"default"` itself resolves the same
+way when a meta-registry is available, but — unlike an explicit `@org/register` alias — falls back
+to a hardcoded main-register URL on any failure instead of failing the build. Set
+`meta-registry: null` to disable alias resolution entirely (any `@org/register` import then fails).
 
 ### `license`
 

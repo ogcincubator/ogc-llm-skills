@@ -10,6 +10,7 @@ Imports are declared in `bblocks-config.yaml`:
 ```yaml
 imports:
   - default                                             # the main OGC Building Blocks register
+  - "@acme/other-register"                              # preferred over a raw URL — see below
   - https://example.org/other-register/build/register.json
 ```
 
@@ -18,6 +19,9 @@ imports:
 - An **empty array** `[]` imports nothing.
 - If the URL ends with `build/register.json` or `register.json`, you can omit the suffix — the
   postprocessor tries the base URL and common suffixes automatically.
+- `"@org/register"` is an alias resolved against a meta-registry — see
+  [register-config.md](register-config.md#imports) for the full syntax and the `meta-registry`
+  config key. Prefer it over a raw URL: it survives the target register moving host or repo.
 
 ### Local URL mappings (offline / restricted registers)
 
