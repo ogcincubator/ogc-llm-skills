@@ -167,6 +167,8 @@ jobs:
 The template ships with this already wired — you only need to add the secrets in GitHub:
 **Repository → Settings → Secrets and variables → Actions → New repository secret**.
 
+(Testing against `bblocks-postprocess`'s unreleased `develop` branch instead? See [dev-build.md](dev-build.md).)
+
 ### Enabling SPARQL push in CI
 
 SPARQL push runs automatically when both conditions are met:

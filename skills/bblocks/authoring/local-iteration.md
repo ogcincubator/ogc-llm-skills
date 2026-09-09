@@ -4,7 +4,8 @@ This file covers how to run the postprocessor efficiently in a tight edit→run�
 whether you are iterating on a schema, a JSON-LD context, semantic uplift, transforms, or tests.
 
 Working on a fork to submit changes upstream? See [contributing.md](contributing.md) for the
-fork → PR workflow and how to avoid `build/`-directory merge conflicts.
+fork → PR workflow and how to avoid `build/`-directory merge conflicts. Need to test against an
+unreleased `bblocks-postprocess` feature rather than the released image? See [dev-build.md](dev-build.md).
 
 **If you are an LLM/agent, do not run `build.sh` or `view.sh` directly.** Both scripts' `docker run`
 call includes `-it` (interactive, pseudo-TTY), which hangs or fails outside a real terminal. Either
