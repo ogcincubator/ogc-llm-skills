@@ -121,6 +121,16 @@ binding exactly the way a deliberate specialisation would, with no warning eithe
 maps to something unexpected in the assembled context, check every schema in the `allOf`/`$ref`
 chain that declares that property name for an unintended override.
 
+**The override must sit at the same structural position as the inherited term.** Assembly matches
+`allOf` branches by where a property sits in the schema tree, not just by name in the abstract — the
+`note` example above works because `note` is a top-level property on both sides. If the inherited
+term is instead nested inside an object pulled in transitively — e.g. `href` inside an `assets`
+object — redeclaring `href` alone in your own `context.jsonld` has no effect: your own schema has no
+`href` property node anywhere for the assembly walk to find, so your mapping is never consulted. To
+override a nested term you must restate the enclosing structure itself in your own `allOf` branch (an
+`assets` object with its own `href` property and its own `x-jsonld-id`), not just add an entry to
+your context file.
+
 ---
 
 ## Local contexts and `@base`
