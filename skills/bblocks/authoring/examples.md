@@ -138,6 +138,12 @@ JSON-LD and Turtle snippets skip step 2 (they are already in RDF format) and go 
 
 Snippet outputs are written to `build/tests/` alongside the regular test outputs.
 
+**Do not hand-add `@context` to a JSON example** to reach terms from another block — step 2 already
+embeds context automatically, including inherited mappings from any block imported via `bblocks://`.
+An example carrying its own absolute `@context` URL (especially one built from `build/` or
+`build-local/` output) is a common authoring error, not a fix — see
+[semantic/context.md](semantic/context.md#common-mistakes).
+
 ---
 
 ## Minimal `examples.yaml`
