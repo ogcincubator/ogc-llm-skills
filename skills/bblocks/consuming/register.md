@@ -24,7 +24,7 @@ data you can safely ignore.
 | `validationReport`, `validationReportJson` | URLs to the register-wide test report (HTML / JSON) — see [validation.md](validation.md#reading-validation-results-from-the-register-itself). |
 | `tooling` | Dict with build-tool versions/commit info (provenance, not consumption-relevant). |
 | `links` | Array of `{rel, href, type, title}` — e.g. self-links to `bblocks.jsonld`/`bblocks.ttl`. |
-| `transformPlugins`, `validatorPlugins` | Custom plugin module config for the register's own build pipeline — a producer-side concern, not something a consumer needs to act on. |
+| `transformPlugins`, `validatorPlugins`, `buildPlugins` | Custom plugin module config for the register's own build pipeline — a producer-side concern, not something a consumer needs to act on. |
 | `bblocks` | Array of **summary** objects, one per block — see below. |
 
 A legacy format (a bare JSON array of block summaries, no wrapping object/`imports`) also exists in

@@ -52,10 +52,20 @@ for the latter (e.g. narrowing an inherited `skos:note` to `skos:definition`), s
 
 ## Limitations
 
-- Extension points work only for blocks backed by a JSON Schema. Blocks backed by an OpenAPI
-  document are recorded in the register but no compiled schema is produced.
-- The feature is experimental — always inspect the compiled output schema in `build/annotated/`
-  to verify the result.
+- The feature is experimental — always inspect the compiled output schema (or OpenAPI document) in
+  `build/annotated/` to verify the result.
+- Blocks backed by an OpenAPI document are supported too: `paths`/`webhooks` from the extending
+  block's own `openapi.yaml` are added to the base document (`false` removes an inherited entry
+  instead), `info`/`servers`/`security`/`tags`/`externalDocs` are whole-value overrides if declared,
+  and every schema reference reachable from the base document — including inside
+  Parameter/Response/RequestBody/Header/Example/Link objects, not just bare Schema Object slots — is
+  substituted the same way as the JSON Schema case. A 3.0 base document is upconverted to 3.1 first.
+
+> **Upgrading from bblocks-postprocess before v1.1.0:** OpenAPI extension points used to be
+> declarative only (recorded in the register, but no document was actually produced). If a block
+> declared `extensionPoints` against an OpenAPI building block before upgrading, its document is
+> compiled for the first time — review it once after upgrading. *(Remove this note once it's no
+> longer a recent change.)*
 
 ---
 

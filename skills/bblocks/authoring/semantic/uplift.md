@@ -76,6 +76,31 @@ additionalSteps:
 
 ---
 
+## Inheriting post-uplift steps across dependent blocks
+
+A post-processing step (`shacl`, `sparql-construct`, `sparql-update` — not `jq`) can mark itself
+`inheritable: true`. A block that depends on or profiles it (directly or transitively via
+`dependsOn`/`isProfileOf`) can then opt in to running that step as part of its own uplift, via its own
+`inheritedPostSteps` property:
+
+```yaml
+# dependency's semantic-uplift.yaml
+additionalSteps:
+  - type: shacl
+    ref: semantic-uplift/entail.ttl
+    inheritable: true
+```
+
+```yaml
+# dependent block's own semantic-uplift.yaml
+inheritedPostSteps: true   # or a list of specific bblock identifiers to inherit from
+```
+
+Defaults to `false` — nothing is inherited unless a block opts in, even if a dependency marks steps
+`inheritable`. Inherited steps run in dependency order, before the block's own local `additionalSteps`.
+
+---
+
 ## Semantic uplift as a transform type
 
 Uplift steps can also be used as a **transform** in `transforms.yaml`:

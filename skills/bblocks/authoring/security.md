@@ -15,8 +15,8 @@ minimum, state:
   private vulnerability reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing/privately-reporting-a-security-vulnerability)),
   not a public issue tracker.
 - **What's in scope** — this repository's own sources (`transforms.yaml`, `plugins.transforms`/
-  `plugins.validators` declarations, CI/CD workflows, `bblocks-config.yaml`). Most maintainers
-  cannot vouch for imported registers — say so explicitly.
+  `plugins.validators`/`plugins.build` declarations, CI/CD workflows, `bblocks-config.yaml`). Most
+  maintainers cannot vouch for imported registers — say so explicitly.
 - **What a report should include** — the affected block identifier, the specific transform/plugin/
   import declaration, and whether the issue could propagate to registers that import this one.
 
@@ -36,6 +36,11 @@ A register with **no code of its own** can still execute code when built, from t
   `bblocks-config.yaml`, installed via `pip`, which accepts any specifier `pip install` understands
   — including `git+https://...` URLs, i.e. code from anywhere the declaration points to. See
   [transform-plugins.md](transform-plugins.md) / [validation-plugins.md](validation-plugins.md).
+- **Build (lifecycle-hook) plugins** — declared under `plugins.build`, installed the same
+  `pip`-based way. Unlike transform/validator plugins, which only run against matching example
+  snippets, a build plugin can hook into the run itself (before/after each block, after
+  `register.json` is written, after semantic uplift, at the end of the run, or on error), so it can
+  act on the whole register, not just one block's examples.
 - **Cross-block `get_transformer` / `getTransformer` calls** — can invoke a transform defined in a
   *different* block, including one reached only through an import.
 
@@ -93,7 +98,7 @@ existing imports, not just when adding them.
 
 From a register's published `register.json` alone, without cloning it, you can check:
 
-- which transform/validator plugins it declares, including the exact `pip` specifier each was
+- which transform/validator/build plugins it declares, including the exact `pip` specifier each was
   installed from;
 - the transform code each block declares, published alongside the blocks themselves;
 - its import edges, and — resolving those recursively — its full transitive closure;
