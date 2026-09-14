@@ -209,3 +209,30 @@ written to `build/tests/`. Inspect these to verify your context maps properties 
 - **Using `context.jsonld` for the assembled output**: The file in your source directory is the
   *source* context. The *assembled* context (which includes inherited mappings) is in `build/`. Do
   not copy the build output back into `_sources/`.
+- **Hand-injecting an absolute `@context` URL into an example instance**: never add
+  `"@context": ["https://.../build/annotated/.../context.jsonld"]` (or a fake prefix key whose value
+  is such a URL) directly into an example's JSON in `_sources/**/examples/`. Two reasons this is
+  always wrong, not just fragile:
+  - **It's unnecessary.** Per "Modularity" above, once your block's schema imports another block via
+    `bblocks://`, the postprocessor *automatically* assembles a combined context including the
+    imported block's mappings — see the "Validation behavior" step in [examples.md](../examples.md):
+    context is embedded by the pipeline, examples are not expected to carry `@context` themselves. If
+    you find yourself adding one to reach terms from another block, add (or fix) the `bblocks://` `$ref`
+    dependency in `schema.yaml` instead — that is the one supported way to pull in another block's
+    vocabulary, and it keeps the binding declarative and resolvable at build time rather than a raw
+    string baked into test data.
+  - **It's a broken/dead link waiting to happen.** A URL built from a `build/` or `build-local/` path
+    is a filesystem artifact of one specific local or CI run, not a stable published address — the same
+    string can point at a path that never gets published (`build-local/` is gitignored and only ever
+    exists on one machine) or at a different repo's build output that has since moved, been renamed, or
+    not yet been published at that exact path. When the pipeline (or a consumer) later dereferences it,
+    the result is a 404 that has nothing to do with the actual data or schema being valid — e.g.
+    `https://<org>.github.io/<repo>/build-local/annotated/.../schema.yaml` 404ing because `build-local`
+    was never meant to leave the machine it was built on.
+  - If you need cross-register terms and the schema can't or shouldn't formally depend on the other
+    register, inline the mappings as plain, local `"prefix": "https://full/namespace/"` entries in the
+    example's own `@context` object (self-contained, no network fetch) — the same pattern
+    `context.jsonld` itself uses — rather than pointing at anyone's build output.
+  - When reviewing or authoring examples in *any* bblocks project, grep for `"@context"` values that
+    are absolute `http(s)://` strings (as opposed to a plain mapping object) inside `_sources/**` —
+    treat every match as a probable authoring error to justify or remove, not as normal content.
