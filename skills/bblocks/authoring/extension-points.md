@@ -54,12 +54,14 @@ for the latter (e.g. narrowing an inherited `skos:note` to `skos:definition`), s
 
 - The feature is experimental — always inspect the compiled output schema (or OpenAPI document) in
   `build/annotated/` to verify the result.
-- Blocks backed by an OpenAPI document are supported too: `paths`/`webhooks` from the extending
-  block's own `openapi.yaml` are added to the base document (`false` removes an inherited entry
-  instead), `info`/`servers`/`security`/`tags`/`externalDocs` are whole-value overrides if declared,
-  and every schema reference reachable from the base document — including inside
-  Parameter/Response/RequestBody/Header/Example/Link objects, not just bare Schema Object slots — is
-  substituted the same way as the JSON Schema case. A 3.0 base document is upconverted to 3.1 first.
+- Blocks backed by an OpenAPI document are supported too: `paths`/`webhooks`/`components.*` entries
+  from the extending block's own `openapi.yaml` are added to the base document; redeclaring a key that
+  already exists in the base overrides it in place (logged warning), and `false` removes an inherited
+  entry instead (an error if that entry doesn't exist). `info`/`servers`/`security`/`tags`/
+  `externalDocs` are whole-value overrides if declared, and every schema reference reachable from the
+  base document — including inside Parameter/Response/RequestBody/Header/Example/Link objects, not
+  just bare Schema Object slots — is substituted the same way as the JSON Schema case. A 3.0 base
+  document is upconverted to 3.1 first.
 
 > **Upgrading from bblocks-postprocess before v1.1.0:** OpenAPI extension points used to be
 > declarative only (recorded in the register, but no document was actually produced). If a block
