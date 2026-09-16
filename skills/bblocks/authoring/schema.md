@@ -1,7 +1,9 @@
 # JSON Schema
 
-A block's JSON Schema lives at `schema.yaml` (preferred) or `schema.json` in the block directory.
-YAML is preferred because it supports comments and is easier to read.
+A block's JSON Schema usually lives at `schema.yaml` (preferred) or `schema.json` in the block
+directory. YAML is preferred because it supports comments and is easier to read. A block can instead
+point its `schema` field in `bblock.json` at a bare external URL with no local file at all — the
+postprocessor fetches and annotates that schema the same way as a locally authored one.
 
 The schema describes the data model that instances of this block must conform to. It is:
 

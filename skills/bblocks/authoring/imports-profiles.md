@@ -95,11 +95,15 @@ beyond experimentation — check `status` before committing to a dependency.
 
 - `bblocks://` URIs in schema `$ref` are resolved to the imported block's annotated schema URL.
 - `bblocks://` URIs in metadata fields (`isProfileOf`, `dependsOn`, `extensionPoints`) are resolved to the referenced block. Bare identifiers are also accepted in these fields, but `bblocks://` URIs are preferred for consistency.
-- The imported block's JSON-LD context is inherited into the assembled context.
-- The imported block's SHACL shapes are inherited for validation.
+- The schema `$ref` pulls in the imported block's semantic annotations, which feed this block's assembled JSON-LD context. See [semantic-uplift.md](semantic/uplift.md).
+- The imported block's SHACL shapes are inherited for validation, via `dependsOn`/`isProfileOf` — see below on how a schema `$ref` gets added there automatically.
 - The imported block's SHACL closure graph — declared `shaclClosures`, its `ontology`, and any
   RDF (not e.g. CSV/NetCDF) `resources` with `role: data` — is inherited too. See
   [semantic/shacl.md](semantic/shacl.md#inheritance).
+- The imported block's post-uplift semantic-uplift steps are *not* inherited automatically, unlike
+  the above — a step has to be marked `inheritable: true` on the imported block's side, and this
+  block has to opt in via `inheritedPostSteps`. See
+  [semantic/uplift.md](semantic/uplift.md#inheriting-post-uplift-steps-across-dependent-blocks).
 
 ---
 
@@ -139,9 +143,14 @@ block's JSON Schema (using `allOf` and additional constraints) and SHACL shapes.
 
 | | `isProfileOf` | `dependsOn` |
 |-|---------------|-------------|
-| Semantic meaning | This block specialises (is a stricter subset of) the referenced block | This block requires the referenced block at runtime |
-| Inherits context / shapes | Yes | No |
+| Semantic meaning | This block specialises (is a stricter subset of) the referenced block | This block requires the referenced block, without necessarily specialising it |
+| Inherits SHACL shapes | Yes — both fields are walked the same way for shape inheritance | Yes |
 | Constraint relationship | Implied (profile is stricter) | None |
+
+JSON-LD context inheritance isn't tied to either field: it comes from resolving `$ref`/`allOf` in the
+schema itself, per [semantic-uplift.md](semantic/uplift.md). You rarely need to declare `dependsOn` by
+hand for a block already reachable through a schema `$ref`, either — see
+[below](#bblocks-uri-scheme-in-schemas).
 
 ---
 
@@ -170,8 +179,10 @@ To reference another block's schema from your own:
 ```
 
 At postprocessing time, this is resolved to the actual annotated schema URL from the imported register.
-The referenced block's JSON-LD context, SHACL shapes, and SHACL closure graph (closures, ontology,
-RDF data resources) are automatically inherited.
+This pulls in the referenced block's semantic annotations, feeding this block's assembled JSON-LD
+context. It's also automatically added to this block's `dependsOn`, even if you never declare
+`dependsOn` yourself — which is what brings in its SHACL shapes and SHACL closure graph (closures,
+ontology, RDF data resources) too.
 
 This only works for blocks in imported registers. If the register is not listed in `imports`, the
 `bblocks://` URI will fail to resolve.
