@@ -57,6 +57,7 @@ metadata, an `{identifier: [url, ...]}` dict here).
 | `sourceSchema` | URL of the unprocessed author-written schema (don't use for consumption). |
 | `openAPIDocument`, `sourceOpenAPIDocument` | Same pattern as `schema`/`sourceSchema`, for OpenAPI blocks. |
 | `ldContext`, `sourceLdContext` | Assembled vs. own-only JSON-LD context. See [semantic-uplift.md](semantic-uplift.md). |
+| `semanticUplift` | This block's full `additionalSteps` list (pre- and post-processing, `ref` inlined into `code`) — everything it declares, regardless of `inheritable`. Distinct from what a *dependent* block automatically inherits, which is governed separately by each step's `inheritable` flag and the dependent's own `inheritedPostSteps`. See [semantic-uplift.md](semantic-uplift.md). |
 | `ontology` | URL to an RDF ontology file, for RDF-only blocks. |
 | `shaclShapes` | `{identifier: [url, ...]}` dict of SHACL shape files. See [validation.md](validation.md#shacl-validation). |
 | `resolvedSchemaProperties` | URL of a flattened, tabular view of schema properties (what the viewer's "Data structure" tab renders). |

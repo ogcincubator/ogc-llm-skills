@@ -96,8 +96,9 @@ to a hardcoded main-register URL on any failure instead of failing the build. Se
 
 ### `license`
 
-`{ name?, url? }` — at least one is required. Applies to the register as a whole and, unless
-overridden, to every block in it (a block's own `license` in `bblock.json` takes precedence — see
+`{ name?, url? }` — at least one is required. A plain string (e.g. `"Apache-2.0"`) is also accepted
+as shorthand for `{ name: <string> }`. Applies to the register as a whole and, unless overridden, to
+every block in it (a block's own `license` in `bblock.json` takes precedence — see
 [metadata.md](metadata.md)). If `url` is omitted and a `LICENSE`, `LICENSE.md` or `LICENSE.txt`
 file exists at the repository root, its published URL is filled in automatically.
 

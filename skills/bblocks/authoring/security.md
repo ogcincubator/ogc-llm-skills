@@ -38,9 +38,10 @@ A register with **no code of its own** can still execute code when built, from t
   [transform-plugins.md](transform-plugins.md) / [validation-plugins.md](validation-plugins.md).
 - **Build (lifecycle-hook) plugins** — declared under `plugins.build`, installed the same
   `pip`-based way. Unlike transform/validator plugins, which only run against matching example
-  snippets, a build plugin can hook into the run itself (before/after each block, after
-  `register.json` is written, after semantic uplift, at the end of the run, or on error), so it can
-  act on the whole register, not just one block's examples.
+  snippets, a build plugin can hook into the run itself (before/after each block, once the register
+  is assembled but before `register.json` is written, after semantic uplift, at the end of the run,
+  or on error) and can rewrite the assembled register before it's published. See
+  [build-plugins.md](build-plugins.md).
 - **Cross-block `get_transformer` / `getTransformer` calls** — can invoke a transform defined in a
   *different* block, including one reached only through an import.
 

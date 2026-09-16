@@ -106,6 +106,7 @@ Start here and follow links for the topic you need:
 | [dev-build.md](dev-build.md) | How do I test against an unreleased `bblocks-postprocess` feature — locally or in CI — before it ships in a release? |
 | [contributing.md](contributing.md) | How do I submit a PR to an existing register from a fork? How do I avoid `build/`-directory merge conflicts? What does `create-clean-pr.sh` do? How do I override config on my fork without it leaking into the PR? |
 | [validation-plugins.md](validation-plugins.md) | How do I add a custom validator? |
+| [build-plugins.md](build-plugins.md) | How do I hook custom code into the postprocessor's own run (before/after each block, after the register is assembled, after uplift, on failure)? |
 | [imports-profiles.md](imports-profiles.md) | How do I import another register? How do I find a block to reuse/profile? How do I profile a block? How do I work with an imported register that's offline or on a restricted network? |
 | [extension-points.md](extension-points.md) | How do I specialize a block's referenced components? |
 | [rdf-only.md](rdf-only.md) | How do I define a block with no JSON Schema — only RDF/ontology content? |
