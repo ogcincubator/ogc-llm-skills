@@ -80,6 +80,13 @@ Any files in an `assets/` subdirectory (or any subdirectory, really — the name
 copied directly to the GitHub Pages output alongside the block. Use them for images referenced in
 `description.md` or other documentation. These are served as-is and are not post-processed.
 
+## Keeping README.md in sync
+
+Some registers keep a list of their blocks (or other structural summary) in the root `README.md`;
+many others just have descriptive boilerplate there. This isn't a required convention, so don't
+propose adding such a list on your own initiative. But if `README.md` already contains one and a
+block is added or removed, ask the user whether to update it — and do so yourself if they agree.
+
 ## Local URL mappings
 
 `bblocks-config-local.yml` (gitignored) redirects remote import URLs to local paths for offline or
