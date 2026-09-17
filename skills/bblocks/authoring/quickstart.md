@@ -40,6 +40,46 @@ The template ships with sample blocks under `_sources/`. Remove them so the regi
 rm -rf _sources/*
 ```
 
+### Ensure shell scripts check out with LF line endings
+
+**Required check, every time — do not skip even if the template "should" already have this.**
+
+`build.sh`/`view.sh` are Bourne shell scripts. On a Windows checkout with `core.autocrlf=true` (a
+common Git for Windows default) and no `.gitattributes` pinning their line endings, Git silently
+rewrites them to CRLF. Running them under WSL or Git Bash then fails with something like:
+
+```
+build.sh: line 15: syntax error: unexpected end of file
+```
+
+The `\r` lands at the end of every physical line, so a reserved word like `fi` or `done` is actually
+the token `fi\r` — bash never recognizes the block as closed and reads past the real end of the file
+looking for it. This reproduces even though the line ending Git *stores* in the blob is LF; the
+corruption is purely a checkout-time artifact.
+
+Check whether `.gitattributes` already forces LF for shell scripts, and add it if not:
+
+```bash
+grep -q 'eol=lf' .gitattributes 2>/dev/null || cat >> .gitattributes <<'EOF'
+* text=auto eol=lf
+*.sh text eol=lf
+EOF
+git add --renormalize .gitattributes build.sh view.sh
+```
+
+Then verify the working copy is actually clean before relying on it:
+
+```bash
+bash -n build.sh && bash -n view.sh
+```
+
+If either fails, the working tree still has stray `\r` bytes from before `.gitattributes` existed —
+strip them and re-stage: `sed -i 's/\r$//' build.sh view.sh && git add --renormalize build.sh view.sh`.
+
+Commit `.gitattributes` (and any renormalized files) before or alongside your first real commit, so
+every later clone — including CI checkouts and any collaborator on Windows — gets LF scripts from the
+start.
+
 ### Enable GitHub Pages
 
 GitHub Pages must be enabled for the public-facing outputs to work — the HTML documentation,
@@ -79,6 +119,12 @@ If `gh` isn't available, tell the user to do it manually: **Settings → Pages �
 git clone https://github.com/<your-org>/<your-repo>.git
 cd <your-repo>
 ```
+
+On Windows, if you'll run `build.sh`/`view.sh` from WSL or Git Bash, check the template already
+carries a `.gitattributes` pinning them to LF — see
+[Ensure shell scripts check out with LF line endings](#ensure-shell-scripts-check-out-with-lf-line-endings)
+above. If it's missing you'll hit `build.sh: line N: syntax error: unexpected end of file`; add it
+before your first commit.
 
 ---
 
