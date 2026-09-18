@@ -209,3 +209,9 @@ Approved build plugins are recorded in `register.json` under `buildPlugins` (cla
 specifier(s), URL) — parallel to the existing `transformPlugins`/`validatorPlugins` keys. This
 matters more here than for transform/validator plugins, since `after_register` can silently rewrite
 the register: a consumer can see from `buildPlugins` that plugin code had the opportunity to edit it.
+
+A build plugin that stamps a new field/document onto a bblock pairs naturally with a
+[tab plugin](tab-plugins.md) on the viewer side: the build plugin emits the data into `json-full`,
+the tab plugin renders it as its own tab. The two mechanisms are independent, though — a tab
+plugin's `matches()` can key off existing bblock/register metadata with no build plugin involved at
+all.

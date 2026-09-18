@@ -48,6 +48,10 @@ viewer:
     - url: https://example.org/my-plugin/dist/index.js
       export: MyPlugin
       weight: 100
+  tab-plugins:             # custom top-level bblock detail tabs — see tab-plugins.md
+    - url: https://example.org/my-plugin/dist/index.js
+      export: MyTabPlugin
+      weight: 100
 
 # SPARQL push (optional — see section below)
 sparql:
@@ -114,6 +118,13 @@ Controls which imported blocks appear in the published viewer:
 Declares custom client-side visualizations (ES modules loaded at runtime) for example snippets or
 transform outputs. See [view-plugins.md](view-plugins.md) for the full declaration format, the
 plugin interface, and how to write one.
+
+### `viewer.tab-plugins`
+
+Declares custom client-side, whole-bblock tabs (ES modules loaded at runtime) added to a bblock's
+detail page after every built-in tab. A separate, parallel mechanism from `view-plugins` — see
+[tab-plugins.md](tab-plugins.md) for the full declaration format, the plugin interface, and how to
+write one.
 
 ---
 

@@ -11,6 +11,9 @@ adds an extra tab that renders the plugin's own view. This is a purely client-si
 distinct from [transform plugins](transform-plugins.md) / [validator plugins](validation-plugins.md),
 which run server-side in the postprocessor.
 
+For a whole new top-level tab driven by the full bblock rather than one example/transform-output
+candidate, see [tab-plugins.md](tab-plugins.md) — a separate, parallel mechanism.
+
 ---
 
 ## Declaring plugins in a register

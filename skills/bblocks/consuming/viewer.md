@@ -35,14 +35,19 @@ this works against any published register, not just one you authored.
 | Validation | SHACL shapes + pass/fail report | [validation.md](validation.md) |
 | Transforms | declared transforms (if any) | [transforms.md](transforms.md) |
 
-A register may also add extra tabs beyond this default set via **view plugins** — custom
-client-side visualizations for a specific example/transform-output content type, declared in the
-register's `bblocks-config.yaml` (`viewer.view-plugins` / `register.json`'s `viewer.viewPlugins`).
-The Examples/Transforms tabs above (map, 3D, web view) are themselves implemented this way, as the
-out-of-the-box plugins in
-[bblocks-viewer-base-plugins](https://github.com/ogcincubator/bblocks-viewer-base-plugins). See the
-`bblocks-authoring` skill's `view-plugins.md` for how a register declares these and how to write
-one.
+A register may also add extra tabs beyond this default set, via two separate mechanisms:
+
+- **View plugins** — custom client-side visualizations for a specific example/transform-output
+  content type, declared via `viewer.view-plugins` / `register.json`'s `viewer.viewPlugins`. The
+  Examples/Transforms tabs above (map, 3D, web view) are themselves implemented this way, as the
+  out-of-the-box plugins in
+  [bblocks-viewer-base-plugins](https://github.com/ogcincubator/bblocks-viewer-base-plugins).
+- **Tab plugins** — a whole new top-level tab driven by the full bblock (not one example/transform
+  output), declared via `viewer.tab-plugins` / `register.json`'s `viewer.tabPlugins`. Unlike view
+  plugins, there's no built-in tab implemented this way.
+
+See the `bblocks-authoring` skill's `view-plugins.md` / `tab-plugins.md` for how a register
+declares either and how to write one.
 
 Use this as an orientation step, not as a substitute for the programmatic access covered elsewhere in
 this skill — the viewer is for humans; an agent should still fetch `register.json` and the per-block
