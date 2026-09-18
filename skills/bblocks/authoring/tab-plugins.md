@@ -124,8 +124,11 @@ interface TabPluginClass {
   // missing this is skipped entirely (logged), not given a fallback.
   tabLabel: string;
 
-  // MDI icon name (e.g. 'mdi-puzzle-outline') for the tab. Falls back to 'mdi-puzzle-outline' if omitted.
-  icon?: string;
+  // Icon for the tab: an MDI icon-class string (default/simplest form, e.g. 'mdi-puzzle-outline'),
+  // or { url: '...' } pointing at a square PNG/JPG/SVG image for a custom (non-MDI) icon. Use an
+  // absolute URL — a relative one resolves against the viewer's own page origin, not the
+  // plugin's. Falls back to 'mdi-puzzle-outline' if omitted.
+  icon?: string | { url: string };
 
   // Ordering among other matched tab plugins for the same bblock. Default 0, higher sorts first.
   weight?: number;

@@ -152,8 +152,11 @@ interface ViewPluginClass {
   // Tab label. Required — also used to generate the tab's shareable link.
   viewName: string;
 
-  // MDI icon name (e.g. 'mdi-map') for the tab. Falls back to 'mdi-puzzle-outline' if omitted.
-  icon?: string;
+  // Icon for the tab: an MDI icon-class string (default/simplest form, e.g. 'mdi-map'), or
+  // { url: '...' } pointing at a square PNG/JPG/SVG image for a custom (non-MDI) icon. Use an
+  // absolute URL — a relative one resolves against the viewer's own page origin, not the
+  // plugin's. Falls back to 'mdi-puzzle-outline' if omitted.
+  icon?: string | { url: string };
 }
 ```
 
