@@ -18,6 +18,17 @@ code-level identifier used in file names, identifiers, and tooling.
 
 ---
 
+## Before you start: check that local repositories are current
+
+Before reading or changing **any** local git repository (for example a clone of a register you consume), follow
+[repo-freshness.md](repo-freshness.md). It fetches, measures how far behind the clone is, and predicts
+merge conflicts. **Stop with a warning** if a pull would conflict. Otherwise apply the user's
+auto-update preference (always / ask / never; fast-forward only). Stale clones cause "phantom"
+differences from the published register, such as imports or dependencies that the viewer shows but
+the local config doesn't.
+
+---
+
 ## What you get from a published register
 
 A register is a static set of files (typically deployed to GitHub Pages) rooted at a `register.json`.
@@ -53,6 +64,7 @@ fetchable over HTTP.
 | [no-library.md](no-library.md) | How do I do all of the above with plain HTTP calls, in Python, JS, or any other language? |
 | [viewer.md](viewer.md) | How do I visually inspect a register before integrating with it? |
 | [transforms.md](transforms.md) | How do I run a block's declared transforms myself (built-in types and custom plugin types), since `bblocks-client-python` doesn't? |
+| [repo-freshness.md](repo-freshness.md) | Is my local clone of a register stale compared with what is published? How do I check without changing anything, and when may I fast-forward automatically? |
 
 ---
 
