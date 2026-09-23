@@ -131,6 +131,11 @@ override a nested term you must restate the enclosing structure itself in your o
 `assets` object with its own `href` property and its own `x-jsonld-id`), not just add an entry to
 your context file.
 
+A working, minimal example of both cases lives in the `bblocks-examples` register's
+[`override-binding`](https://github.com/ogcincubator/bblocks-examples/tree/master/_sources/semantic-uplift/override-binding)
+base/child pair: `note`/`label` are top-level overrides, and `assets.href` (base:
+`dcat:downloadURL`, child: `dcat:accessURL`) is the nested case.
+
 ---
 
 ## Local contexts and `@base`
