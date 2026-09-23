@@ -13,6 +13,17 @@ code-level identifier used in file names, identifiers, and tooling.
 
 ---
 
+## Before you start: check that local repositories are current
+
+Before reading or changing **any** local git repository (the register you are editing, imported registers, tooling repos), follow
+[repo-freshness.md](repo-freshness.md). It fetches, measures how far behind the clone is, and predicts
+merge conflicts. **Stop with a warning** if a pull would conflict. Otherwise apply the user's
+auto-update preference (always / ask / never; fast-forward only). Stale clones cause "phantom"
+differences from the published register, such as imports or dependencies that the viewer shows but
+the local config doesn't.
+
+---
+
 ## Prerequisites
 
 Running the postprocessor or viewer locally (see [local-iteration.md](local-iteration.md),
@@ -114,6 +125,7 @@ Start here and follow links for the topic you need:
 | [view-plugins.md](view-plugins.md) | How do I add a custom viewer visualization to a register? How do I write a view plugin, and is a given implementation correct? |
 | [tab-plugins.md](tab-plugins.md) | How do I add a whole new top-level tab to a bblock's detail page? How do I write a tab plugin, and is a given implementation correct? |
 | [security.md](security.md) | What should `SECURITY.md` say? What can transforms/plugins/imports execute, and when? What should I check before trusting an import or a plugin reference? |
+| [repo-freshness.md](repo-freshness.md) | Is my local clone stale? How do I detect a pull that would conflict before changing anything, and when may I fast-forward automatically? |
 
 ---
 
