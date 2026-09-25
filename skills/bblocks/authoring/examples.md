@@ -24,7 +24,7 @@ examples:
 
 Each example has:
 - `title` (optional but recommended)
-- `base-output-filename` (recommended default — see below)
+- `base-output-filename` (set on every example that uses `ref` — see below)
 - `content` (optional Markdown description)
 - `snippets` — one or more code snippets, each with a `language` and either `code` or `ref`
 
@@ -42,11 +42,9 @@ snippets:
 
 ### `base-output-filename`: set this whenever you use `ref`
 
-Without it, generated test outputs (`.jsonld`, `.ttl`, `.validation_*.txt`) are named positionally —
-`example_1_1.ttl`, `example_2_1.ttl`, etc. — which tells you nothing about which source file produced
-which output, and the mapping silently shifts if examples are reordered or one is removed. Set
-`base-output-filename` to the source file's base name (extension discarded) so outputs are named
-after their source instead:
+Without it, generated test outputs (`.jsonld`, `.ttl`, `.validation_*.txt`) are named by position
+(`example_1_1.ttl`), so they can't be traced to their source file and the names shift when examples
+are reordered or removed. Set it to the source file's base name, without extension:
 
 ```yaml
 examples:
@@ -57,10 +55,11 @@ examples:
         ref: examples/my-feature.json
 ```
 
-Default to setting this on every example that uses `ref` — it costs one line and makes
-`build*/tests/<block>/*.ttl` traceable back to its source example by name. `title` stays a separate,
-free-text field for human-readable documentation (it is not a substitute for this — don't repurpose
-`title` to hold the filename instead of adding `base-output-filename`).
+The name must be unique across the block's examples, and an example that sets it should have a
+single snippet: nothing disambiguates duplicates, so their outputs silently overwrite each other.
+Avoid dots in the name (`my.feature` is truncated to `my`).
+
+`title` remains free-text documentation; don't use it in place of `base-output-filename`.
 
 ### Extracting part of a file with `json-path`
 
