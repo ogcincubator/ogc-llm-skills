@@ -154,36 +154,32 @@ hand for a block already reachable through a schema `$ref`, either — see
 
 ---
 
-## Abstract blocks need a profile declaration at every wrapper level, not just at the base
+## Abstract blocks need their own profile hierarchy at each wrapper level
 
-When you introduce an abstract properties-level block that several concrete property blocks
-specialise (e.g. a base `execution` block profiled by `observation`, `actuation`, `sampling`
-property blocks), check whether those concrete blocks are *themselves* wrapped by other blocks —
-a GeoJSON Feature variant, a Collection variant, an OpenAPI parameter binding, etc. If so, the
-abstract block needs a **parallel counterpart block at that same wrapper level**, and the
-concrete wrapper blocks need their own `isProfileOf` pointing at it — one declaration per level,
-not just at the base.
+When an abstract block (e.g. `properties/execution`) is specialized by concrete blocks
+(`observation`, `actuation`, `sampling`) that are then wrapped by other blocks — a GeoJSON Feature
+variant, a Collection variant, an OpenAPI binding — declare the hierarchy again at each wrapper level:
+
+1. Create an abstract wrapper block (e.g. `features/execution`) that wraps the abstract block in
+   the same structure as the concrete wrappers.
+2. Give each concrete wrapper (e.g. `features/observation`) an `isProfileOf` pointing to it.
 
 ```
-properties/execution  (abstract)  <──isProfileOf── properties/observation
-      ▲                                                    ▲
-      │ (needs a parallel block)                           │ (needs its own isProfileOf)
-      │                                                     │
-features/execution    (abstract)  <──isProfileOf── features/observation
+properties/execution  <──isProfileOf──  properties/observation
+        ▲                                        ▲
+        │ dependsOn (automatic)                  │ dependsOn (automatic)
+        │                                        │
+features/execution    <──isProfileOf──  features/observation
 ```
 
-Without the second block and its own `isProfileOf`, the *properties* the two share are visibly
-related (`observation`'s properties schema profiles `execution`'s), but a client inspecting the
-register at the *feature* level has no declared relationship between `features/observation` and
-anything abstract — it would have to parse into the nested `properties` sub-schema and notice the
-`$ref` chain itself to infer "this Feature is also an Execution." That inference cost is exactly
-what `isProfileOf` metadata exists to avoid. Every level in the wrapper hierarchy that has a
-concrete instance needs its own abstract counterpart and its own explicit declaration — inheriting
-a relationship implicitly through a nested schema is not the same as declaring it.
+Wrapping only adds a `dependsOn` edge (derived automatically from the schema `$ref`); it does not
+carry the properties-level profile relationship up to the wrapper. Without step 2, the wrapper-level
+blocks can't be identified as specializations of Execution from register metadata alone. This is a
+recommendation, not something the postprocessor enforces — do it for every wrapper level that has
+concrete blocks.
 
-The abstract wrapper block itself typically needs no `examples.yaml` (nothing instantiates it
-directly) and no `shapes.shacl` of its own — SHACL shapes stay attached to the abstract
-*properties* block and are still reachable by every concrete block through the schema graph.
+The abstract wrapper typically needs no `examples.yaml` (nothing instantiates it) and no
+`shapes.shacl` of its own; shapes stay on the abstract properties block.
 
 ---
 
