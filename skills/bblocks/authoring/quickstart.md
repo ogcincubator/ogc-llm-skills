@@ -40,6 +40,25 @@ The template ships with sample blocks under `_sources/`. Remove them so the regi
 rm -rf _sources/*
 ```
 
+### Ensure shell scripts check out with LF line endings
+
+Windows checkouts with `core.autocrlf=true` rewrite `build.sh`/`view.sh` to CRLF unless
+`.gitattributes` pins them, causing `syntax error: unexpected end of file` under WSL/Git Bash.
+Always run:
+
+```bash
+grep -q '\*\.sh.*eol=lf' .gitattributes 2>/dev/null || cat >> .gitattributes <<'EOF'
+* text=auto eol=lf
+*.sh text eol=lf
+EOF
+git add --renormalize .gitattributes build.sh view.sh
+bash -n build.sh && bash -n view.sh
+```
+
+If `bash -n` fails, strip stray CRs and re-stage:
+`sed -i 's/\r$//' build.sh view.sh && git add --renormalize build.sh view.sh`.
+Commit `.gitattributes` with the first commit.
+
 ### Enable GitHub Pages
 
 GitHub Pages must be enabled for the public-facing outputs to work — the HTML documentation,
@@ -79,6 +98,12 @@ If `gh` isn't available, tell the user to do it manually: **Settings → Pages �
 git clone https://github.com/<your-org>/<your-repo>.git
 cd <your-repo>
 ```
+
+On Windows, if you'll run `build.sh`/`view.sh` from WSL or Git Bash, check the template already
+carries a `.gitattributes` pinning them to LF — see
+[Ensure shell scripts check out with LF line endings](#ensure-shell-scripts-check-out-with-lf-line-endings)
+above. If it's missing you'll hit `build.sh: line N: syntax error: unexpected end of file`; add it
+before your first commit.
 
 ---
 
