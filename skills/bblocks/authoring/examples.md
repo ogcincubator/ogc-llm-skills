@@ -24,6 +24,7 @@ examples:
 
 Each example has:
 - `title` (optional but recommended)
+- `base-output-filename` (set on every example that uses `ref` — see below)
 - `content` (optional Markdown description)
 - `snippets` — one or more code snippets, each with a `language` and either `code` or `ref`
 
@@ -38,6 +39,27 @@ snippets:
   - language: json
     ref: examples/my-feature.json
 ```
+
+### `base-output-filename`: set this whenever you use `ref`
+
+Without it, generated test outputs (`.jsonld`, `.ttl`, `.validation_*.txt`) are named by position
+(`example_1_1.ttl`), so they can't be traced to their source file and the names shift when examples
+are reordered or removed. Set it to the source file's base name, without extension:
+
+```yaml
+examples:
+  - title: My feature
+    base-output-filename: my-feature   # -> my-feature.jsonld, my-feature.ttl, ...
+    snippets:
+      - language: json
+        ref: examples/my-feature.json
+```
+
+The name must be unique across the block's examples, and an example that sets it should have a
+single snippet: nothing disambiguates duplicates, so their outputs silently overwrite each other.
+Avoid dots in the name (`my.feature` is truncated to `my`).
+
+`title` remains free-text documentation; don't use it in place of `base-output-filename`.
 
 ### Extracting part of a file with `json-path`
 
