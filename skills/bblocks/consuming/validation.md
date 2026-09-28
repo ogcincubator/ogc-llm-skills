@@ -117,6 +117,15 @@ A `JSON_SCHEMA` error entry carries `errorMessage` (the jsonschema exception mes
 (the exception class). A `SHACL` error entry carries `graph` (the full SHACL validation report as
 Turtle — parse `sh:resultMessage`/`sh:resultPath`/`sh:focusNode` from it) rather than a flat message.
 
+`SHACL` sections also contain entries (no `op`) with `shaclFile` and `focusNodes`, mapping each shape
+that was evaluated to the focus nodes it ran on. A shape with `"nodes": []` matched nothing for that test
+resource, so it passed vacuously — worth knowing before you trust a green SHACL result:
+
+```bash
+jq '[.bblocks[].items[] | {src: .source.filename, empty: [.sections[] | select(.name=="SHACL") | .entries[] | select(.focusNodes) | .focusNodes | to_entries[] | select(.value.nodes|length==0) | .key]}] | map(select(.empty|length>0))' \
+  /tmp/report.json
+```
+
 ### Fetching one block's report directly
 
 If you only care about a single block, skip the top-level `report.json` entirely: each block also

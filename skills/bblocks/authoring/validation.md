@@ -121,6 +121,41 @@ A `JSON_SCHEMA` error entry carries `errorMessage` (the jsonschema exception mes
 (the exception class). A `SHACL` error entry carries `graph` (the full SHACL validation report as
 Turtle — parse `sh:resultMessage`/`sh:resultPath`/`sh:focusNode` from it) rather than a flat message.
 
+### Spotting SHACL shapes that pass vacuously
+
+A SHACL shape that matches no nodes can't fail, so a shape can "pass" every test while checking nothing
+(wrong `sh:targetClass`, a class the uplift never emits, a typo in a namespace, ...). To catch this, the
+`SHACL` section of each item also records, per SHACL file, every shape that was evaluated and the focus
+nodes it was evaluated on. These entries have no `op`; they carry `shaclFile` and `focusNodes`:
+
+```json
+{
+  "shaclFile": "https://.../features/feature/shapes.shacl",
+  "focusNodes": {
+    "geojson:FeatureShape":  { "nodes": ["<http://example.com/features/f1>"] },
+    "geojson:GeometryShape": { "nodes": [] },
+    "geojson:GeometryShape/sh:or/rdf:first": { "nodes": [] }
+  },
+  "isError": false,
+  "message": "Focus nodes for ...:\n - Shape geojson:GeometryShape: *none*\n - ..."
+}
+```
+
+Nested shapes (inside `sh:or`, `sh:and`, property shapes, ...) are listed too, keyed by their path from
+the parent shape. An empty `nodes` list (`*none*` in the `message`) means the shape was never exercised
+by that test resource. List them per test resource with:
+
+```bash
+jq '[.bblocks[].items[] | {src: .source.filename, empty: [.sections[] | select(.name=="SHACL") | .entries[] | select(.focusNodes) | .focusNodes | to_entries[] | select(.value.nodes|length==0) | .key]}] | map(select(.empty|length>0))' \
+  build/tests/report.json
+```
+
+An empty list is a lead, not proof of a bug: reusable or nested shapes are often only reached indirectly
+(via `sh:node`, `sh:or`, ...) and legitimately show no direct focus nodes, and a shape may simply not be
+relevant to a given example. But a top-level shape that is empty for *every* example and test case is
+probably never being tested — add or fix an example so it targets real nodes (and, ideally, a failing
+test that trips it).
+
 If `jq` isn't installed locally, the postprocessing pipeline already requires Docker, so run the same
 queries through the `jq` image instead of reading the raw file:
 
