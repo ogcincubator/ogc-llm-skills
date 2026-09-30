@@ -154,6 +154,35 @@ hand for a block already reachable through a schema `$ref`, either — see
 
 ---
 
+## Abstract blocks need their own profile hierarchy at each wrapper level
+
+When an abstract block (e.g. `properties/execution`) is specialized by concrete blocks
+(`observation`, `actuation`, `sampling`) that are then wrapped by other blocks — a GeoJSON Feature
+variant, a Collection variant, an OpenAPI binding — declare the hierarchy again at each wrapper level:
+
+1. Create an abstract wrapper block (e.g. `features/execution`) that wraps the abstract block in
+   the same structure as the concrete wrappers.
+2. Give each concrete wrapper (e.g. `features/observation`) an `isProfileOf` pointing to it.
+
+```
+properties/execution  <──isProfileOf──  properties/observation
+        ▲                                        ▲
+        │ dependsOn (automatic)                  │ dependsOn (automatic)
+        │                                        │
+features/execution    <──isProfileOf──  features/observation
+```
+
+Wrapping only adds a `dependsOn` edge (derived automatically from the schema `$ref`); it does not
+carry the properties-level profile relationship up to the wrapper. Without step 2, the wrapper-level
+blocks can't be identified as specializations of Execution from register metadata alone. This is a
+recommendation, not something the postprocessor enforces — do it for every wrapper level that has
+concrete blocks.
+
+The abstract wrapper typically needs no `examples.yaml` (nothing instantiates it) and no
+`shapes.shacl` of its own; shapes stay on the abstract properties block.
+
+---
+
 ## Conformance and requirement classes
 
 For blocks that relate to OGC/ModSpec specifications:
