@@ -29,6 +29,42 @@ overrides the display URL recorded in `register.json` (derived automatically fro
 `classes` can list several classes, from one or more `plugins.build` entries. If more than one
 implements the same event, they run in declaration order, each seeing the previous one's output.
 
+### `config` and `id`
+
+```yaml
+plugins:
+  build:
+    - id: strict                          # optional; letters, digits, _ and -
+      classes: [my_org.my_hooks.MyBuildHooks]
+      pip: git+https://github.com/example/my-bblocks-build-plugin.git
+      config:                             # optional; JSON-serializable mapping
+        threshold: 3
+    - id: lenient
+      classes: [my_org.my_hooks.MyBuildHooks]   # same class, second instance
+      pip: git+https://github.com/example/my-bblocks-build-plugin.git
+      config:
+        threshold: 10
+```
+
+- **`config`** is passed to the constructor of *every* class in its entry, as a single positional
+  dict: `def __init__(self, config)`. With no `config` (or an empty one) the class is constructed
+  with no arguments, as before. Giving a non-empty `config` to a class whose constructor can't take
+  one aborts the run. To configure classes differently, declare separate entries.
+- `config` must be JSON-serializable (string keys, no `NaN`; quote values like dates, which YAML
+  would otherwise parse into non-JSON types) — this is checked up front, before any plugin is
+  installed. Validate the contents yourself and raise from the constructor to fail the run early.
+- `config` is never written to `register.json`, but `bblocks-config.yaml` is committed to git: don't
+  put secrets in it. Read them from environment variables (plugins inherit the environment) or from
+  files outside the repository.
+- **`id`** lets the same class run as several independent instances (each `(class, id)` pair gets
+  its own process; entries with the same `pip` still share one virtualenv). Each pair must be
+  unique, or the run aborts at load time. Declaring the same class twice *without* an `id` still
+  works (the entries share one instance, so only the first one's `config` applies) but logs a
+  prominent warning and will become an error in a future release. The `id` reaches the plugin as
+  `context['pluginId']` (`None` when absent).
+- `config`/`id` need a postprocessor release that supports them (v1.1.8 or later); older images
+  ignore the keys.
+
 ---
 
 ## Package layout
@@ -53,8 +89,8 @@ version = "0.1.0"
 dependencies = []
 ```
 
-A plugin class needs no base class and no constructor arguments — the postprocessor instantiates it
-with `ClassName()`. It implements only the lifecycle methods it cares about; any event with no
+A plugin class needs no base class. It is instantiated with `ClassName()`, or with
+`ClassName(config)` if its entry declares a non-empty `config`. It implements only the lifecycle methods it cares about; any event with no
 matching method on the class is simply skipped.
 
 **Local development loop:** point `pip:` at the plugin's local directory while iterating, then run
@@ -99,6 +135,8 @@ leaves the register unchanged.
 
 ```python
 {
+    'rootDir': str,              # absolute directory the other paths are relative to (the cwd)
+    'pluginId': str | None,      # the declaring entry's `id`, if any
     'itemsDir': str,             # scanned items directory
     'baseUrl': str | None,
     'registerFile': str | None,
