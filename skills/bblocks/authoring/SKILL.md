@@ -1,6 +1,6 @@
 ---
 name: bblocks-authoring
-description: "Reference skill for authoring OGC Blocks (bblocks): source file structure, metadata (bblock.json), JSON Schema, examples, tests, JSON-LD contexts, SHACL shapes, semantic uplift, transforms, validation, and register publishing. Use when working with bblock.json, schema.yaml, examples.yaml, bblocks-postprocess, or any OGC Building Blocks register."
+description: "Reference skill for authoring OGC Blocks (bblocks) — reusable specification components of any artefact type: source file structure, metadata (bblock.json), dependencies, JSON Schema, examples, tests, JSON-LD contexts, SHACL shapes, semantic uplift, transforms, validation, and register publishing. Use when working with bblock.json, schema.yaml, examples.yaml, bblocks-postprocess, or any OGC Building Blocks register."
 ---
 
 # OGC Blocks — Authoring Skill
@@ -26,16 +26,31 @@ integration enabled — there is no `.bat`/PowerShell equivalent.
 
 ## What is an OGC Block?
 
-An OGC Block is a reusable specification component packaged as a directory of source files. Each block
-combines some or all of:
+An OGC Block is a reusable specification component packaged as a directory of source files. **A block may
+package any type of artefact** — a schema in any language, an ontology, a UML model, an OpenAPI component, a
+codelist, requirements, a transformation, a rule set, a document. The core capabilities are
+technology-independent:
 
-- a **JSON Schema** (the data model)
+- **metadata** (`bblock.json` — the only required file)
+- **dependency and relationship declarations** (`dependsOn`, `isProfileOf`, `seeAlso`, …)
+- **documentation** (`description.md`)
+- **examples**, with snippets in any language or format
+- **arbitrary attached artefacts** with declared roles and media types (`resources` — see [metadata.md](metadata.md#external-resources))
+
+On top of that, the postprocessor has **built-in tooling for specific technologies**, which is why they
+dominate existing registers — but they are optional, not defining:
+
+- a **JSON Schema** (data model, with `$ref` composition and annotation)
 - a **JSON-LD context** (semantic annotations mapping JSON properties to RDF predicates)
-- **SHACL shapes** (RDF graph constraints)
-- **examples** with inline or file-referenced snippets
+- **SHACL shapes** (RDF graph constraints) and an **ontology** (see [rdf-only.md](rdf-only.md))
 - **test resources** (additional files for automated validation)
 - **transforms** (reusable conversion scripts)
-- **metadata** (`bblock.json`)
+
+Other technologies get automated validation/transformation via plugins
+([validation-plugins.md](validation-plugins.md), [transform-plugins.md](transform-plugins.md)).
+
+> **Wording rule:** never describe blocks as *consisting of* or *being* JSON Schema/JSON-LD/SHACL. Say a
+> block *may include* them, or that they are the technologies with built-in tooling support.
 
 The postprocessor reads these sources and produces:
 
