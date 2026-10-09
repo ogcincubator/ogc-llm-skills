@@ -1,6 +1,6 @@
 ---
 name: bblocks-consuming
-description: "Reference skill for consuming published OGC Blocks (bblocks) registers: register.json, annotated schemas, JSON-LD contexts, SHACL shapes, examples, and test reports. Covers validating data, resolving bblocks:// refs, semantic uplift, and the bblocks-client-python library. Use when an agent needs to integrate with, validate against, or query an existing OGC Blocks register."
+description: "Reference skill for consuming published OGC Blocks (bblocks) registers (blocks may package any artefact type): register.json, dependencies, annotated schemas, JSON-LD contexts, SHACL shapes, examples, and test reports. Covers validating data, resolving bblocks:// refs, semantic uplift, and the bblocks-client-python library. Use when an agent needs to integrate with, validate against, or query an existing OGC Blocks register."
 ---
 
 # OGC Blocks — Consuming Skill
@@ -21,8 +21,11 @@ code-level identifier used in file names, identifiers, and tooling.
 ## What you get from a published register
 
 A register is a static set of files (typically deployed to GitHub Pages) rooted at a `register.json`.
-From it you can reach, per block: an annotated JSON Schema, a JSON-LD context, SHACL shapes, examples,
-generated documentation, and test reports. Nothing requires a server — every output is a plain file
+From it you can reach, per block: metadata, declared dependencies, generated documentation, examples, attached
+`resources`, and test reports — plus, **where the block includes them**, an annotated JSON Schema, a JSON-LD
+context, and SHACL shapes. Blocks may package any artefact type; JSON Schema/JSON-LD/SHACL are the
+technologies with built-in tooling, and therefore the most common, but a block without them is not
+incomplete. Nothing requires a server — every output is a plain file
 fetchable over HTTP.
 
 ---

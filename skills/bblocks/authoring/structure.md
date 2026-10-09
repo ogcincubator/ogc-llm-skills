@@ -17,7 +17,9 @@ my-bblocks-repo/
   _sources/                  # all block source files live here
     group1/
       my-block/
-        bblock.json          # block metadata → metadata.md
+        bblock.json          # block metadata — the ONLY required file → metadata.md
+        # every file below is optional; the list shows files with built-in tooling, not what a block must contain.
+        # Artefacts of any other type are attached via `resources` in bblock.json → metadata.md
         schema.yaml          # JSON Schema → schema.md
         context.jsonld       # JSON-LD context → semantic/context.md
         shapes.shacl          # SHACL shapes → semantic/shacl.md

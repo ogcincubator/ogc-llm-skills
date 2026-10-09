@@ -17,6 +17,9 @@ not.
 
 ## Scope
 
+Note: OGC Blocks in general may package any artefact type; this skill addresses only the specific case of
+a JSON Schema block plus RDF semantics. Do not generalise its JSON Schema/JSON-LD framing to blocks as a whole.
+
 **In scope:** retrofitting semantics to a schema that already exists and was written without formal RDF
 meaning — the common case where the JSON model came first and the vocabulary is added afterward.
 
