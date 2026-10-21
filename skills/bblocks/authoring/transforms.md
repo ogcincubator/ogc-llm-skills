@@ -179,6 +179,11 @@ transforms:
 During postprocessing, every output file is validated against each declared profile (JSON Schema +
 JSON-LD + SHACL). Results are written to `build/tests/.../transforms/` and summarized in `register.json`.
 
+SHACL validation of an output uses the profile's own closures plus the source snippet's `shacl-closure`
+entries (see [examples.md](examples.md#per-snippet-shacl-closures)), so an example and its transformed
+output are checked against the same background data. Relative paths in the snippet's `shacl-closure`
+resolve against the block that owns the snippet, not the profile.
+
 ---
 
 ## Transform context
