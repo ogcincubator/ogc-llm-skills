@@ -1,11 +1,11 @@
 ---
 name: bblocks-consuming
-description: "Reference skill for consuming published OGC Blocks (bblocks) registers: register.json, annotated schemas, JSON-LD contexts, SHACL shapes, examples, and test reports. Covers validating data, resolving bblocks:// refs, semantic uplift, and the bblocks-client-python library. Use when an agent needs to integrate with, validate against, or query an existing OGC Blocks register."
+description: "Reference skill for consuming published OGC Building Blocks (bblocks) registers: register.json, annotated schemas, JSON-LD contexts, SHACL shapes, examples, and test reports. Covers validating data, resolving bblocks:// refs, semantic uplift, and the bblocks-client-python library. Use when an agent needs to integrate with, validate against, or query an existing OGC Building Blocks register."
 ---
 
-# OGC Blocks — Consuming Skill
+# OGC Building Blocks — Consuming Skill
 
-This skill covers how to **consume OGC Blocks** (bblocks) from a published register: how to find a
+This skill covers how to **consume OGC Building Blocks** (bblocks) from a published register: how to find a
 block, fetch its outputs, validate data against it, and resolve its semantics — all from an external
 project that depends on the register, not from inside the register's own repo.
 
@@ -13,7 +13,7 @@ If you are instead writing or maintaining the source files of a register, that's
 (`bblocks-authoring`) — it may not be installed alongside this one, so this skill is fully
 self-contained and doesn't assume it's available.
 
-Official branding is **OGC Blocks**. The legacy name is *OGC Building Blocks*. `bblocks` is the
+The official name is **OGC Building Blocks**, sometimes shortened to just *OGC Blocks*. `bblocks` is the
 code-level identifier used in file names, identifiers, and tooling.
 
 ---

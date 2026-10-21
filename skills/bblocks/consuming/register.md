@@ -92,7 +92,7 @@ tool consumes the register. Both `bblocks-client-python` and `bblocks-viewer` do
 Everything above only finds a block if you already know which register (or import chain) it lives in. If you need
 to resolve a `bblocks://` reference, a `dependsOn`/`isProfileOf` identifier, or just search by keyword, and it
 isn't in any register you're already walking, the
-[OGC Blocks meta-register](https://defs-dev.opengis.net/bblocks-meta-register) crawls and indexes every register in
+[OGC Building Blocks meta-register](https://defs-dev.opengis.net/bblocks-meta-register) crawls and indexes every register in
 the ecosystem — not just the ones a given register happens to `import`. Query it via:
 
 - its [MCP server](https://defs-dev.opengis.net/bblocks-meta-register-backend/mcp) (streamable HTTP transport) if

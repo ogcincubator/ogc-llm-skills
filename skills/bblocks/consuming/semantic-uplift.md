@@ -11,7 +11,7 @@ SPARQL-query, or merge with other linked data.
 
 If you're starting from the other direction — you have data (or a target ontology) that already uses a
 specific RDF predicate/class URI, and want to know whether some bblock documents a JSON representation for
-it — the [OGC Blocks meta-register](https://defs-dev.opengis.net/bblocks-meta-register)'s MCP server exposes
+it — the [OGC Building Blocks meta-register](https://defs-dev.opengis.net/bblocks-meta-register)'s MCP server exposes
 a semantic-binding lookup tool for exactly this: it searches by the URI a block's JSON-LD context or SHACL
 shape actually maps to, rather than by keyword. (Still a development project — the URL may change once a
 production deployment exists.)

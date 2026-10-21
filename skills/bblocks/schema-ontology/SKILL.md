@@ -75,7 +75,7 @@ this skill sharp rather than folding those in.
 
 ## References
 
-- OGC Blocks & Linked Data guide: `https://ogcincubator.github.io/bblocks-docs/use/linked-data`
+- OGC Building Blocks & Linked Data guide: `https://ogcincubator.github.io/bblocks-docs/use/linked-data`
 - Runtime consumption tooling (`jsonld-ui-utils`): `https://ogcincubator.github.io/jsonld-ui-utils/` —
   its Leaflet map plugin is only an **illustrative proof of concept** of the payoff (resolving ontology
   labels at run-time); the value of the mappings does not depend on it.

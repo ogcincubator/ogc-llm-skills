@@ -1,6 +1,6 @@
 # Semantics — Overview
 
-OGC Blocks supports semantic interoperability by linking JSON data models to RDF. This section covers
+OGC Building Blocks supports semantic interoperability by linking JSON data models to RDF. This section covers
 the three layers of semantic tooling:
 
 | File | What it covers |

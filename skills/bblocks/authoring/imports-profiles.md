@@ -61,7 +61,7 @@ tries to check for a newer image on every run even when one is already cached lo
 ### Finding blocks to reuse
 
 Before you can reference a block via `bblocks://<identifier>`, you need its identifier. The
-[OGC Blocks meta-register](https://defs-dev.opengis.net/bblocks-meta-register) offers hybrid keyword/semantic
+[OGC Building Blocks meta-register](https://defs-dev.opengis.net/bblocks-meta-register) offers hybrid keyword/semantic
 search across every register it knows about, not just the ones you've imported, without a manual per-register
 fetch — prefer it when available, via its
 [MCP server](https://defs-dev.opengis.net/bblocks-meta-register-backend/mcp) if your environment supports MCP

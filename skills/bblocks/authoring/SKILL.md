@@ -1,14 +1,14 @@
 ---
 name: bblocks-authoring
-description: "Reference skill for authoring OGC Blocks (bblocks): source file structure, metadata (bblock.json), JSON Schema, examples, tests, JSON-LD contexts, SHACL shapes, semantic uplift, transforms, validation, and register publishing. Use when working with bblock.json, schema.yaml, examples.yaml, bblocks-postprocess, or any OGC Building Blocks register."
+description: "Reference skill for authoring OGC Building Blocks (bblocks): source file structure, metadata (bblock.json), JSON Schema, examples, tests, JSON-LD contexts, SHACL shapes, semantic uplift, transforms, validation, and register publishing. Use when working with bblock.json, schema.yaml, examples.yaml, bblocks-postprocess, or any OGC Building Blocks register."
 ---
 
-# OGC Blocks — Authoring Skill
+# OGC Building Blocks — Authoring Skill
 
-This skill covers how to **author OGC Blocks** (bblocks): how to write, structure, and test the source
+This skill covers how to **author OGC Building Blocks** (bblocks): how to write, structure, and test the source
 files that the postprocessor turns into reusable, machine-readable specification components.
 
-Official branding is **OGC Blocks**. The legacy name is *OGC Building Blocks*. `bblocks` is the
+The official name is **OGC Building Blocks**, sometimes shortened to just *OGC Blocks*. `bblocks` is the
 code-level identifier used in file names, identifiers, and tooling.
 
 ---

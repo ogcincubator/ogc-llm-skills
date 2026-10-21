@@ -16,8 +16,8 @@ Code, and the Claude API.
 
 | Skill | Description |
 |-------|-------------|
-| [`bblocks/authoring`](skills/bblocks/authoring/SKILL.md) | Authoring OGC Blocks registers: source file structure, metadata, schemas, examples, tests, semantic annotations, transforms, and validation. |
-| [`bblocks/consuming`](skills/bblocks/consuming/SKILL.md) | Consuming published OGC Blocks registers: resolving `bblocks://` refs, validating data, semantic uplift, and the `bblocks-client-python` library. |
+| [`bblocks/authoring`](skills/bblocks/authoring/SKILL.md) | Authoring OGC Building Blocks registers: source file structure, metadata, schemas, examples, tests, semantic annotations, transforms, and validation. |
+| [`bblocks/consuming`](skills/bblocks/consuming/SKILL.md) | Consuming published OGC Building Blocks registers: resolving `bblocks://` refs, validating data, semantic uplift, and the `bblocks-client-python` library. |
 | [`bblocks/schema-ontology`](skills/bblocks/schema-ontology/SKILL.md) | Retrofitting formal semantics to an existing schema OGC Block: authoring a reusable ontology block and binding it via a JSON-LD context, with optional semantic uplift. |
 
 More skill sets are planned — see the [open issues](https://github.com/ogcincubator/ogc-llm-skills/issues) for what's coming.
