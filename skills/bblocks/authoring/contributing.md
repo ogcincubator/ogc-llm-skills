@@ -32,23 +32,27 @@ Typical setup and use:
    Pages → Source → GitHub Actions** (same setting as initial repo creation, see
    [quickstart.md](quickstart.md#enable-github-pages)). Without this the fork's preview build
    succeeds but isn't published anywhere.
-3. The postprocessing workflow only runs automatically on a push. If you need output *before* your
-   first push (or to confirm the setup works right after enabling Actions), trigger it manually:
-   **Actions tab → "validate and postprocess" workflow → Run workflow** (`workflow_dispatch`), or
-   `gh workflow run "validate and postprocess"` if the `gh` CLI is available.
-4. Clone the fork and add the upstream repository as a remote, conventionally named `fork-parent`
-   — this is the default remote name the script looks for (configurable to something else, e.g.
-   `upstream`).
-5. Work on the fork's `master`/`main` branch as usual: edit sources, commit, push. Each push
-   triggers postprocessing and previews the register on the fork's own GitHub Pages site.
-6. Before running the script, commit or stash any pending changes — it rewrites history and
+3. The postprocessing workflow only runs automatically on a push. Pushes made before Actions was
+   enabled don't trigger it. To run it now, trigger it manually: **Actions tab → "Validate and
+   process Building Blocks" → Run workflow** (`workflow_dispatch`), or
+   `gh workflow run process-bblocks.yml --ref master` if the `gh` CLI is available.
+4. Clone the fork and add the upstream repository as a remote named `fork-parent`. That is the
+   default remote name the script looks for; use `-u <name>` for another name, e.g. `upstream`.
+   If you already have a clone of the upstream repository, possibly with local commits, convert it
+   instead of re-cloning (see below).
+5. If upstream's `bblocks-config.yaml` sets `sparql.push`, commit a `bblocks-config-override.yml`
+   with `sparql: false` (see [below](#fork-specific-config-overrides)).
+6. Work on the fork's `master`/`main` branch as usual: edit sources, commit, push. Each push
+   triggers postprocessing and previews the register on the fork's own GitHub Pages site
+   (`https://<your-user>.github.io/<repo>/`).
+7. Before running the script, commit or stash any pending changes — it rewrites history and
    requires a clean working tree.
-7. Run the script locally in the register's directory. It will:
+8. Run the script locally in the register's directory. It will:
    - create a new branch with a random name,
    - strip all changes to `build/` from that branch's history,
    - push the branch to your fork,
    - print a ready-to-use compare URL for opening the Pull Request.
-8. Open the PR from the printed URL — **not** from `master`/`main`.
+9. Open the PR from the printed URL — **not** from `master`/`main`.
 
 It depends on [`git-filter-repo`](https://github.com/newren/git-filter-repo) (a Python script): if
 already installed it's used directly, otherwise the script downloads a temporary copy and deletes
@@ -62,12 +66,20 @@ If the `gh` CLI is available, an agent can drive most of this workflow without a
 telling the user to click through the GitHub UI:
 
 ```bash
-# Fork the upstream register and clone it, in one step
+# Fork the upstream register and clone it, in one step. gh names the original's remote
+# 'upstream'; rename it to the script's default
 gh repo fork <upstream-owner>/<upstream-repo> --clone
+cd <upstream-repo> && git remote rename upstream fork-parent
 
 # Enable Actions on the fork (the UI equivalent of the "Actions" tab's
 # "I understand my workflows, enable them" button, which forks require)
-gh api -X PUT repos/<your-user>/<upstream-repo>/actions/permissions -f enabled=true
+gh api -X PUT repos/<your-user>/<upstream-repo>/actions/permissions -F enabled=true
+
+# Enable Pages, built by GitHub Actions (Settings → Pages → Source → GitHub Actions)
+gh api -X POST repos/<your-user>/<upstream-repo>/pages -f build_type=workflow
+
+# Run postprocessing now (pushes made before Actions was enabled didn't trigger it)
+gh workflow run process-bblocks.yml -R <your-user>/<upstream-repo> --ref master
 
 # After create-clean-pr.sh prints its compare URL, open the PR directly instead of visiting it:
 gh pr create --repo <upstream-owner>/<upstream-repo> \
@@ -77,6 +89,26 @@ gh pr create --repo <upstream-owner>/<upstream-repo> \
 
 Confirm with the user before forking a repository or opening a PR on their behalf — these are
 visible, hard-to-fully-reverse actions on a shared/public repository.
+
+### Converting an existing clone of the upstream register
+
+If you've been working in a clone of the upstream repository (`origin` is upstream), possibly with
+local commits, keep the clone and repoint its remotes. Renaming a remote also renames its branches'
+upstream tracking.
+
+```bash
+gh repo fork <upstream-owner>/<upstream-repo> --clone=false --default-branch-only
+git remote rename origin fork-parent
+git remote add origin https://github.com/<your-user>/<upstream-repo>.git
+git fetch origin
+# push the work to the fork's default branch for build review, and track it
+git push origin <work-branch>:master
+git branch -f master <work-branch> && git switch master && git branch -u origin/master
+```
+
+`git branch -f` only moves `master` safely if it hasn't diverged from the work branch, e.g. it is
+still at the upstream commit the work started from. Then enable Actions and Pages on the fork and
+run the workflow, as above.
 
 ### Updating an existing PR
 
@@ -104,6 +136,7 @@ imports:
   - https://www.example.com/overriden-import-2
 ```
 
+Commit it to the fork. The fork's CI build only sees committed files, and it isn't gitignored.
 `create-clean-pr.sh` automatically excludes this file from the clean PR branch, so fork-specific
 overrides never appear in the Pull Request.
 
