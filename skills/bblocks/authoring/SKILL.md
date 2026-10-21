@@ -1,6 +1,6 @@
 ---
 name: bblocks-authoring
-description: "Reference skill for authoring OGC Blocks (bblocks): source file structure, metadata (bblock.json), JSON Schema, examples, tests, JSON-LD contexts, SHACL shapes, semantic uplift, transforms, validation, and register publishing. Use when working with bblock.json, schema.yaml, examples.yaml, bblocks-postprocess, or any OGC Building Blocks register."
+description: "Reference skill for authoring OGC Blocks (bblocks): source file structure, metadata (bblock.json), JSON Schema, examples, tests, JSON-LD contexts, SHACL shapes, semantic uplift, transforms, validation, register publishing, and contributing to an existing register through a fork. Use when working with bblock.json, schema.yaml, examples.yaml, bblocks-postprocess, or any OGC Building Blocks register."
 ---
 
 # OGC Blocks — Authoring Skill
@@ -21,6 +21,17 @@ POSIX shell (bash-style syntax, e.g. `$(pwd)`). **On Windows**, run them from
 [Git Bash](https://git-scm.com/downloads/win) (bundled with Git for Windows) or, for the smoothest
 experience, [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) with Docker Desktop's WSL 2
 integration enabled — there is no `.bat`/PowerShell equivalent.
+
+---
+
+## Changing a register you don't own: fork first (default)
+
+By default, change an existing register (e.g. one under `opengeospatial`) through a fork in the user's
+account, with `origin` = the fork and `fork-parent` = the original. Push to the fork's `master`/`main`,
+where its CI build and Pages preview are reviewed. When the user is ready, open the PR from the branch
+`create-clean-pr.sh` makes. Don't push work branches or open PRs on the upstream register directly,
+even with write access. Confirm with the user before forking or opening a PR. Setup (including
+converting an existing upstream clone), Actions/Pages, SPARQL override: [contributing.md](contributing.md).
 
 ---
 
@@ -104,7 +115,7 @@ Start here and follow links for the topic you need:
 | [validation.md](validation.md) | How does validation work? How do I interpret errors? |
 | [local-iteration.md](local-iteration.md) | How do I run the postprocessor locally for a fast edit→run loop? All CLI flags, step descriptions, and workflow examples for iterating on schema, uplift, transforms, or tests. |
 | [dev-build.md](dev-build.md) | How do I test against an unreleased `bblocks-postprocess` feature — locally or in CI — before it ships in a release? |
-| [contributing.md](contributing.md) | How do I submit a PR to an existing register from a fork? How do I avoid `build/`-directory merge conflicts? What does `create-clean-pr.sh` do? How do I override config on my fork without it leaking into the PR? |
+| [contributing.md](contributing.md) | How do I set up a fork of an existing register (with `gh`, or by converting a clone of upstream that has local commits), enable Actions/Pages on it and preview builds? How do I submit a PR to the register from the fork? How do I avoid `build/`-directory merge conflicts? What does `create-clean-pr.sh` do? How do I override config on my fork without it leaking into the PR? |
 | [validation-plugins.md](validation-plugins.md) | How do I add a custom validator? |
 | [build-plugins.md](build-plugins.md) | How do I hook custom code into the postprocessor's own run (before/after each block, after the register is assembled, after uplift, on failure)? How do I pass config to a build plugin or run one class as several instances (`config`, `id`)? |
 | [imports-profiles.md](imports-profiles.md) | How do I import another register? How do I find a block to reuse/profile? How do I profile a block? How do I work with an imported register that's offline or on a restricted network? |
