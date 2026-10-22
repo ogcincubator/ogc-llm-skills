@@ -200,7 +200,8 @@ jq '[.bblocks[] | .itemIdentifier as $id | (.shaclShapes // {}) | to_entries[] |
      | select(test("^https?://") | not) | {block: $id, shape: .}]' build/register.json
 ```
 
-Any output means downstream consumers are affected until the postprocessor is fixed.
+Any output means downstream consumers are affected until the postprocessor is fixed
+([bblocks-postprocess#100](https://github.com/opengeospatial/bblocks-postprocess/issues/100)).
 
 ---
 
