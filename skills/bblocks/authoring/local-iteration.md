@@ -15,6 +15,11 @@ an interactive prompt. That prompt is what would otherwise ask a human to confir
 install and each transform-code execution against examples — read [security.md](security.md)
 before passing `--skip-permissions` on a register you haven't already reviewed.
 
+**Windows (Git Bash):** prefix `docker run` (or `build.sh`) with `MSYS_NO_PATHCONV=1`. Without it,
+Git Bash rewrites container-side paths such as `--workdir /workspace` and the `/imports/...` targets
+in `.volumes` into Windows paths, and the run fails or mounts the wrong place. The stock `build.sh`
+does not set this.
+
 ---
 
 ## Postprocessor CLI reference

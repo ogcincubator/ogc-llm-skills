@@ -69,6 +69,13 @@ If the commits differ, delete this skill directory entirely, then extract
 the new zip (that entry's `zip_url`) into its parent skills directory (the
 zip recreates this directory itself). Do not overwrite in place. See
 `llms_txt` for the full procedure across all installed skills.
+
+Before deleting, check whether this directory has been edited locally:
+extract the zip of the *installed* commit (or check out that commit of the
+source repo) and diff it against this directory. Delete-and-replace
+discards local edits, so if there are any, show them to the user and offer
+to contribute them to the source repo (or re-apply them after updating)
+first.
 """
 
 skills = []
@@ -283,7 +290,10 @@ To check whether installed skills are up to date:
    (`~/.claude/skills/<skill-name>`) entirely, then extract the new zip into
    `~/.claude/skills` (same steps as initial installation). Do not overwrite
    in place — deleted or renamed files in the new version would otherwise be
-   left behind as stale copies. If several installed skills are out of date
+   left behind as stale copies. Delete-and-replace discards local edits:
+   first diff the installed directory against the zip of its installed
+   commit, and if it was edited, show the user and offer to contribute or
+   re-apply the edits before replacing it. If several installed skills are out of date
    at once, delete each of their directories and extract `{fat_zip_name}`
    once rather than re-downloading a zip per skill.
 

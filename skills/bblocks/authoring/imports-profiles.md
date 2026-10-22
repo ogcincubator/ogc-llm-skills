@@ -58,6 +58,12 @@ pair per line:
 To run fully offline, also drop `--pull=always` from the `docker run` invocation — otherwise Docker
 tries to check for a newer image on every run even when one is already cached locally.
 
+The mapped path must serve what the remote URL serves: a register's *built* output (`register.json`,
+annotated schemas, contexts), plus its `_sources/` tree for SHACL shapes, which imported blocks
+publish as `<base-url>/_sources/...`. To test downstream registers against an **unreleased change**
+to a register they import — directly or through a chain of imports — mapping alone is not enough;
+see [regression-testing.md](regression-testing.md).
+
 ### Finding blocks to reuse
 
 Before you can reference a block via `bblocks://<identifier>`, you need its identifier. The
