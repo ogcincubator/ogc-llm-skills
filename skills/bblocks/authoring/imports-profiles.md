@@ -60,9 +60,11 @@ tries to check for a newer image on every run even when one is already cached lo
 
 The mapped path must serve what the remote URL serves: a register's *built* output (`register.json`,
 annotated schemas, contexts), plus its `_sources/` tree for SHACL shapes, which imported blocks
-publish as `<base-url>/_sources/...`. To test downstream registers against an **unreleased change**
-to a register they import — directly or through a chain of imports — mapping alone is not enough;
-see [regression-testing.md](regression-testing.md).
+publish as `<base-url>/_sources/...`. Mapping the register's base URL to its checkout root does
+both. To consume a **local, unreleased build** of an imported register, build it there with
+`./build-local.sh` (its public base URL, into `build-local/`, which the resolver prefers while
+mappings are active) — and when the change reaches you through a chain of imports, rebuild every
+register in between too; see [regression-testing.md](regression-testing.md).
 
 ### Finding blocks to reuse
 

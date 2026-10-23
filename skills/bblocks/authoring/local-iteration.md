@@ -7,13 +7,23 @@ Working on a fork to submit changes upstream? See [contributing.md](contributing
 fork → PR workflow and how to avoid `build/`-directory merge conflicts. Need to test against an
 unreleased `bblocks-postprocess` feature rather than the released image? See [dev-build.md](dev-build.md).
 
-**If you are an LLM/agent, do not run `build.sh` or `view.sh` directly.** Both scripts' `docker run`
-call includes `-it` (interactive, pseudo-TTY), which hangs or fails outside a real terminal. Either
-ask the user to run the script themselves, or run the equivalent `docker run` command yourself
-without `-it`, adding `--skip-permissions true` (see the flags table below) so it doesn't block on
-an interactive prompt. That prompt is what would otherwise ask a human to confirm each plugin
-install and each transform-code execution against examples — read [security.md](security.md)
-before passing `--skip-permissions` on a register you haven't already reviewed.
+**If you are an LLM/agent, check `build.sh` before running it.** Current
+[bblocks-template](https://github.com/opengeospatial/bblocks-template) copies only pass `-it` when
+attached to a terminal (`TTY=$([ -t 0 ] && [ -t 1 ] && echo -it)` … `docker run ${TTY}`), so you
+can run them — and their wrappers `build-local.sh` / `build-devel.sh` — directly, adding
+`--skip-permissions true` (extra arguments are passed to the postprocessor). Older copies, and
+`view.sh`, hard-code `-it`, which hangs or fails outside a real terminal: ask the user to run the
+script, or run the equivalent `docker run` yourself without `-it`, again with
+`--skip-permissions true`. Either way, permission prompts are what would otherwise ask a human to
+confirm each plugin install and each transform-code execution against examples — read
+[security.md](security.md) before passing `--skip-permissions` on a register you haven't already
+reviewed.
+
+| Script | What it runs |
+|--------|--------------|
+| `build.sh` | Full clean build into `build-local/` with the viewer base URL `http://localhost:9090/register/`; mounts `.volumes` |
+| `build-local.sh` | `build.sh` with the register's public base URL, so other registers can consume the local build — see [regression-testing.md](regression-testing.md) |
+| `build-devel.sh` | `build.sh` with the rolling `develop` postprocessor image (`BBP_IMAGE_TAG=develop`) |
 
 **Windows (Git Bash):** prefix `docker run` (or `build.sh`) with `MSYS_NO_PATHCONV=1`. Without it,
 Git Bash rewrites container-side paths such as `--workdir /workspace` and the `/imports/...` targets

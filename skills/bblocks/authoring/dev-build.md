@@ -34,6 +34,11 @@ for finer-grained iteration against `develop`:
 ./build-devel.sh --filter ogc.my.namespace.myblock --steps annotate,jsonld,tests
 ```
 
+`build-devel.sh` only works if `build.sh` uses the variable in its image reference
+(`ghcr.io/opengeospatial/bblocks-postprocess:${BBP_IMAGE_TAG:-latest}`). A customised or older
+`build.sh` with a bare image name silently ignores it and runs `latest` — check the pull line in
+the output (`...bblocks-postprocess:develop`) if in doubt.
+
 If a register's `build.sh` predates the flag-passthrough fix (no `"$@"` at the end of its
 `docker run` line — postprocessing auto-updates an unmodified stock copy to the current template on
 its next run, but only then) or you need to run outside a register directory, use the equivalent
