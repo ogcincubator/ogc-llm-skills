@@ -10,7 +10,7 @@ unreleased `bblocks-postprocess` feature rather than the released image? See [de
 **If you are an LLM/agent, check `build.sh` before running it.** Current
 [bblocks-template](https://github.com/opengeospatial/bblocks-template) copies only pass `-it` when
 attached to a terminal (`docker run $([ -t 0 ] && [ -t 1 ] && echo -it ) ...`), so you
-can run them — and their wrappers `build-local.sh` / `build-devel.sh` — directly, adding
+can run them — and the wrapper `build-devel.sh` — directly, adding
 `--skip-permissions true` (extra arguments are passed to the postprocessor). Keep the test inline
 when editing `build.sh`: on interactive runs the postprocessor re-inserts `-it` into any `docker run`
 line that lacks a literal `-it` token (released images don't recognise a `${TTY}` variable), after
@@ -24,8 +24,7 @@ reviewed.
 
 | Script | What it runs |
 |--------|--------------|
-| `build.sh` | Full clean build into `build-local/` with the viewer base URL `http://localhost:9090/register/`; mounts `.volumes` |
-| `build-local.sh` | `build.sh` with the register's public base URL, so other registers can consume the local build — see [regression-testing.md](regression-testing.md) |
+| `build.sh` | Full clean build into `build-local/` with the viewer base URL `http://localhost:9090/register/`; mounts `.volumes`. Other local registers can import this build too — see [regression-testing.md](regression-testing.md) |
 | `build-devel.sh` | `build.sh` with the rolling `develop` postprocessor image (`BBP_IMAGE_TAG=develop`) |
 
 **Windows (Git Bash):** prefix `docker run` (or `build.sh`) with `MSYS_NO_PATHCONV=1`. Without it,

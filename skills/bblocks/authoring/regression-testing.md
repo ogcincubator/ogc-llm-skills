@@ -29,43 +29,24 @@ So `leaf` would see the new upstream only where it fetches upstream directly, an
 through `mid-a`/`mid-b`. A valid regression test **rebuilds every register in the chain, in
 dependency order**, each against the local build of the one before it.
 
-## 1. Build each imported register with `build-local.sh`
+## 1. Build each imported register with `build.sh`
 
-Each register that something else imports (`upstream`, `mid-a`, `mid-b`) is built into its
-`build-local/` with its **real public base URL**, so that the self-referencing URLs stamped into
-its annotated schemas and contexts (`<base-url>build-local/annotated/...`) are ones its consumers
-can map. Repos scaffolded from [bblocks-template](https://github.com/opengeospatial/bblocks-template)
-have a `build-local.sh` for exactly this:
+Each register that something else imports (`upstream`, `mid-a`, `mid-b`) is built locally with
+its plain `build.sh`, into `build-local/`. That build is stamped with the viewer base URL
+`http://localhost:9090/register/` (in `register.json`'s `baseURL` and in every self-referencing
+`$ref` of its annotated schemas and contexts), so it stays usable in that register's own viewer.
+When a consumer fetches it through a url-mapping (step 2), the postprocessor rewrites that base,
+in files served from the mapped checkout's `build-local/`, to the mapped URL. Each upstream's links
+then resolve through its own mapping, even though every local build shares the same viewer URL.
 
-```bash
-./build-local.sh                                              # base URL autodetected from the git remote
-./build-local.sh --base-url https://example.org/upstream/     # on a fork: the ORIGINAL register's URL
-```
-
-If the repo has no `build-local.sh`, it is a one-line wrapper around `build.sh` (whose `"$@"` is
-passed to the postprocessor, and a later `--base-url` overrides `build.sh`'s; an empty one falls
-back to autodetection):
-
-```bash
-#!/bin/bash
-exec "$(dirname "$0")/build.sh" --base-url "" "$@"
-```
-
-Autodetection reads the current branch's tracking remote and, in released postprocessor images,
-only recognises GitHub remotes ending in `.git` — a checkout cloned as `https://github.com/org/repo`
-silently gets no base URL (the built `register.json` then has no `baseURL`). For a register others
-consume, hard-coding its public URL in that repo's `build-local.sh` is the more robust choice:
-
-```bash
-exec "$(dirname "$0")/build.sh" --base-url https://example.org/upstream/ "$@"
-```
-
-Check the result with `jq .baseURL build-local/register.json`.
-
-Do not run plain `build.sh` in a register that others are consuming: it rewrites `build-local/`
-with the `http://localhost:9090/register/` viewer base URL, whose `$ref`s fail inside the
-consumer's container. On a fork, autodetection yields the *fork's* GitHub Pages URL, which no
-consumer imports — always pass `--base-url` there.
+This rewriting needs a postprocessor that includes
+[bblocks-postprocess#101](https://github.com/opengeospatial/bblocks-postprocess/pull/101). With an
+older image the consumer fails with `Connection refused` fetching
+`http://localhost:9090/register/build-local/...`. The workaround there is to build each upstream
+with its public base URL instead (`./build.sh --base-url https://example.org/upstream/`, a later
+`--base-url` overrides `build.sh`'s; on a fork, the *original* register's URL). That makes the
+upstream's own viewer follow links to `<public URL>/build-local/...`, which never exists, so rebuild
+with plain `build.sh` before viewing it.
 
 ## 2. Map each locally built register once
 
@@ -89,7 +70,12 @@ url-mappings:
 
 `leaf`'s config maps `upstream`, `mid-a` **and** `mid-b`; `mid-b`'s maps `upstream` and `mid-a`;
 and so on. Relative `.volumes` paths work from both Git Bash and WSL; absolute ones (`/c/...` vs
-`/mnt/c/...`) don't. Only scripts that read `.volumes` (`build.sh` and its wrappers) mount them —
+`/mnt/c/...`) don't. Relative paths resolve against the directory `build.sh` is run from, so the
+terminal must be in the real checkout: an IDE terminal can open in a copy such as
+`/mnt/wsl/docker-desktop-bind-mounts/<distro>/<hash>` that has no sibling checkouts. Docker then
+silently creates the missing mount sources as empty directories, and the build fails with
+`Local file /imports/... does not exist` even though `.volumes` looks right. Check with `pwd`, or
+use absolute paths. Only scripts that read `.volumes` (`build.sh` and its wrappers) mount them —
 a hand-written `docker run` without the mounts fails with `Local file /imports/... does not exist`.
 
 Unmapped URLs still go to the network, so only the registers you rebuilt are local. Use
@@ -106,15 +92,15 @@ so build each downstream repo twice with the **same image** and compare:
 | Run | Local config | Output directory |
 |---|---|---|
 | baseline | `bblocks-config-local.yml` absent | `build-local-baseline/` (pass `--register-file`, `--annotated-path`, `--generated-docs-path`, `--test-outputs-path`) |
-| candidate | mappings installed | `build-local/` (`build-local.sh` for intermediates, `build.sh` for leaves) |
+| candidate | mappings installed | `build-local/` (`build.sh`) |
 
 The postprocessor always reads `bblocks-config-local.yml` from the working directory and has no
 CLI flag to select or disable it, so the baseline run must rename it out of the way first (and
 restore it afterwards). Order:
 
 1. Baselines of every downstream repo — independent, can run in parallel.
-2. Candidate `upstream` (`build-local.sh`).
-3. Candidate `mid-a` (`build-local.sh`) and `other-leaf` (parallel), then `mid-b`, then `leaf` —
+2. Candidate `upstream`.
+3. Candidate `mid-a` and `other-leaf` (parallel), then `mid-b`, then `leaf` —
    each only after everything it imports has been rebuilt.
 
 Baselines only need re-running when the downstream repos or the published upstream change.
