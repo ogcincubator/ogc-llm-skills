@@ -9,9 +9,12 @@ unreleased `bblocks-postprocess` feature rather than the released image? See [de
 
 **If you are an LLM/agent, check `build.sh` before running it.** Current
 [bblocks-template](https://github.com/opengeospatial/bblocks-template) copies only pass `-it` when
-attached to a terminal (`TTY=$([ -t 0 ] && [ -t 1 ] && echo -it)` … `docker run ${TTY}`), so you
+attached to a terminal (`docker run $([ -t 0 ] && [ -t 1 ] && echo -it ) ...`), so you
 can run them — and their wrappers `build-local.sh` / `build-devel.sh` — directly, adding
-`--skip-permissions true` (extra arguments are passed to the postprocessor). Older copies, and
+`--skip-permissions true` (extra arguments are passed to the postprocessor). Keep the test inline
+when editing `build.sh`: on interactive runs the postprocessor re-inserts `-it` into any `docker run`
+line that lacks a literal `-it` token (released images don't recognise a `${TTY}` variable), after
+which the script fails without a terminal again. Older copies, and
 `view.sh`, hard-code `-it`, which hangs or fails outside a real terminal: ask the user to run the
 script, or run the equivalent `docker run` yourself without `-it`, again with
 `--skip-permissions true`. Either way, permission prompts are what would otherwise ask a human to

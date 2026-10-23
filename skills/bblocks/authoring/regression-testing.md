@@ -51,6 +51,17 @@ back to autodetection):
 exec "$(dirname "$0")/build.sh" --base-url "" "$@"
 ```
 
+Autodetection reads the current branch's tracking remote and, in released postprocessor images,
+only recognises GitHub remotes ending in `.git` — a checkout cloned as `https://github.com/org/repo`
+silently gets no base URL (the built `register.json` then has no `baseURL`). For a register others
+consume, hard-coding its public URL in that repo's `build-local.sh` is the more robust choice:
+
+```bash
+exec "$(dirname "$0")/build.sh" --base-url https://example.org/upstream/ "$@"
+```
+
+Check the result with `jq .baseURL build-local/register.json`.
+
 Do not run plain `build.sh` in a register that others are consuming: it rewrites `build-local/`
 with the `http://localhost:9090/register/` viewer base URL, whose `$ref`s fail inside the
 consumer's container. On a fork, autodetection yields the *fork's* GitHub Pages URL, which no
