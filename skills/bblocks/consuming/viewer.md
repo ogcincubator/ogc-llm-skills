@@ -57,7 +57,7 @@ outputs directly.
 
 `bblocks-viewer` (and `viewerURL` above) shows one register at a time. To browse or search across every register
 the ecosystem knows about instead — organizations, registers, and blocks in a single catalog — see the
-[OGC Building Blocks meta-register](https://defs-dev.opengis.net/bblocks-meta-register) web UI, or its
-[MCP server](https://defs-dev.opengis.net/bblocks-meta-register-backend/mcp)/[REST API](https://defs-dev.opengis.net/bblocks-meta-register-backend/openapi.json)
+[OGC Building Blocks meta-register](https://w3id.org/ogc/bblocks/meta-register/) web UI, or its
+[MCP server](https://w3id.org/ogc/bblocks/meta-register-backend/mcp)/[REST API](https://w3id.org/ogc/bblocks/meta-register-backend/openapi.json)
 for programmatic access (see [register.md](register.md#finding-a-block-outside-a-known-register)). Still a
-development project — the URL may change once a production deployment exists.
+development project — expect changes; the w3id.org URLs are stable even if the deployment behind them moves.

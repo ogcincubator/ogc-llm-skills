@@ -92,20 +92,20 @@ tool consumes the register. Both `bblocks-client-python` and `bblocks-viewer` do
 Everything above only finds a block if you already know which register (or import chain) it lives in. If you need
 to resolve a `bblocks://` reference, a `dependsOn`/`isProfileOf` identifier, or just search by keyword, and it
 isn't in any register you're already walking, the
-[OGC Building Blocks meta-register](https://defs-dev.opengis.net/bblocks-meta-register) crawls and indexes every register in
+[OGC Building Blocks meta-register](https://w3id.org/ogc/bblocks/meta-register/) crawls and indexes every register in
 the ecosystem — not just the ones a given register happens to `import`. Query it via:
 
-- its [MCP server](https://defs-dev.opengis.net/bblocks-meta-register-backend/mcp) (streamable HTTP transport) if
+- its [MCP server](https://w3id.org/ogc/bblocks/meta-register-backend/mcp) (streamable HTTP transport) if
   your environment supports MCP tools — hybrid keyword/semantic search, direct lookup by identifier,
   dependency-graph traversal in both directions (what a block depends on, and what depends on it — the latter
   isn't derivable from any single register's own `register.json`), and lookup by semantic binding (an RDF
   predicate/class URI a block's JSON-LD context or SHACL shape already maps to, when you have that URI rather
   than a keyword);
-- its [REST API](https://defs-dev.opengis.net/bblocks-meta-register-backend/openapi.json) otherwise — fetch the
+- its [REST API](https://w3id.org/ogc/bblocks/meta-register-backend/openapi.json) otherwise — fetch the
   OpenAPI doc to see available endpoints (the bare backend URL 404s; `/docs` is a Swagger UI meant for humans).
 
-**Still a development project** — the deployment above is a dev instance; expect the URL to change once a
-production ("definitive") register is available. Stay tuned.
+**Still a development project** — expect changes while it matures, and a production ("definitive") deployment
+is planned. The w3id.org URLs above are stable even if the deployment behind them moves.
 
 ## Relationships between blocks
 
@@ -115,7 +115,7 @@ graph file:
 | Relationship | Field(s) |
 |---|---|
 | Plain dependency | `dependsOn` (set of identifiers) |
-| Profile (specialization) | `isProfileOf` / `profileOf` |
+| Profile (specialization) | `isProfileOf` |
 | Extension point | `extensionPoints` (base block + extension source/target identifiers) |
 
 When walking dependencies across registers, stop expanding into a register you didn't import yourself

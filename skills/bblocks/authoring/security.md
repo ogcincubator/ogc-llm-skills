@@ -106,11 +106,11 @@ From a register's published `register.json` alone, without cloning it, you can c
 - the license applying to the register and to each block (`license` in `bblocks-config.yaml` or a
   block's own `bblock.json`, see [metadata.md](metadata.md)).
 
-The [OGC Building Blocks meta-register catalog](https://defs-dev.opengis.net/bblocks-meta-register) indexes this across
+The [OGC Building Blocks meta-register catalog](https://w3id.org/ogc/bblocks/meta-register/) indexes this across
 known registers so you can look up declared plugins, imports, and license without cloning — via its
-[REST API](https://defs-dev.opengis.net/bblocks-meta-register-backend/openapi.json) or, for MCP-capable tools, its
-[MCP server](https://defs-dev.opengis.net/bblocks-meta-register-backend/mcp). Still a development project — the
-URL above is a dev deployment and may change once a production register exists.
+[REST API](https://w3id.org/ogc/bblocks/meta-register-backend/openapi.json) or, for MCP-capable tools, its
+[MCP server](https://w3id.org/ogc/bblocks/meta-register-backend/mcp). Still a development project — expect
+changes; the w3id.org URLs above are stable even if the deployment behind them moves.
 
 None of this proves the content was actually *reviewed*, by whom, or whether an import's target has
 changed since you last checked — that tracking is on the consumer.
