@@ -15,6 +15,15 @@ documents the mechanics of each individual file: `ontology.ttl` declaration and 
 **end-to-end workflow, the block arrangement, and the judgement calls** that mechanical file docs do
 not.
 
+## Before you start: check that local repositories are current
+
+Before reading or changing **any** local git repository (the schema block's register and any register it imports), follow
+[repo-freshness.md](repo-freshness.md). It fetches, measures how far behind the clone is, and predicts
+merge conflicts. **Stop with a warning** if a pull would conflict. Otherwise apply the user's
+auto-update preference (always / ask / never; fast-forward only). Stale clones cause "phantom"
+differences from the published register, such as imports or dependencies that the viewer shows but
+the local config doesn't.
+
 ## Scope
 
 **In scope:** retrofitting semantics to a schema that already exists and was written without formal RDF
@@ -72,6 +81,7 @@ this skill sharp rather than folding those in.
 | [packaging.md](packaging.md) | Decide where the ontology and mapping live: offer the user the inline-vs-new-block dialog, wire dependencies, use a standalone JSON-LD mapping block to **override** default/generic (e.g. schema.org) mappings, and understand run-time Linked Data resolution. |
 | [sourcing.md](sourcing.md) | Do the research that must precede any Turtle: where authoritative definitions come from, reuse vs. mint per element, the pre-writing checklist. |
 | [example.md](example.md) | See one schema element retrofitted end to end, alongside an inherited element correctly left untouched. |
+| [repo-freshness.md](repo-freshness.md) | Before step 1 of the workflow: are the local clones of the schema's register and its imports current? The import boundary is only correct against up-to-date sources. |
 
 ## References
 
