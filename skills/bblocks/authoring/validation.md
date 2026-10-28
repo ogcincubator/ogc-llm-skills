@@ -121,6 +121,41 @@ A `JSON_SCHEMA` error entry carries `errorMessage` (the jsonschema exception mes
 (the exception class). A `SHACL` error entry carries `graph` (the full SHACL validation report as
 Turtle — parse `sh:resultMessage`/`sh:resultPath`/`sh:focusNode` from it) rather than a flat message.
 
+### Drilling into `anyOf` / `oneOf` failures
+
+When the failing keyword is a combinator, `errorMessage` reports only the top level ("... is not
+valid under any of the given schemas") followed by the whole sub-schema and instance — the actual
+cause (a missing property, a pattern mismatch) is buried in the per-branch errors, which the report
+does not list. Re-validate locally against the annotated schema and print the leaf errors of every
+branch:
+
+```python
+import json, sys, urllib.request, yaml
+from jsonschema import Draft202012Validator
+from referencing import Registry
+from referencing.jsonschema import DRAFT202012
+
+def retrieve(uri):  # map your own build's URLs to local files here if they aren't published yet
+    return DRAFT202012.create_resource(yaml.safe_load(urllib.request.urlopen(uri).read()))
+
+schema_url, instance_file = sys.argv[1:3]   # annotated schema URL, test output instance
+validator = Draft202012Validator({'$ref': schema_url}, registry=Registry(retrieve=retrieve))
+
+def leaves(errors):
+    for e in errors:
+        if e.context:
+            leaves(e.context)
+        else:
+            print(list(e.absolute_path), e.message[:160])
+
+leaves(validator.iter_errors(json.load(open(instance_file, encoding='utf-8'))))
+```
+
+Use the instance copied into `build/tests/<block path>/` (after any example preprocessing) and the
+annotated schema (`build/annotated/.../schema.json`), not the source schema. Branches that fail only
+because they are the wrong alternative (e.g. `'Feature' was expected` for a collection) are noise;
+the error that appears under the branch that *should* match is the cause.
+
 ### Spotting SHACL shapes that pass vacuously
 
 A SHACL shape that matches no nodes can't fail, so a shape can "pass" every test while checking nothing

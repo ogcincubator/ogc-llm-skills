@@ -8,6 +8,7 @@ my-bblocks-repo/
   bblocks-config-local.yml   # local URL mappings for testing (gitignored) → imports-profiles.md
   bblocks-config-override.yml # fork-specific config overrides, excluded from PRs (gitignored) → contributing.md
   build.sh                   # convenience wrapper: runs postprocessor via Docker → local-iteration.md
+  build-devel.sh             # build.sh with the rolling `develop` postprocessor image → dev-build.md
   view.sh                    # launches the bblocks viewer against build-local/ → local-iteration.md
   .volumes                   # extra Docker volume mounts for build.sh (gitignored, optional) → imports-profiles.md
   docker-compose.yml         # alternative to build.sh / view.sh

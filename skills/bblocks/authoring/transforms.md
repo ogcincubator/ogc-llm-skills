@@ -184,6 +184,25 @@ entries (see [examples.md](examples.md#per-snippet-shacl-closures)), so an examp
 output are checked against the same background data. Relative paths in the snippet's `shacl-closure`
 resolve against the block that owns the snippet, not the profile.
 
+**Caveat — profile metadata in `register.json`.** When the profile is a *local* block of the same
+register, validating a transform output against it can rewrite that profile block's published
+`shaclShapes` entries to cwd-relative paths (e.g. `_sources/properties/observation/shapes.shacl`
+instead of `https://.../_sources/properties/observation/shapes.shacl`); observed with
+bblocks-postprocess as of October 2026 (the SHACL validator overwrites `metadata['shaclShapes']` of
+the block it validates against, after that block's URLs were already resolved). The register itself
+still validates, but every *importing* register then fails to load those shapes
+(`globalErrors.SHACL`: `Error processing <consumer-block-dir>/_sources/...: No such file or
+directory`) and every test of each affected block fails. After adding `outputs.profiles` that point
+at local blocks, check `register.json`:
+
+```bash
+jq '[.bblocks[] | .itemIdentifier as $id | (.shaclShapes // {}) | to_entries[] | .value[]
+     | select(test("^https?://") | not) | {block: $id, shape: .}]' build/register.json
+```
+
+Any output means downstream consumers are affected until the postprocessor is fixed
+([bblocks-postprocess#100](https://github.com/opengeospatial/bblocks-postprocess/issues/100)).
+
 ---
 
 ## Transform context
