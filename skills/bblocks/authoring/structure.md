@@ -27,6 +27,7 @@ my-bblocks-repo/
         transforms.yaml      # transforms → transforms.md
         semantic-uplift.yaml # semantic uplift config → semantic/uplift.md
         assets/              # static files (images, etc.) — no fixed name required
+        _ref/                # vendored copies of external schemas $ref'd from a mutable branch URL → schema.md
         description.md       # long-form Markdown block docs → see below
   build/                     # NEVER edit — postprocessor output committed for CI/GitHub Pages → outputs.md
   build-local/               # gitignored local postprocessor output; inspect here when iterating locally → local-iteration.md, outputs.md

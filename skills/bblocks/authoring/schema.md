@@ -25,6 +25,9 @@ Reference any external schema by URL:
 "$ref": "https://geojson.org/schema/Feature.json"
 ```
 
+If that URL points into a GitHub repository, check whether it is immutable before using it as-is —
+see [External `$ref`s into a GitHub repository](#external-refs-into-a-github-repository) below.
+
 ### `bblocks://` scheme
 
 Reference another block's annotated schema using its identifier. This automatically inherits the
@@ -36,6 +39,60 @@ referenced block's JSON-LD context and SHACL shapes:
 
 This requires the referenced block's register to be listed in `bblocks-config.yaml` under `imports`.
 At postprocessing time the `bblocks://` URI is resolved to the actual annotated schema URL.
+
+### External `$ref`s into a GitHub repository
+
+A `$ref` to a schema hosted in a GitHub repository is only safe if the URL is **immutable**. Decide
+by URL shape:
+
+| URL shape | Immutable? | What to do |
+|-----------|-----------|------------|
+| `raw.githubusercontent.com/<org>/<repo>/refs/tags/v1.2.0/...` (tag) | Yes | Reference it directly |
+| `github.com/<org>/<repo>/releases/download/v1.2.0/...` (release asset) | Yes | Reference it directly |
+| `raw.githubusercontent.com/<org>/<repo>/<40-char commit sha>/...` | Yes | Reference it directly |
+| `raw.githubusercontent.com/<org>/<repo>/refs/heads/main/...` (branch) | **No** | Download a copy into the register and `$ref` that |
+| `raw.githubusercontent.com/<org>/<repo>/main/...`, `.../master/...` (branch) | **No** | Download a copy into the register and `$ref` that |
+| `github.com/<org>/<repo>/blob/...` | — | Never `$ref` a `blob/` URL — it serves an HTML page, not the schema. Rewrite it to `raw.githubusercontent.com` first, then apply the rules above |
+
+A tag can in principle be moved and a release asset replaced, but both are published, versioned
+artifacts — treating them as stable is the same assumption every package manager makes. A branch
+URL makes no such promise.
+
+**Why a branch `$ref` has to be vendored:**
+
+- **The target changes without notice.** Examples and tests that pass today can fail tomorrow with
+  no change in your register, and the failure surfaces as an unexplained validation error.
+- **Every build and every consumer refetches it.** An external URL that matches no block in the
+  register is copied verbatim into the annotated schema, so the dependency on GitHub is inherited by
+  everyone validating against your block — subject to rate limits, and unavailable offline. The
+  `url-mappings` mechanism in `bblocks-config-local.yml` (see
+  [imports-profiles.md](imports-profiles.md)) does not help here: it redirects *imported registers*,
+  not raw `$ref` URLs.
+- **You cannot annotate a file you do not own.** `x-jsonld-*` hints have to live inside the schema
+  for the annotator to inline them, so properties reached through a remote `$ref` cannot be mapped
+  per-property. You are left declaring `x-jsonld-extra-terms` at your block root and matching
+  property names by hand.
+
+**How to vendor the copy:**
+
+1. Download the target into the block directory, e.g. `_sources/cct/stac/_ref/stac.json`. The
+   subdirectory name is a convention (see [structure.md](structure.md#static-assets)); the whole
+   repository is deployed to GitHub Pages, so a committed copy is published alongside the block.
+2. Point the `$ref` at the relative path: `"$ref": "_ref/stac.json"` — resolved relative to the
+   block directory.
+3. Record provenance next to the copy — upstream URL, commit SHA, and retrieval date — in a sibling
+   `README.md`, so a later reader can tell what it is a copy of and diff it against upstream.
+4. Commit the copy. Refreshing it is then a deliberate, reviewable diff instead of a silent change.
+
+Save the copy as `.json` rather than `.yaml` where you can: the JSON annotated schema keeps the
+`$ref` as written, and a `.yaml` target makes `schema.json` reference a file no JSON parser can
+read. The postprocessor warns about this (`Potential YAML $ref's found in JSON version of schema`).
+
+If the vendored schema is not itself a block, the annotated schema rewrites the relative `$ref` to
+`<register base URL>/<path from the repository root>` — the copy must therefore be committed, not
+gitignored. If you also need its properties to carry semantics, make the copy a block of its own by
+adding a `bblock.json` next to it: the relative `$ref` then resolves to that block's annotated
+schema and its context is inherited like any other block reference.
 
 ---
 
