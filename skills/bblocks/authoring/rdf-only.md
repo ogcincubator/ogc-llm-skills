@@ -29,7 +29,7 @@ Declare an ontology document in `bblock.json`:
 If `ontology` is not set, the postprocessor auto-detects `ontology.ttl` or `ontology.owl` in the
 block directory. The ontology is published in `build/` and included in the register entry. It
 also feeds this block's SHACL closure graph — and is inherited into the closure graph of any
-block that `dependsOn`/`isProfileOf` this one — see [semantic/shacl.md](semantic/shacl.md#inheritance).
+block that depends on this one (via `dependsOn`, `isProfileOf` or `isDescribedBy`) — see [semantic/shacl.md](semantic/shacl.md#inheritance).
 
 ---
 

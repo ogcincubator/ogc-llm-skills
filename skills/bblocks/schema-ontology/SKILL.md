@@ -69,7 +69,7 @@ this skill sharp rather than folding those in.
 | File | Read it when you need to… |
 |------|---------------------------|
 | [workflow.md](workflow.md) | Follow the retrofit end to end: import boundary, own-element inventory, reuse-vs-mint, author `ontology.ttl`, wire the context, add uplift only where the context can't reach, validate the round trip. |
-| [packaging.md](packaging.md) | Decide where the ontology and mapping live: offer the user the inline-vs-new-block dialog, wire dependencies, use a standalone JSON-LD mapping block to **override** default/generic (e.g. schema.org) mappings, and understand run-time Linked Data resolution. |
+| [packaging.md](packaging.md) | Decide where the ontology and mapping live: offer the user the inline-vs-new-block dialog, wire the ontology with `isDescribedBy` (including one ontology shared by many schemas), use a standalone JSON-LD mapping block to **override** default/generic (e.g. schema.org) mappings, and understand run-time Linked Data resolution. |
 | [sourcing.md](sourcing.md) | Do the research that must precede any Turtle: where authoritative definitions come from, reuse vs. mint per element, the pre-writing checklist. |
 | [example.md](example.md) | See one schema element retrofitted end to end, alongside an inherited element correctly left untouched. |
 

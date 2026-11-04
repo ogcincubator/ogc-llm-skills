@@ -60,7 +60,7 @@ Use `shaclClosures` for:
 ## Inheritance
 
 A block's SHACL closure graph is not just its own declared `shaclClosures`: it's assembled from
-the *entire* `dependsOn`/`isProfileOf` chain (the same chain `shaclShapes` is inherited across —
+the *entire* chain of dependencies (`dependsOn`, `isProfileOf` and `isDescribedBy`; the same chain `shaclShapes` is inherited across —
 see [imports-profiles.md](../imports-profiles.md)), and from more than just `shaclClosures`. For
 every block in that chain (including itself), the closure graph picks up:
 

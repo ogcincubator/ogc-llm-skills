@@ -127,9 +127,9 @@ Per packaging.md, do not overwrite the schema.org context. Instead:
    `myreg.catalog.record.rich-ld`. Give it its own `schema.yaml` that composes the target —
    `allOf: [{ $ref: bblocks://myreg.catalog.record }]` — since that composition is what makes the
    postprocessor assemble its context against the schema's own and, per the last-branch-wins rule, let
-   its `title`/`keywords` mappings win over the inherited schema.org ones. `dependsOn` the ontology
-   block too (its terms aren't reached through the schema graph), and `isProfileOf` the schema block
-   for register discoverability.
+   its `title`/`keywords` mappings win over the inherited schema.org ones. It declares `isDescribedBy` towards the
+   ontology block (its terms aren't reached through the schema graph) and `isProfileOf` towards the schema
+   block, for register discoverability.
 3. Warn the user that this override replaces the generic semantics for consumers who select it, while
    the schema.org mapping remains available as the default.
 

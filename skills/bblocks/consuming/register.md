@@ -49,8 +49,10 @@ metadata, an `{identifier: [url, ...]}` dict here).
 | `maturity`, `scope` | Free-text classification fields (e.g. `development`/`stable`, `stable`/`unstable`). |
 | `group`, `tags`, `highlighted`, `sources` | Display/categorization metadata. |
 | `license` | `{name?, url?}` — this block's license, already resolved from its own `bblock.json` or inherited from the register's `license` (see above). |
-| `dependsOn` | Array of identifiers this block has a runtime dependency on. |
-| `isProfileOf` | Array of identifiers this block profiles (stricter specialization). |
+| `dependsOn` | Array of `bblocks://` URIs of every direct dependency of this block — including the targets of `isProfileOf` and `isDescribedBy`. |
+| `isProfileOf` | Array of `bblocks://` URIs of the blocks this block profiles (stricter specialization). |
+| `isDescribedBy` | Array of `bblocks://` URIs of the model blocks (ontology, conceptual model) that describe this block. |
+| `hasFormat` | Array of identifiers of blocks that represent the same content in an alternate format. |
 | `extensionPoints` | Substitution mappings letting this block's schema swap in a different block at a defined extension point. |
 | `transforms` | Array of declared reusable conversion steps for this block — see [transforms.md](transforms.md) for how to run them yourself. |
 | `schema` | `{mediatype: url}` dict — the **annotated** schema. See [schema-integration.md](schema-integration.md). |
@@ -90,7 +92,7 @@ tool consumes the register. Both `bblocks-client-python` and `bblocks-viewer` do
 ## Finding a block outside a known register
 
 Everything above only finds a block if you already know which register (or import chain) it lives in. If you need
-to resolve a `bblocks://` reference, a `dependsOn`/`isProfileOf` identifier, or just search by keyword, and it
+to resolve a `bblocks://` reference, a `dependsOn`/`isProfileOf`/`isDescribedBy` identifier, or just search by keyword, and it
 isn't in any register you're already walking, the
 [OGC Building Blocks meta-register](https://w3id.org/ogc/bblocks/meta-register/) crawls and indexes every register in
 the ecosystem — not just the ones a given register happens to `import`. Query it via:
@@ -110,13 +112,8 @@ is planned. The w3id.org URLs above are stable even if the deployment behind the
 ## Relationships between blocks
 
 These are derived from fields already present on each summary — there is no separate relationship
-graph file:
-
-| Relationship | Field(s) |
-|---|---|
-| Plain dependency | `dependsOn` (set of identifiers) |
-| Profile (specialization) | `isProfileOf` |
-| Extension point | `extensionPoints` (base block + extension source/target identifiers) |
+graph file. [relationships.md](relationships.md) lists every relationship type, its direction, and how
+the viewer draws it: `dependsOn`, `isProfileOf`, `isDescribedBy`, `hasFormat` and `extensionPoints`.
 
 When walking dependencies across registers, stop expanding into a register you didn't import yourself
 unless you actually need transitive detail — `bblocks-viewer` defaults to this behavior (only

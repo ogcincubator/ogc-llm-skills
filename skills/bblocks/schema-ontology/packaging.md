@@ -21,10 +21,10 @@ the alternative:
 - **Inline in the target schema block.** The ontology terms and the `context.jsonld` are authored inside
   the existing schema block. Simplest, but the ontology is then not independently reusable.
 
-When you create a new ontology block, it **must be listed as a dependency** of whatever block contains
-the JSON-LD mapping — because the mapping references the ontology's terms and cannot be resolved without
-it. Declare the dependency the normal way (a `bblocks://` reference / the block's `dependsOn` /
-`imports`, per `bblocks-authoring`).
+When you create a new ontology block, the block that contains the JSON-LD mapping declares
+`isDescribedBy` pointing at it (per `bblocks-authoring`). The mapping references the ontology's terms
+and cannot be resolved without it; `isDescribedBy` is also a dependency, so nothing else needs to be
+declared (no `dependsOn` entry), apart from `imports` if the ontology block lives in another register.
 
 ---
 
@@ -33,7 +33,7 @@ it. Declare the dependency the normal way (a `bblocks://` reference / the block'
 The context that binds schema→ontology can sit in one of two places:
 
 **A. In the schema block.** The schema block's own `context.jsonld` maps its owned properties to the
-ontology's terms. The schema block depends on the ontology block. Good default when there is one
+ontology's terms. The schema block declares `isDescribedBy` towards the ontology block. Good default when there is one
 natural mapping for the schema.
 
 **B. In a dedicated JSON-LD mapping block.** The context is packaged as its **own building block.**
@@ -46,14 +46,32 @@ Give the mapping block a `schema.yaml` of its own that `allOf`/`$ref`s the targe
 (`bblocks://<schema-block>`) — that schema composition is what makes the postprocessor assemble the
 mapping block's context against the schema's own and, in the override case, win per the postprocessor's
 branch-order rule. Set `isProfileOf` on the mapping block too, so the relationship is recorded in the
-register for discovery. Separately, `dependsOn` the ontology block — its terms aren't reached through
-the schema graph, so a plain dependency reference is enough there.
+register for discovery. Declare `isDescribedBy` on the mapping block, pointing at the ontology block —
+the ontology's terms aren't reached through the schema graph, so this link is what makes the ontology a
+dependency of the mapping block.
 
 ```
-ontology block  ─────────dependsOn───────┐  (reusable vocabulary; no context)
-                                          ▼
-schema block  ──allOf/$ref──►  JSON-LD mapping block  ──►  binds schema properties to ontology terms
+schema block  ◄──allOf/$ref──  JSON-LD mapping block  ──isDescribedBy──►  ontology block
+                               (binds schema properties                   (reusable vocabulary;
+                                to ontology terms)                         no context)
 ```
+
+---
+
+## One ontology, many schemas
+
+The same model is often encoded by several different schemas. Keep **one ontology block** for it and let
+every schema point at it, instead of copying the vocabulary into each schema block:
+
+- Each schema (arrangement A) or its mapping block (arrangement B) declares `isDescribedBy` towards the
+  same ontology block, and has its **own** `context.jsonld` binding that schema's properties to the
+  ontology's terms. Property names can differ between schemas; they bind to the same terms.
+- The ontology block becomes the hub for the model: every schema that describes it is listed against it
+  (the viewer shows them as the blocks it "describes"), terms are defined once, and data in any of the
+  schemas uplifts to the same classes and properties.
+- A schema's binding to the ontology can be **overridden**: add an override mapping block for that schema
+  (arrangement B) that re-maps its properties, leaving the original binding available to consumers
+  who want it. The warning and procedure are in the next section.
 
 ---
 
@@ -109,4 +127,5 @@ a demonstration of the payoff, not a required part of the outcome. Design the on
 | Vocabulary useful only to this one schema | Inline in schema block (option 1). |
 | Reusable vocabulary, one natural mapping | Ontology block + context in schema block (option 2 / A). |
 | Multiple or alternative mappings for a schema | Ontology block + dedicated mapping block(s) (option 2 / B). |
-| Overriding a generic/default (e.g. schema.org) mapping with a richer one | Ontology block + **override** mapping block; warn the user (see above). |
+| Several schemas encode the same model | One ontology block; each schema (or its mapping block) declares `isDescribedBy` towards it. |
+| Overriding a generic/default (e.g. schema.org) mapping, or a schema's existing binding, with a richer one | Ontology block + **override** mapping block; warn the user (see above). |

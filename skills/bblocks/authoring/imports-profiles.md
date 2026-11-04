@@ -94,9 +94,9 @@ beyond experimentation — check `status` before committing to a dependency.
 ### What importing gives you
 
 - `bblocks://` URIs in schema `$ref` are resolved to the imported block's annotated schema URL.
-- `bblocks://` URIs in metadata fields (`isProfileOf`, `dependsOn`, `extensionPoints`) are resolved to the referenced block. Bare identifiers are also accepted in these fields, but `bblocks://` URIs are preferred for consistency.
+- `bblocks://` URIs in metadata fields (`isProfileOf`, `isDescribedBy`, `dependsOn`, `hasFormat`, `extensionPoints`) are resolved to the referenced block. Bare identifiers are also accepted in these fields, but `bblocks://` URIs are preferred for consistency.
 - The schema `$ref` pulls in the imported block's semantic annotations, which feed this block's assembled JSON-LD context. See [semantic-uplift.md](semantic/uplift.md).
-- The imported block's SHACL shapes are inherited for validation, via `dependsOn`/`isProfileOf` — see below on how a schema `$ref` gets added there automatically.
+- The imported block's SHACL shapes are inherited for validation, via `dependsOn`, `isProfileOf` or `isDescribedBy` — see below on how a schema `$ref` gets added there automatically.
 - The imported block's SHACL closure graph — declared `shaclClosures`, its `ontology`, and any
   RDF (not e.g. CSV/NetCDF) `resources` with `role: data` — is inherited too. See
   [semantic/shacl.md](semantic/shacl.md#inheritance).
@@ -139,15 +139,56 @@ block's JSON Schema (using `allOf` and additional constraints) and SHACL shapes.
 
 ---
 
-## `isProfileOf` vs. `dependsOn`
+## `isDescribedBy` — linking a schema to its model
 
-| | `isProfileOf` | `dependsOn` |
-|-|---------------|-------------|
-| Semantic meaning | This block specialises (is a stricter subset of) the referenced block | This block requires the referenced block, without necessarily specialising it |
-| Inherits SHACL shapes | Yes — both fields are walked the same way for shape inheritance | Yes |
-| Constraint relationship | Implied (profile is stricter) | None |
+A schema block can be linked to the **model block** (an ontology or conceptual model) that describes it.
+Declare the relationship on the schema block, pointing at the model block; the model block needs no
+change:
 
-JSON-LD context inheritance isn't tied to either field: it comes from resolving `$ref`/`allOf` in the
+```json
+{
+  "isDescribedBy": ["bblocks://myreg.models.forest-ontology"]
+}
+```
+
+A single `bblocks://` URI or bare identifier is accepted too, and a list can name several model blocks.
+The same model can be described by many schemas: each of them declares `isDescribedBy` towards the
+same model block, and tools list those schemas on the model block as the blocks it "describes".
+
+`isDescribedBy` is also a dependency: you don't need to list the model block in `dependsOn`.
+
+---
+
+## `hasFormat` — alternate formats of the same content
+
+`hasFormat` links blocks that represent the same content in different formats (for example a JSON and
+an XML encoding of one model). They are siblings: neither profiles nor depends on the other.
+
+```json
+{
+  "hasFormat": ["myreg.features.feature-xml"]
+}
+```
+
+Declare it on every sibling you want linked, since it is not inferred from the other side.
+
+---
+
+## `isProfileOf`, `isDescribedBy` and `dependsOn`
+
+| | `isProfileOf` | `isDescribedBy` | `dependsOn` |
+|-|---------------|-----------------|-------------|
+| Semantic meaning | This block specialises (is a stricter subset of) the referenced block | This schema is described by the referenced model block | This block requires the referenced block, without specialising or being described by it |
+| Declared on | The profile | The schema | Any block |
+| Also listed in the published `dependsOn` | Yes | Yes | — |
+| Inherits SHACL shapes and closures | Yes | Yes | Yes |
+| Constraint relationship | Implied (profile is stricter) | None | None |
+
+All three are followed in the same way for inheritance. When a pair of blocks is related by several of them,
+tools such as the viewer show the most specific one (`isDescribedBy`, then `isProfileOf`, then `dependsOn`);
+see `relationships.md` in the `bblocks-consuming` skill.
+
+JSON-LD context inheritance isn't tied to any of these fields: it comes from resolving `$ref`/`allOf` in the
 schema itself, per [semantic-uplift.md](semantic/uplift.md). You rarely need to declare `dependsOn` by
 hand for a block already reachable through a schema `$ref`, either — see
 [below](#bblocks-uri-scheme-in-schemas).

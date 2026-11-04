@@ -27,7 +27,7 @@ this works against any published register, not just one you authored.
 
 | Viewer tab | Underlying output | Relevant skill page |
 |---|---|---|
-| About | description, dependency graph (`dependsOn`/`isProfileOf`/extension points) | [register.md](register.md) |
+| About | description, dependency graph (`dependsOn`/`isProfileOf`/`isDescribedBy`/`hasFormat`/extension points; see [relationships.md](relationships.md)) | [register.md](register.md) |
 | Examples | bundled example snippets; GeoJSON examples render on a map with semantically-enriched popups via [jsonld-ui-utils](https://github.com/ogcincubator/jsonld-ui-utils) | [examples-and-docs.md](examples-and-docs.md), [semantic-uplift.md](semantic-uplift.md#displaying-uplifted-data) |
 | Data structure | resolved schema properties, tabular | [schema-integration.md](schema-integration.md) |
 | JSON Schema | source vs. annotated schema, YAML/JSON toggle, clickable `$ref`s | [schema-integration.md](schema-integration.md) |

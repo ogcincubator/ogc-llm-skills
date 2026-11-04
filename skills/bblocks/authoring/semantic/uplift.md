@@ -80,7 +80,7 @@ additionalSteps:
 
 A post-processing step (`shacl`, `sparql-construct`, `sparql-update` — not `jq`) can mark itself
 `inheritable: true`. A block that depends on or profiles it (directly or transitively via
-`dependsOn`/`isProfileOf`) can then opt in to running that step as part of its own uplift, via its own
+`dependsOn`, `isProfileOf` or `isDescribedBy`) can then opt in to running that step as part of its own uplift, via its own
 `inheritedPostSteps` property:
 
 ```yaml

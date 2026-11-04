@@ -75,8 +75,8 @@ Schema:
 
 ### Lifecycle and relationships
 
-> **Cross-block references:** fields that reference other blocks (`isProfileOf`, `dependsOn`,
-> `predecessor`, `successor`, `seeAlso`) accept either a `bblocks://` URI (e.g.
+> **Cross-block references:** fields that reference other blocks (`isProfileOf`, `isDescribedBy`, `dependsOn`,
+> `hasFormat`, `predecessor`, `successor`, `seeAlso`) accept either a `bblocks://` URI (e.g.
 > `bblocks://ogc.geo.features.feature`) or a bare identifier (e.g. `ogc.geo.features.feature`).
 > **Prefer `bblocks://` URIs** — they are consistent with schema `$ref` usage and make it
 > unambiguous that the value is a block reference rather than a free-text string.
@@ -85,9 +85,11 @@ Schema:
 |-------|-------------|
 | `predecessor` | `bblocks://` URI or bare identifier of the block this one supersedes; full URI for external resources. |
 | `successor` | `bblocks://` URI or bare identifier of the block that supersedes this one; full URI for external resources. |
-| `dependsOn` | Array of `bblocks://` URIs (or bare identifiers) for blocks this one has a runtime dependency on (distinct from `isProfileOf`). **Omit blocks already referenced via `bblocks://` in `schema.yaml`/`schema.json`** — per [imports-profiles.md](imports-profiles.md), a schema `$ref` alone resolves the block and inherits its context and SHACL shapes; listing it again in `dependsOn` is redundant. Reserve `dependsOn` for dependencies invisible to the schema graph: transform-time or narrative-only prerequisites. |
+| `dependsOn` | Array of `bblocks://` URIs (or bare identifiers) for blocks this one depends on. The postprocessor fills it in with every block referenced via `bblocks://` in `schema.yaml`/`schema.json` and every `isProfileOf` and `isDescribedBy` target, so **omit all of those**: per [imports-profiles.md](imports-profiles.md), a schema `$ref` alone resolves the block and inherits its context and SHACL shapes. Declare `dependsOn` only for dependencies invisible to the schema graph: transform-time or narrative-only prerequisites. |
 | `seeAlso` | Array of `bblocks://` URIs or bare identifiers for related blocks, or full URIs for external resources. |
 | `isProfileOf` | `bblocks://` URI(s) (or bare identifier(s)) of the block(s) this one profiles — a stricter, backward-compatible specialization. See [imports-profiles.md](imports-profiles.md). |
+| `isDescribedBy` | `bblocks://` URI(s) (or bare identifier(s)) — a single value or an array — of the model block(s) (ontology, conceptual model) that describe this block. Declared on the schema block; the model block needs no change. See [imports-profiles.md](imports-profiles.md#isdescribedby--linking-a-schema-to-its-model). |
+| `hasFormat` | Array of `bblocks://` URIs or bare identifiers of blocks that represent the same content in an alternate format (siblings, not profiles). Declare it on every sibling. See [imports-profiles.md](imports-profiles.md#hasformat--alternate-formats-of-the-same-content). |
 
 ### Schema and API artifacts
 
