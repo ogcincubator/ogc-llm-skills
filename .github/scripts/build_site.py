@@ -222,7 +222,7 @@ llms_txt = f"""\
 # OGC LLM Skills
 
 > Reusable reference skills for LLM tooling — domain knowledge packs that can
-> be installed as custom skills in Claude Code or any compatible agent.
+> be installed as custom skills in Claude Code, OpenCode, or any compatible agent.
 
 This file is an installation guide for an agent acting on a user's explicit
 request to install one or more of these skills (e.g. "install the bblocks-authoring
@@ -233,7 +233,8 @@ asked for a skill from this repository.
 ## Installation
 
 Each skill zip contains a single top-level directory named after the skill
-(kebab-case). Extract it directly into `~/.claude/skills`:
+(kebab-case). Extract it directly into `~/.claude/skills` (OpenCode also scans this
+directory; alternatively use `~/.config/opencode/skills` for OpenCode only):
 
 ```
 mkdir -p ~/.claude/skills
@@ -299,52 +300,69 @@ To check whether installed skills are up to date:
 print("  wrote: llms.txt")
 
 
-def install_block(npx_cmd: str, gh_cmd: str, unix_cmd: str, win_cmd: str) -> str:
-    npx_esc = html_lib.escape(npx_cmd)
-    gh_esc = html_lib.escape(gh_cmd)
-    unix_esc = html_lib.escape(unix_cmd)
-    win_esc = html_lib.escape(win_cmd)
-    npx_attr = html_lib.escape(npx_cmd, quote=True)
-    gh_attr = html_lib.escape(gh_cmd, quote=True)
-    unix_attr = html_lib.escape(unix_cmd, quote=True)
-    win_attr = html_lib.escape(win_cmd, quote=True)
-    return f"""\
-  <div class="install-block">
-    <div class="install-header">
-      <span class="install-title">Install on Claude Code</span>
-      <div class="os-tabs">
-        <button class="os-tab" data-os="npx">npx skills</button>
-        <button class="os-tab" data-os="gh">gh skill</button>
-        <button class="os-tab" data-os="unix">macOS / Linux</button>
-        <button class="os-tab" data-os="win">Windows</button>
-      </div>
-    </div>
-    <div class="install-cmd" data-os="npx">
+# Agent -> (label, POSIX skills dir, Windows skills dir under %USERPROFILE%)
+AGENTS = {
+    "claude-code": ("Claude Code", "~/.claude/skills", "\\.claude\\skills"),
+    "opencode": ("OpenCode", "~/.config/opencode/skills", "\\.config\\opencode\\skills"),
+}
+METHODS = {
+    "npx": "npx skills",
+    "gh": "gh skill",
+    "unix": "zip download (macOS / Linux)",
+    "win": "zip download (Windows)",
+}
+METHOD_NOTES = {
+    "npx": (
+        "Installs straight from source — skips the <code>.version</code> file and "
+        "\"Updating this skill\" section baked into the zip. Use a zip download for those."
+    ),
+    "gh": (
+        "Uses the GitHub CLI's <code>gh skill</code> extension (preview, subject to change) — "
+        "installs straight from source like <code>npx skills</code>. Requires "
+        '<a href="https://cli.github.com/manual/gh_skill_install">gh</a> with the '
+        "<code>skill</code> command."
+    ),
+}
+
+
+def install_commands(zip_url: str, zip_name: str, npx_cmd: str, gh_cmd: str) -> dict:
+    """Return {(agent, method): command} for every agent/method combination."""
+    cmds = {}
+    for agent, (_, posix_dir, win_dir) in AGENTS.items():
+        cmds[(agent, "npx")] = f"{npx_cmd} -a {agent}"
+        cmds[(agent, "gh")] = f"{gh_cmd} --agent {agent}"
+        cmds[(agent, "unix")] = (
+            f"mkdir -p {posix_dir} && "
+            f"curl -fsSL \"{zip_url}\" -o /tmp/{zip_name} && "
+            f"unzip -q /tmp/{zip_name} -d {posix_dir}"
+        )
+        cmds[(agent, "win")] = (
+            f"New-Item -ItemType Directory -Force -Path "
+            f"\"$env:USERPROFILE{win_dir}\" | Out-Null; "
+            f"Invoke-WebRequest -Uri \"{zip_url}\" "
+            f"-OutFile \"$env:TEMP\\{zip_name}\"; "
+            f"Expand-Archive -Path \"$env:TEMP\\{zip_name}\" "
+            f"-DestinationPath \"$env:USERPROFILE{win_dir}\" -Force"
+        )
+    return cmds
+
+
+def install_block(cmds: dict) -> str:
+    """One command box per (agent, method); a global selector shows the matching one."""
+    parts = []
+    for (agent, method), cmd in cmds.items():
+        esc = html_lib.escape(cmd)
+        attr = html_lib.escape(cmd, quote=True)
+        note = METHOD_NOTES.get(method)
+        note_html = f'\n        <div class="install-note">{note}</div>' if note else ""
+        parts.append(f"""\
+    <div class="install-cmd" data-agent="{agent}" data-method="{method}">
       <div class="install-cmd-code">
-        <code>{npx_esc}</code>
-        <div class="install-note">Installs straight from source — skips the <code>.version</code> file and
-        "Updating this skill" section baked into the zip. Use the macOS/Linux or Windows tab for those.</div>
+        <code>{esc}</code>{note_html}
       </div>
-      <button class="copy-btn" data-clipboard="{npx_attr}">Copy</button>
-    </div>
-    <div class="install-cmd" data-os="gh">
-      <div class="install-cmd-code">
-        <code>{gh_esc}</code>
-        <div class="install-note">Uses the GitHub CLI's <code>gh skill</code> extension (preview, subject to
-        change) — installs straight from source like <code>npx skills</code> above. Requires
-        <a href="https://cli.github.com/manual/gh_skill_install">gh</a> with the <code>skill</code> command.</div>
-      </div>
-      <button class="copy-btn" data-clipboard="{gh_attr}">Copy</button>
-    </div>
-    <div class="install-cmd" data-os="unix">
-      <div class="install-cmd-code"><code>{unix_esc}</code></div>
-      <button class="copy-btn" data-clipboard="{unix_attr}">Copy</button>
-    </div>
-    <div class="install-cmd" data-os="win">
-      <div class="install-cmd-code"><code>{win_esc}</code></div>
-      <button class="copy-btn" data-clipboard="{win_attr}">Copy</button>
-    </div>
-  </div>"""
+      <button class="copy-btn" data-clipboard="{attr}">Copy</button>
+    </div>""")
+    return '  <div class="install-block">\n' + "\n".join(parts) + "\n  </div>"
 
 
 def skill_card(s: dict) -> str:
@@ -353,23 +371,9 @@ def skill_card(s: dict) -> str:
     url = f"{s['zip']}?v={short_sha}"
     filename = html_lib.escape(s["zip"])
     zip_url = f"{site_url}/{s['zip']}"
-    zip_name_esc = s["zip"]
-    unix_cmd = (
-        f"mkdir -p ~/.claude/skills && "
-        f"curl -fsSL \"{zip_url}\" -o /tmp/{zip_name_esc} && "
-        f"unzip -q /tmp/{zip_name_esc} -d ~/.claude/skills"
-    )
-    win_cmd = (
-        f"New-Item -ItemType Directory -Force -Path "
-        f"\"$env:USERPROFILE\\.claude\\skills\" | Out-Null; "
-        f"Invoke-WebRequest -Uri \"{zip_url}\" "
-        f"-OutFile \"$env:TEMP\\{zip_name_esc}\"; "
-        f"Expand-Archive -Path \"$env:TEMP\\{zip_name_esc}\" "
-        f"-DestinationPath \"$env:USERPROFILE\\.claude\\skills\" -Force"
-    )
     npx_cmd = f"npx skills add {repo_url}/tree/master/{s['path']}"
-    gh_cmd = f"gh skill install {repo_slug} {s['gh_skill_name']} --agent claude-code"
-    block = install_block(npx_cmd, gh_cmd, unix_cmd, win_cmd)
+    gh_cmd = f"gh skill install {repo_slug} {s['gh_skill_name']}"
+    block = install_block(install_commands(zip_url, s["zip"], npx_cmd, gh_cmd))
     return f"""\
   <div class="skill">
     <h2>{name}</h2>
@@ -383,22 +387,19 @@ cards = "\n".join(skill_card(s) for s in skills)
 
 fat_url = f"{fat_zip_name}?v={short_sha}"
 fat_zip_url = f"{site_url}/{fat_zip_name}"
-fat_unix_cmd = (
-    f"mkdir -p ~/.claude/skills && "
-    f"curl -fsSL \"{fat_zip_url}\" -o /tmp/{fat_zip_name} && "
-    f"unzip -q /tmp/{fat_zip_name} -d ~/.claude/skills/"
+fat_block = install_block(install_commands(
+    fat_zip_url,
+    fat_zip_name,
+    f"npx skills add {repo_url}/tree/master --full-depth",
+    f"gh skill install {repo_slug} --all",
+))
+
+agent_options = "\n".join(
+    f'<option value="{k}">{html_lib.escape(v[0])}</option>' for k, v in AGENTS.items()
 )
-fat_win_cmd = (
-    f"New-Item -ItemType Directory -Force -Path "
-    f"\"$env:USERPROFILE\\.claude\\skills\" | Out-Null; "
-    f"Invoke-WebRequest -Uri \"{fat_zip_url}\" "
-    f"-OutFile \"$env:TEMP\\{fat_zip_name}\"; "
-    f"Expand-Archive -Path \"$env:TEMP\\{fat_zip_name}\" "
-    f"-DestinationPath \"$env:USERPROFILE\\.claude\\skills\" -Force"
+method_options = "\n".join(
+    f'<option value="{k}">{html_lib.escape(v)}</option>' for k, v in METHODS.items()
 )
-fat_npx_cmd = f"npx skills add {repo_url}/tree/master --full-depth"
-fat_gh_cmd = f"gh skill install {repo_slug} --all --agent claude-code"
-fat_block = install_block(fat_npx_cmd, fat_gh_cmd, fat_unix_cmd, fat_win_cmd)
 
 index_html = f"""\
 <!DOCTYPE html>
@@ -422,13 +423,9 @@ index_html = f"""\
     a.download {{ display: inline-block; padding: 0.35rem 0.85rem; background: #0969da; color: #fff; border-radius: 4px; text-decoration: none; font-size: 0.9rem; white-space: nowrap; }}
     a.download:hover {{ background: #0550ae; }}
     .install-block {{ margin-top: 0.85rem; }}
-    .install-header {{ display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem; }}
-    .install-title {{ font-size: 0.82rem; font-weight: 600; color: #444; }}
-    .os-tabs {{ display: flex; border: 1px solid #d0d7de; border-radius: 4px; overflow: hidden; }}
-    .os-tab {{ padding: 0.18rem 0.6rem; font-size: 0.75rem; background: #fff; border: none; border-right: 1px solid #d0d7de; cursor: pointer; color: #555; line-height: 1.6; }}
-    .os-tab:last-child {{ border-right: none; }}
-    .os-tab.active {{ background: #0969da; color: #fff; }}
-    .os-tab:hover:not(.active) {{ background: #f0f0f0; }}
+    .install-selector {{ position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem; margin: 1rem 0; padding: 0.6rem 1rem; background: #fff; border: 1px solid #d0d7de; border-radius: 6px; font-size: 0.85rem; color: #444; }}
+    .install-selector label {{ display: flex; align-items: center; gap: 0.4rem; font-weight: 600; }}
+    .install-selector select {{ font-size: 0.85rem; padding: 0.2rem 0.4rem; border: 1px solid #d0d7de; border-radius: 4px; background: #fff; color: #1a1a1a; }}
     .install-cmd {{ display: flex; align-items: flex-start; gap: 0.5rem; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 4px; padding: 0.5rem 0.75rem; }}
     .install-cmd.hidden {{ display: none; }}
     .install-cmd-code {{ flex: 1; overflow-x: auto; }}
@@ -445,7 +442,7 @@ index_html = f"""\
   <h1>OGC LLM Skills</h1>
   <p class="intro">
     Reusable reference skills for LLM tooling. Download a zip and install it as a
-    custom skill in <a href="https://claude.ai">claude.ai</a>, Claude Code, or any
+    custom skill in <a href="https://claude.ai">claude.ai</a>, Claude Code, OpenCode, or any
     compatible tool that supports the
     <a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview">Agent Skills</a> format.
   </p>
@@ -455,6 +452,14 @@ index_html = f"""\
     <a href="llms.txt"><code>llms.txt</code></a> and ask it to download and install
     the skills you need.
   </p>
+  <div class="install-selector">
+    <label>Agent <select id="sel-agent">
+{agent_options}
+    </select></label>
+    <label>Install via <select id="sel-method">
+{method_options}
+    </select></label>
+  </div>
   <div class="all-skills">
     <div class="all-skills-top">
       <p>Download all skills in one zip — installs everything at once.</p>
@@ -468,20 +473,35 @@ index_html = f"""\
     &middot; <a href="{repo_url}">GitHub</a>
   </footer>
   <script>
-    var OS_KEY = "ogc-skills-os";
-    function setOS(os) {{
-      localStorage.setItem(OS_KEY, os);
-      document.querySelectorAll(".os-tab").forEach(function(t) {{
-        t.classList.toggle("active", t.dataset.os === os);
-      }});
+    var KEY = "ogc-skills-install";
+    var selAgent = document.getElementById("sel-agent");
+    var selMethod = document.getElementById("sel-method");
+    function saved() {{
+      try {{ return JSON.parse(localStorage.getItem(KEY)) || {{}}; }} catch (e) {{ return {{}}; }}
+    }}
+    function update() {{
+      try {{
+        localStorage.setItem(KEY, JSON.stringify({{ agent: selAgent.value, method: selMethod.value }}));
+      }} catch (e) {{}}
       document.querySelectorAll(".install-cmd").forEach(function(el) {{
-        el.classList.toggle("hidden", el.dataset.os !== os);
+        el.classList.toggle("hidden",
+          el.dataset.agent !== selAgent.value || el.dataset.method !== selMethod.value);
       }});
     }}
-    document.querySelectorAll(".os-tab").forEach(function(btn) {{
-      btn.addEventListener("click", function() {{ setOS(btn.dataset.os); }});
-    }});
-    setOS(localStorage.getItem(OS_KEY) || "npx");
+    function guessMethod() {{
+      return /Win/i.test(navigator.userAgent) ? "win" : "npx";
+    }}
+    function setIfValid(sel, v) {{
+      if (v && Array.prototype.some.call(sel.options, function(o) {{ return o.value === v; }})) {{
+        sel.value = v;
+      }}
+    }}
+    var st = saved();
+    setIfValid(selAgent, st.agent);
+    setIfValid(selMethod, st.method || guessMethod());
+    selAgent.addEventListener("change", update);
+    selMethod.addEventListener("change", update);
+    update();
     document.querySelectorAll(".copy-btn").forEach(function(btn) {{
       btn.addEventListener("click", function() {{
         navigator.clipboard.writeText(btn.dataset.clipboard).then(function() {{

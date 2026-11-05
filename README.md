@@ -98,6 +98,18 @@ Expand-Archive -Path bblocks-authoring.zip -DestinationPath "$env:USERPROFILE\.c
 
 Claude Code discovers skills automatically at startup.
 
+### OpenCode
+
+[OpenCode](https://opencode.ai/docs/skills/) reads the same skill format and also scans the
+Claude-compatible directories, so the Claude Code steps above work unchanged
+(`~/.claude/skills` or `.claude/skills`). To use OpenCode's own locations instead, extract the zip into
+`~/.config/opencode/skills` (global) or `.opencode/skills` (project):
+
+```bash
+mkdir -p ~/.config/opencode/skills
+unzip bblocks-authoring.zip -d ~/.config/opencode/skills
+```
+
 ### Claude API
 
 Upload the skill via the Skills API and reference it in your requests.
