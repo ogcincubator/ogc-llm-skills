@@ -127,6 +127,15 @@ The subject nodes are typically blank nodes or URIs from `@id` values in the JSO
 
 ---
 
+## Severity (`sh:Warning` / `sh:Info`)
+
+Shapes may set `sh:severity sh:Warning` or `sh:Info` for advisory constraints. By default (`shacl.allow-warnings: true` in
+`bblocks-config.yaml`) such results are reported (marked as warnings) but don't fail the block; only `sh:Violation` does.
+Set it to `false` to make any result fail. A `-fail` test must produce a real error, so with the default, one that only
+triggers warnings counts as failed.
+
+---
+
 ## SHACL validation vs. JSON Schema validation
 
 | | JSON Schema | SHACL |

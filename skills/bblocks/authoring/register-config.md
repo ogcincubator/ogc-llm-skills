@@ -41,6 +41,11 @@ license:
 # Generate OAS 3.0-compatible schemas in addition to the default OAS 3.1 output (optional)
 schema-oas30-downcompile: false
 
+# SHACL validation settings (optional)
+shacl:
+  allow-warnings: true     # default true: sh:Warning / sh:Info results are reported but don't fail the block;
+                           # false: any SHACL result fails it
+
 # Viewer settings (optional)
 viewer:
   show-imported-depth: 0   # 0 = local only, N = N levels deep, -1 = all
@@ -97,6 +102,14 @@ postprocessor refreshes it and retries once before giving up. `"default"` itself
 way when a meta-registry is available, but — unlike an explicit `@org/register` alias — falls back
 to a hardcoded main-register URL on any failure instead of failing the build. Set
 `meta-registry: null` to disable alias resolution entirely (any `@org/register` import then fails).
+
+### `shacl.allow-warnings`
+
+Default `true`. SHACL results with severity `sh:Warning` or `sh:Info` are listed in the validation report (entries carry
+`"severity": "warning"|"info"`), and the block is shown as *passed with warnings*, but only `sh:Violation` results (or an
+unknown/custom severity) fail it. Set to `false` to make any SHACL result fail the block (warnings are still labeled as
+such). With `true`, a `-fail` test resource that only triggers warnings is reported as failed, since it produced no real
+violation. This key has no CLI flag or workflow input; it is only read from `bblocks-config.yaml`.
 
 ### `license`
 

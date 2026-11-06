@@ -97,6 +97,11 @@ the whole file — query it with `jq` instead:
 }
 ```
 
+Entries may also carry `"severity": "info" | "warning" | "error"` (SHACL results and the allowed-empty-graph note);
+an entry with `"isError": false` and `"severity": "warning"` is advisory and did **not** fail the block. Each item
+and each block also has `"hasWarnings": true` when it passed but has at least one such warning, so a passing block
+may still be worth a look: `jq '[.bblocks | to_entries[] | select(.value.hasWarnings) | .key]' build/tests/report.json`.
+
 Every entry with `"isError": true` is an actual failure; everything else (the majority of the file) is
 passing-step noise. Go straight to the failures:
 

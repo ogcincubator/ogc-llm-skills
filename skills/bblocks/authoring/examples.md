@@ -101,6 +101,24 @@ Prefixes can be declared at the top level (apply to all examples) or inside a sp
 
 ---
 
+## Examples that produce no triples (`allow-empty-graph`)
+
+An example whose semantic uplift yields an empty RDF graph is an error by default (usually the context mapped
+nothing). For legitimately empty ones (e.g. a bare `{"@id": "..."}` reference) set `allow-empty-graph: true` on the
+example (not per snippet): the empty graph is then a warning and does not fail the block, independently of
+`shacl.allow-warnings`. No SHACL validation runs on an empty graph.
+
+```yaml
+examples:
+  - title: Reference to a published term
+    allow-empty-graph: true
+    snippets:
+      - language: json
+        code: '{ "@id": "http://example.com/term" }'
+```
+
+---
+
 ## Per-snippet SHACL closures
 
 A snippet can declare its own `shacl-closure`: a list of Turtle documents (paths relative to
