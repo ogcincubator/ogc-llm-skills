@@ -88,7 +88,7 @@ the whole file — query it with `jq` instead:
           "sections": [
             { "name": "FILES", "entries": [ { "op": "...", "isError": false, "message": "..." } ] },
             { "name": "JSON_SCHEMA", "entries": [ { "op": "validation", "isError": true, "message": "...", "errorMessage": "..." } ] },
-            { "name": "SHACL", "entries": [ { "op": "shacl-report", "isError": true, "graph": "...", "message": "..." } ] }
+            { "name": "SHACL", "entries": [ { "op": "shacl-result", "isError": true, "severity": "error", "focusNode": "...", "resultPath": "...", "sourceShapeDescription": "...", "resultMessage": "...", "message": "..." } ] }
           ]
         }
       ]
@@ -123,8 +123,7 @@ jq '.bblocks["<bblock-id>"].items[].sections[].entries[] | select(.isError == tr
 ```
 
 A `JSON_SCHEMA` error entry carries `errorMessage` (the jsonschema exception message) and `exception`
-(the exception class). A `SHACL` error entry carries `graph` (the full SHACL validation report as
-Turtle — parse `sh:resultMessage`/`sh:resultPath`/`sh:focusNode` from it) rather than a flat message.
+(the exception class). Each SHACL result is its own entry (`op: "shacl-result"`) with its own `severity` and `isError`, and structured fields: `focusNode`, `resultPath`, `sourceConstraintComponent`, `sourceShapeDescription` (which shape produced it), `value` and `resultMessage`; `message` has the same information as readable text. A single `op: "shacl-report"` entry per SHACL file summarizes the counts and carries `graph` (the full SHACL report as Turtle).
 
 ### Spotting SHACL shapes that pass vacuously
 
