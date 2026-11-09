@@ -8,7 +8,9 @@ what downstream consumers should reference, and with understanding what gets dep
 ## Output root
 
 The postprocessor writes everything to `build/` (or `build-local/` when run with a local base URL).
-The `build/` directory is committed and tracked by git so that GitHub Pages can deploy it.
+In the default `deploy.mode: artifact`, the `build/` directory is committed and tracked by git so that GitHub
+Pages can deploy it. With `deploy.mode: branch` (see [register-config.md](register-config.md#deploy)) it is not
+committed to the source branch: CI publishes the site to a separate branch (`gh-pages` by default) instead.
 
 **Never edit `build/` by hand.** It is fully regenerated on each postprocessing run.
 
@@ -105,7 +107,8 @@ Transform outputs (from `transforms.yaml`) are written to `build/tests/{block-id
 
 ## What gets deployed to GitHub Pages
 
-The `build/` directory is deployed as-is. Static assets from block `assets/` directories are also
+The `build/` directory is deployed as-is (in `deploy.mode: artifact` through a Pages artifact, in `branch`
+mode by mirroring the site into the Pages branch). Static assets from block `assets/` directories are also
 deployed directly (not under `build/`), alongside the GitHub Pages index.
 
 The building blocks viewer (`ghcr.io/ogcincubator/bblocks-viewer`) reads `register.json` and renders

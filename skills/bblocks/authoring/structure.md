@@ -28,7 +28,7 @@ my-bblocks-repo/
         semantic-uplift.yaml # semantic uplift config → semantic/uplift.md
         assets/              # static files (images, etc.) — no fixed name required
         description.md       # long-form Markdown block docs → see below
-  build/                     # NEVER edit — postprocessor output committed for CI/GitHub Pages → outputs.md
+  build/                     # NEVER edit — postprocessor output; committed for CI/GitHub Pages unless deploy.mode is "branch" → outputs.md
   build-local/               # gitignored local postprocessor output; inspect here when iterating locally → local-iteration.md, outputs.md
 ```
 

@@ -9,7 +9,9 @@ upstream.
 ## The problem: `build/` merge conflicts
 
 The postprocessing workflow commits its output (`build/`) to your fork on every push (see
-[outputs.md](outputs.md)). If you open a Pull Request straight from your fork's `master`/`main`
+[outputs.md](outputs.md)) — unless the register uses `deploy.mode: branch`
+([register-config.md](register-config.md#deploy)), in which case `build/` is never committed to the
+source branch and this problem (and `create-clean-pr.sh`) doesn't apply. If you open a Pull Request straight from your fork's `master`/`main`
 branch, those generated artifacts get dragged into the review and collide with the same directory
 on the upstream register — creating merge conflicts that have nothing to do with your actual
 change.

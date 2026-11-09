@@ -61,6 +61,11 @@ gh api -X PUT repos/<owner>/<name>/pages -f build_type=workflow
 If `gh` isn't available, tell the user to do it manually: **Settings → Pages → Source** and select
 **GitHub Actions**.
 
+Alternatively, if the user wants build output kept off the source branch, use `deploy: {mode: branch}`
+in `bblocks-config.yaml` instead: the Pages source is then **Deploy from a branch** (`gh-pages`, `/ (root)`),
+which can only be set after the first workflow run has created the branch. See
+[register-config.md](register-config.md#deploy).
+
 ---
 
 ## Human setup
@@ -72,6 +77,7 @@ If `gh` isn't available, tell the user to do it manually: **Settings → Pages �
 2. Name your repository and create it under your account or org.
 3. Enable GitHub Pages: **Settings → Pages → Source → GitHub Actions** (or run
    `gh api -X POST repos/<owner>/<repo>/pages -f build_type=workflow` if you have the `gh` CLI).
+   To publish to a `gh-pages` branch instead, see [`deploy`](register-config.md#deploy).
 
 ### 2. Clone the repository locally
 
@@ -213,8 +219,9 @@ Use `--log-level DEBUG` on the postprocessor for verbose output when debugging.
 ## 9. Commit and push
 
 The GitHub Actions workflow in the template will run automatically on push, post-process all blocks,
-and deploy the output to GitHub Pages. The workflow commits the generated outputs
-(`register.json`, per-block index files, etc.) back to the branch, so the remote will have moved
+and deploy the output to GitHub Pages. By default the workflow commits the generated outputs
+(`register.json`, per-block index files, etc.) back to the branch (not with `deploy.mode: branch`, which
+publishes to `gh-pages` instead), so the remote will have moved
 ahead of your local branch after CI finishes. Run `git pull -r` (or a pull with merge) before
 pushing further source changes, or the push will be rejected as non-fast-forward.
 

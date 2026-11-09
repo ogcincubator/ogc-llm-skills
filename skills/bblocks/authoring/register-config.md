@@ -58,6 +58,11 @@ viewer:
       export: MyTabPlugin
       weight: 100
 
+# Deployment (optional) — see `deploy` below
+deploy:
+  mode: artifact           # "artifact" (default) or "branch"
+  branch: gh-pages         # only used in "branch" mode; default gh-pages
+
 # SPARQL push (optional — see section below)
 sparql:
   push:  https://example.com/gsp
@@ -118,6 +123,28 @@ as shorthand for `{ name: <string> }`. Applies to the register as a whole and, u
 every block in it (a block's own `license` in `bblock.json` takes precedence — see
 [metadata.md](metadata.md)). If `url` is omitted and a `LICENSE`, `LICENSE.md` or `LICENSE.txt`
 file exists at the repository root, its published URL is filled in automatically.
+
+### `deploy`
+
+Controls how the CI workflow (`validate-and-process.yml`) publishes the built site:
+
+- `mode: artifact` (default) — commits `build/` back to the source branch and deploys the site through
+  GitHub Actions (Pages **Source = GitHub Actions**).
+- `mode: branch` — publishes the site to a separate branch (`deploy.branch`, default `gh-pages`) and does
+  **not** commit `build/` to the source branch. Pages **Source = Deploy from a branch** (that branch, `/ (root)`).
+
+Setup for `branch` mode:
+1. Set `deploy: {mode: branch}` in `bblocks-config.yaml` and push. The first run creates the branch and
+   warns that Pages isn't serving it yet. (Pages can't be pointed at a branch that doesn't exist.)
+2. Set Pages to deploy from that branch: **Settings → Pages → Source → Deploy from a branch**, or
+   `gh api -X PUT repos/<owner>/<repo>/pages -f build_type=legacy -f 'source[branch]=gh-pages' -f 'source[path]=/'`
+   (use `-X POST` if Pages isn't enabled yet).
+3. Re-run the workflow. From then on each run fails early if Pages is not serving the configured branch.
+
+To switch an existing register, also stop tracking `build/` on the source branch: add `build/` to
+`.gitignore` and run `git rm -r --cached build`. With a custom domain, pass the `base_url` workflow input.
+`deploy.branch` must differ from the branch being built. `bblocks-config-override.yml` applies to `deploy`
+as for other keys. See [outputs.md](outputs.md#what-gets-deployed-to-github-pages).
 
 ### `viewer.show-imported-depth`
 
