@@ -110,16 +110,21 @@ Return a list of entry dicts:
 
 ```python
 [
-    {"message": "File is valid", "is_error": False},
-    {"message": "Checksum mismatch", "is_error": True},
-    {"message": "Invalid geometry on line 3", "is_error": True, "payload": {"line": 3}},
+    {"message": "File is valid", "severity": "info"},
+    {"message": "Checksum mismatch", "severity": "error"},
+    {"message": "Timestamps are in the future", "severity": "warning"},
+    {"message": "Invalid geometry on line 3", "severity": "error", "payload": {"line": 3}},
 ]
 ```
+
+- `severity`: `"info"`, `"warning"` or `"error"` (case-insensitive). Only `error` entries fail validation; `warning` entries are advisory (reported as warnings, block still passes).
+- Legacy `is_error` (bool) is still accepted when `severity` is absent (`True` → `error`, `False` → `info`). If both are given and disagree, `severity` wins. An unrecognized `severity` is ignored (note added to the message) and falls back to `is_error`.
+- `severity` needs bblocks-postprocess ≥ v1.2.4; older versions ignore it, so send `is_error` too if the plugin must run on them.
 
 - Return `None` or `[]` — validator did not apply or found nothing to flag (not an error).
 - Raise any exception — unexpected failure; full traceback is captured and reported as an error.
 
-`payload` is optional structured metadata for each entry.
+`payload` is optional structured metadata, merged into the entry in the JSON report. `"subsection"` groups entries under a sub-heading in the HTML report. The keys `op`, `isError`, `severity`, `message` and `plugin` are reserved and ignored. Entries always go in the **Plugin** section (no `section` key).
 
 ---
 
@@ -185,10 +190,10 @@ class ZipValidator:
             with zipfile.ZipFile(meta.input_path) as zf:
                 bad_file = zf.testzip()
         except zipfile.BadZipFile as exc:
-            return [{'message': f'Invalid ZIP: {exc}', 'is_error': True}]
+            return [{'message': f'Invalid ZIP: {exc}', 'severity': 'error'}]
         if bad_file is not None:
-            return [{'message': f'Corrupt entry: {bad_file}', 'is_error': True}]
-        return [{'message': 'ZIP is valid', 'is_error': False}]
+            return [{'message': f'Corrupt entry: {bad_file}', 'severity': 'error'}]
+        return [{'message': 'ZIP is valid', 'severity': 'info'}]
 ```
 
 A real-world example with multiple validators (ZIP, WKT geometry, XSD):
@@ -205,7 +210,7 @@ A real-world example with multiple validators (ZIP, WKT geometry, XSD):
 
 ## Reports
 
-Entries produced by plugins appear in a **Plugin** section of the HTML and text reports.
+Entries produced by plugins appear in a **Plugin** section of the HTML, text and JSON reports (with their `severity`).
 Each entry is attributed to `module.ClassName` for traceability.
 
 To see plugin `print()` output, run the postprocessor with `--log-level DEBUG`.
