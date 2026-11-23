@@ -130,6 +130,10 @@ The data resource is published in the register entry and `build/` output. `rdfDa
 with `role: data` and `format: text/turtle`) — it may appear in older repositories but new blocks
 should use `resources` directly.
 
+To load these RDF data resources into a triplestore, set `sparql.resources.data: true` in
+`bblocks-config.yaml` — one graph per block, `urn:ogc:bblocks/<id>/data`, no entailment (see
+[register-config.md](register-config.md#sparql-push)).
+
 A `role: data` resource whose `format` is an RDF serialization also feeds this block's SHACL
 closure graph, inherited by dependents the same way as `ontology` — see
 [semantic/shacl.md](semantic/shacl.md#inheritance). Non-RDF data resources (CSV, NetCDF, etc.)

@@ -70,6 +70,7 @@ sparql:
   query: https://example.com/sparql
   resources:
     ontologies: true
+    data: true
 ```
 
 ### `identifier-prefix`
@@ -183,7 +184,14 @@ sparql:
   query: https://example.com/sparql # SPARQL query endpoint (informational — written to register.json)
   resources:
     ontologies: true   # Also upload ontology files (not just block metadata)
+    data: true         # Also upload RDF `role: data` resources (not just block metadata)
 ```
+
+`resources.ontologies` loads each block's ontology into its own graph (`urn:ogc:bblocks/<id>/ontology`,
+entailed against the SKOS/vocab profiles). `resources.data` merges every `resources` entry with `role: data`
+and an RDF `format` (e.g. `text/turtle`; non-RDF data such as CSV is skipped) into one graph per block
+(`urn:ogc:bblocks/<id>/data`), with no entailment — use it for instance data that isn't an ontology. The graph
+is replaced on each load, so changed or removed resources don't leave stale triples.
 
 `push` is the only field required to enable uploading. `graph` is recommended to avoid
 collisions when multiple registers share a triplestore.
