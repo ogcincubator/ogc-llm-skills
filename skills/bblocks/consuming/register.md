@@ -63,11 +63,37 @@ metadata, an `{identifier: [url, ...]}` dict here).
 | `ontology` | URL to an RDF ontology file, for RDF-only blocks. |
 | `shaclShapes` | `{identifier: [url, ...]}` dict of SHACL shape files. See [validation.md](validation.md#shacl-validation). |
 | `resolvedSchemaProperties` | URL of a flattened, tabular view of schema properties (what the viewer's "Data structure" tab renders). |
-| `resources` | Array of external artifacts (data files, vocabularies, ...). |
+| `resources` | Array of external artifacts (data files, vocabularies, specifications, ...). See [`resources` entries](#resources-entries) below. |
 | `sourceFiles` | URL/path to the block's source directory in its repo. |
 | `validationPassed` | Boolean — whether the block's own bundled examples currently validate. |
 | `testOutputs` | URL to this block's test resources. |
 | `documentation` | Dict keyed by doc type (`json-full`, `markdown`, `bblocks-viewer`) → `{mediatype, url}`. See [examples-and-docs.md](examples-and-docs.md). |
+
+### `resources` entries
+
+Each entry of a block's `resources` array is an object:
+
+| Field | Always present | Description |
+|-------|----------------|-------------|
+| `role` | yes | What the resource is for: a short name (`data`, `example`, `guidance`, `mapping`, `schema`, `specification`, `validation`, `vocabulary`, `constraints`) or, for specialised roles, a full URI. Dispatch on this. |
+| `ref` | yes | URL of the resource. Files that live in the block's source directory are published as absolute URLs when the register has a base URL; external resources keep their original URL. |
+| `format` | yes | MIME type, e.g. `text/turtle`, `application/ld+json`, `text/csv`, `text/html`. Check it before parsing: a `data` resource isn't necessarily RDF. |
+| `title` | no | Human-readable label. |
+| `conformsTo` | no | URI of the profile or specification the resource conforms to. |
+
+```json
+"resources": [
+  { "role": "data", "ref": "https://example.org/register/.../data.ttl", "format": "text/turtle" },
+  { "role": "specification", "ref": "https://example.org/my-spec.html", "format": "text/html", "title": "Specification" }
+]
+```
+
+- `role: data` with an RDF format (`text/turtle`, `application/rdf+xml`, `application/ld+json`, ...) is instance or
+  background RDF. A `data.ttl` file in the block directory and the deprecated `rdfData` property both appear as
+  `role: data`, `format: text/turtle` entries, so there is no separate field to check.
+- The array lists only what the block itself declares. Resources of blocks it depends on (`dependsOn`,
+  `isProfileOf`, `isDescribedBy`) are not copied in; walk the dependencies if you need them.
+- Registers may load RDF `data` resources into a triplestore, one graph per block (`urn:ogc:bblocks/<id>/data`).
 
 ## Resolving imports
 
