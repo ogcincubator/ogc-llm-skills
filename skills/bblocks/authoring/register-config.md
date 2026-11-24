@@ -169,6 +169,17 @@ write one.
 
 ---
 
+## CI time limit
+
+`validate-and-process.yml` and `pr-check.yml` stop their processing job after 30 minutes. If a
+register legitimately takes longer (a job cancelled for exceeding its maximum execution time), pass
+`timeout_minutes` in the caller workflow (`process-bblocks.yml` or `pr-check.yml`):
+
+```yaml
+    with:
+      timeout_minutes: 60
+```
+
 ## SPARQL push
 
 When enabled, the postprocessor uploads the register's RDF output to a triplestore after each
