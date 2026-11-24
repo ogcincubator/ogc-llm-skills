@@ -75,8 +75,8 @@ Each entry of a block's `resources` array is an object:
 
 | Field | Always present | Description |
 |-------|----------------|-------------|
-| `role` | yes | What the resource is for: a short name (`data`, `example`, `guidance`, `mapping`, `schema`, `specification`, `validation`, `vocabulary`, `constraints`) or, for specialised roles, a full URI. Dispatch on this. |
-| `ref` | yes | URL of the resource. Files that live in the block's source directory are published as absolute URLs when the register has a base URL; external resources keep their original URL. |
+| `role` | yes | What the resource is for: a short name (`data`, `example`, `guidance`, `mapping`, `schema`, `specification`, `validation`, `vocabulary`, `constraints`, `requirements`, `terms`, `references`) or, for specialised roles, a full URI. Dispatch on this. |
+| `ref` | yes | URL of the resource. Files that live in the block's source directory are published as absolute URLs when the register has a base URL (otherwise as `./`-relative paths from the build output root); external resources keep their original URL. |
 | `format` | yes | MIME type, e.g. `text/turtle`, `application/ld+json`, `text/csv`, `text/html`. Check it before parsing: a `data` resource isn't necessarily RDF. |
 | `title` | no | Human-readable label. |
 | `conformsTo` | no | URI of the profile or specification the resource conforms to. |

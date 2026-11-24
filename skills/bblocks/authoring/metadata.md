@@ -136,10 +136,10 @@ Schema:
 
 #### Well-known resource roles
 
-Seven of these short names are the Resource Role instances defined by the W3C [Profiles Vocabulary
+Eight of these short names are the Resource Role instances defined by the W3C [Profiles Vocabulary
 (PROF)](https://www.w3.org/TR/dx-prof/#resource-role-instances), under the `role:` namespace
 `http://www.w3.org/ns/dx/prof/role/` — bblocks reuses PROF's terms rather than inventing its own.
-`data` is a bblocks-specific addition, not part of PROF.
+`data`, `requirements`, `terms` and `references` are bblocks-specific additions, not part of PROF.
 
 | Role | Description |
 |------|-------------|
@@ -148,8 +148,11 @@ Seven of these short names are the Resource Role instances defined by the W3C [P
 | `example` | Sample instance data conforming to the block |
 | `guidance` | Non-authoritative, human-readable documentation on how to use the block |
 | `mapping` | Describes conversions between two specifications |
+| `references` | *(not in PROF)* Bibliographic or external references related to the block |
+| `requirements` | *(not in PROF)* Requirements the block addresses or defines |
 | `schema` | Machine-readable structural description of data defined by the block (PROF alt. labels: Shape, Structure) |
 | `specification` | Authoritative, human-readable definition of the block |
+| `terms` | *(not in PROF)* Terms and definitions used by the block |
 | `validation` | Instructions for verifying conformance of data to the block; implies inclusion/import of inherited constraints — exposed to validator plugins via `meta.context.validation_resources` (see [validation-plugins.md](validation-plugins.md)) |
 | `vocabulary` | Defines terms used in the block's specification |
 
